@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายงานสรุปกลยุทธ์แคมเปญ: BKK Safety</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Prompt', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 350px; max-height: 400px; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+<body class="antialiased pb-20">
+
+    <!-- 
+    Palette Name: Vibrant Night Street (Slate 900, Red 500, Cyan 400, Yellow 400)
+    
+    Narrative & Structure Plan:
+    1. Introduction (Hero): High-impact statement of the crisis (BKK #1 Fatalities).
+    2. The Crisis Overview (Demographics & Vehicles): Showing who is dying and how. Donut chart for vehicle type. Big stats for demographics.
+    3. Key Pain Points: Horizontal bar chart revealing the top 4 causes of accidents, translating to the "Killers".
+    4. Communication Strategy & Action Plan: Using CSS grids to display the 3 TikTok content pillars and their themes without SVG or external diagrams.
+    5. Black Spots & Conclusion: Highlighting the dangerous locations and executive recommendations.
+    
+    Visualization Choices (NO SVG):
+    - Vehicle Breakdown -> Goal: Compare/Inform -> Chosen: Donut Chart (Chart.js, Canvas, NO SVG). Best for showing the massive 85% proportion of motorcycles.
+    - Accident Causes -> Goal: Compare/Rank -> Chosen: Horizontal Bar Chart (Chart.js, Canvas, NO SVG). Best for reading long labels (wrapped) and comparing volume.
+    - Strategy Flow -> Goal: Organize -> Chosen: Tailwind CSS Grid Cards (NO SVG, NO MERMAID). Cleanest way to show relationship between Theme, Content, and Location.
+    
+    Confirmation: I explicitly confirm that NEITHER Mermaid JS NOR SVG were used anywhere in this output. 
+    -->
+
+    <header class="bg-slate-900 border-b-4 border-red-500 pt-16 pb-12 px-6 text-center shadow-lg">
+        <div class="max-w-4xl mx-auto">
+            <span class="inline-block py-1 px-3 rounded-full bg-red-500/20 text-red-400 text-sm font-semibold tracking-wider mb-4 border border-red-500/50">EXECUTIVE SUMMARY REPORT</span>
+            <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-4 tracking-tight uppercase">BKK Safety</h1>
+            <h2 class="text-2xl md:text-3xl font-semibold text-cyan-400 mb-6">ไม่ทิ้งชีวิตไว้บนถนน กทม.</h2>
+            <p class="text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
+                รายงานฉบับย่อสรุปวิกฤตการณ์อุบัติเหตุทางถนนในกรุงเทพมหานคร พร้อมนำเสนอกลยุทธ์การสื่อสารรูปแบบใหม่ที่เน้นการ <strong>"กระแทกใจ"</strong> เพื่อเจาะกลุ่มเป้าหมายวัยรุ่นและวัยทำงานตอนต้นโดยเฉพาะ
+            </p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 md:px-8 mt-12 space-y-16">
+
+        <section>
+            <div class="mb-8">
+                <h3 class="text-3xl font-bold text-white mb-4 border-l-4 border-red-500 pl-4">1. สถานการณ์และสถิติวิกฤต</h3>
+                <p class="text-slate-300 text-lg leading-relaxed">
+                    จากการวิเคราะห์ข้อมูลอุบัติเหตุล่าสุด (ปี 2568 - ต้นปี 2569) กรุงเทพมหานครยังคงครองอันดับ 1 ในด้านความสูญเสียสูงสุดของประเทศในช่วงเทศกาลสำคัญ ข้อมูลชี้ชัดว่ากลุ่มผู้ใช้รถจักรยานยนต์ในเขตเมืองมีความเสี่ยงถึงชีวิตสูงที่สุดในสภาวะถนนโล่งยามวิกาล
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                <div class="glass-card rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-xl font-semibold text-cyan-400 mb-2">สัดส่วนยานพาหนะที่เกิดอุบัติเหตุเสียชีวิต</h4>
+                        <p class="text-sm text-slate-400 mb-6">
+                            สถิติยืนยันชัดเจนว่าแคมเปญนี้ต้องพุ่งเป้าไปที่ "ผู้ขับขี่รถจักรยานยนต์" เนื่องจากครองสัดส่วนความสูญเสียถึง 85% ของเคสเสียชีวิตทั้งหมดในพื้นที่ กทม. ซึ่งสูงกว่ายานพาหนะประเภทอื่นอย่างมีนัยสำคัญ
+                        </p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="vehicleChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="glass-card rounded-2xl p-6 shadow-xl flex flex-col justify-center text-center border-t-4 border-t-red-500">
+                        <span class="text-5xl mb-4">⚠️</span>
+                        <h4 class="text-lg font-semibold text-slate-300 mb-1">สถิติสูงสุดช่วงเทศกาล</h4>
+                        <p class="text-4xl font-extrabold text-red-500 mb-2">20 ราย</p>
+                        <p class="text-sm text-slate-400">เสียชีวิตสะสมเพียง 6 วัน<br>(ช่วงปีใหม่ 2569)</p>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-6 shadow-xl flex flex-col justify-center text-center border-t-4 border-t-cyan-400">
+                        <span class="text-5xl mb-4">👤</span>
+                        <h4 class="text-lg font-semibold text-slate-300 mb-1">กลุ่มเสี่ยงหลัก (Target)</h4>
+                        <p class="text-4xl font-extrabold text-cyan-400 mb-2">ชาย 20-29 ปี</p>
+                        <p class="text-sm text-slate-400">วัยเรียน และ First Jobber</p>
+                    </div>
+
+                    <div class="glass-card rounded-2xl p-6 shadow-xl sm:col-span-2 flex flex-col md:flex-row items-center justify-between border-t-4 border-t-yellow-400">
+                        <div class="text-left md:w-1/2 mb-4 md:mb-0">
+                            <h4 class="text-xl font-semibold text-yellow-400 mb-2">ช่วงเวลาอันตรายที่สุด</h4>
+                            <p class="text-sm text-slate-300">
+                                อุบัติเหตุรุนแรงใน กทม. ไม่ได้เกิดตอนรถติด แต่เกิดตอนรถโล่ง ซึ่งมักเกี่ยวข้องกับการดื่มและการใช้ความเร็วสูง
+                            </p>
+                        </div>
+                        <div class="md:w-1/2 text-center md:text-right">
+                            <span class="text-5xl font-extrabold text-white tracking-widest bg-slate-800 py-3 px-6 rounded-lg inline-block shadow-inner">00:00 - 05:00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mt-16">
+            <div class="mb-8">
+                <h3 class="text-3xl font-bold text-white mb-4 border-l-4 border-yellow-400 pl-4">2. ปัญหาและสาเหตุหลัก (Key Pain Points)</h3>
+                <p class="text-slate-300 text-lg leading-relaxed">
+                    การทำความเข้าใจพฤติกรรมนำไปสู่การแก้ไขที่ตรงจุด นี่คือ 4 ปัจจัยหลักที่เปลี่ยนถนนเมืองหลวงให้กลายเป็นจุดจบของวัยรุ่น การใช้ความเร็วยังคงเป็นสาเหตุอันดับ 1 ที่ตอกย้ำว่า "ถนนโล่ง" คือตัวแปรที่อันตรายที่สุด
+                </p>
+            </div>
+
+            <div class="glass-card rounded-2xl p-6 shadow-xl w-full">
+                <h4 class="text-xl font-semibold text-white mb-6">เปรียบเทียบปัจจัยที่ทำให้เกิดการเสียชีวิต</h4>
+                <div class="chart-container" style="max-width: 800px; height: 40vh;">
+                    <canvas id="causesChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="mt-16">
+            <div class="mb-8">
+                <h3 class="text-3xl font-bold text-white mb-4 border-l-4 border-cyan-400 pl-4">3. กลยุทธ์และการจัดทำคอนเทนต์ (Action Plan)</h3>
+                <p class="text-slate-300 text-lg leading-relaxed">
+                    ปรับทิศทางการสื่อสารจากการ "สอน" เป็นการ <strong>"กระแทกใจ" (Real, Street, and Irreversible)</strong> ผ่านแพลตฟอร์มวิดีโอสั้น (TikTok/Reels) โดยแบ่งเป็น 3 เสาหลักที่เชื่อมโยงกับพฤติกรรมและสถานที่จริง
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700 shadow-2xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">Theme 1</div>
+                    <div class="text-4xl mb-4 mt-2">🎮</div>
+                    <h4 class="text-2xl font-bold text-white mb-2 group-hover:text-red-400 transition-colors">Game Over</h4>
+                    <p class="text-slate-400 text-sm mb-4 border-b border-slate-700 pb-4">เปรียบชีวิตเหมือนเกมที่ไม่มีปุ่มเกิดใหม่ พลาดครั้งเดียวคือปิดตำนาน</p>
+                    <div class="mb-3">
+                        <span class="text-xs text-slate-500 uppercase tracking-wider block mb-1">Content:</span>
+                        <span class="text-cyan-400 font-semibold">"ช่องว่างมรณะ"</span>
+                        <p class="text-xs text-slate-300 mt-1">เตือนสติสายมุดเลน ตัดหน้ากระชั้นชิด</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-500 uppercase tracking-wider block mb-1">Location Focus:</span>
+                        <span class="inline-block bg-slate-700 text-slate-200 text-xs px-2 py-1 rounded mr-1 mb-1">📍 สาทร</span>
+                        <span class="inline-block bg-slate-700 text-slate-200 text-xs px-2 py-1 rounded mb-1">📍 สุขุมวิท</span>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-slate-700 shadow-2xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-yellow-500 text-black text-xs font-bold px-3 py-1 rounded-bl-lg">Theme 2</div>
