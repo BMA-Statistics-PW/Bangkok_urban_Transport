@@ -33,7 +33,7 @@ header{
 }
 .hdr-flex{display:flex;justify-content:space-between;align-items:flex-end;gap:24px}
 .hdr-badge{
-  display:inline-block;font-family:var(--mono);font-size:10px;
+  display:inline-block;font-family:var(--mono);font-size:14px;
   letter-spacing:0.12em;text-transform:uppercase;
   color:#1d4ed8;background:rgba(59,130,246,0.08);
   border:1px solid rgba(59,130,246,0.25);
@@ -41,8 +41,8 @@ header{
 }
 .hdr-title{font-size:clamp(22px,3vw,34px);font-weight:800;line-height:1.2;color:#1e293b}
 .hdr-title em{font-style:normal;color:#1d4ed8}
-.hdr-sub{font-family:var(--mono);font-size:11px;color:#64748b;margin-top:8px;letter-spacing:0.05em}
-.hdr-meta{text-align:right;font-family:var(--mono);font-size:11px;color:var(--dim);line-height:2;flex-shrink:0}
+.hdr-sub{font-family:var(--mono);font-size:14px;color:#64748b;margin-top:8px;letter-spacing:0.05em}
+.hdr-meta{text-align:right;font-family:var(--mono);font-size:14px;color:var(--dim);line-height:2;flex-shrink:0}
 .hdr-meta strong{color:#1d4ed8}
 
 /* NAV */
@@ -53,7 +53,7 @@ header{
   box-shadow:0 2px 8px rgba(0,0,0,0.04);
 }
 .nav-tab{
-  font-family:var(--mono);font-size:11px;font-weight:600;
+  font-family:var(--mono);font-size:14px;font-weight:600;
   letter-spacing:0.1em;text-transform:uppercase;
   color:var(--muted);padding:14px 22px;
   border-bottom:2px solid transparent;
@@ -73,14 +73,14 @@ header{
 
 /* SECTION */
 .sec{
-  font-family:var(--mono);font-size:11px;font-weight:600;
+  font-family:var(--mono);font-size:14px;font-weight:600;
   letter-spacing:0.18em;text-transform:uppercase;
   color:#64748b;margin-bottom:20px;
   padding-bottom:10px;border-bottom:2px solid var(--border);
   display:flex;justify-content:space-between;align-items:center;
 }
 .sec-badge{
-  font-family:var(--mono);font-size:10px;font-weight:500;
+  font-family:var(--mono);font-size:12px;font-weight:500;
   color:#15803d;background:rgba(34,197,94,0.1);
   border:1px solid rgba(34,197,94,0.25);
   padding:3px 10px;border-radius:4px;
@@ -96,7 +96,7 @@ header{
 }
 .card:hover{box-shadow:0 4px 20px rgba(0,0,0,0.07)}
 .card-title{
-  font-size:13px;font-weight:700;color:#1e293b;
+  font-size:16px;font-weight:700;color:#1e293b;
   margin-bottom:18px;display:flex;align-items:center;gap:8px;
   line-height:1.4;
 }
@@ -109,11 +109,11 @@ header{
   padding:18px 16px;
   box-shadow:0 2px 8px rgba(0,0,0,0.03);
 }
-.kpi-label{font-size:12px;color:#64748b;margin-bottom:10px;line-height:1.4;font-weight:600}
+.kpi-label{font-size:14px;color:#64748b;margin-bottom:10px;line-height:1.4;font-weight:600}
 .kpi-val{font-family:var(--mono);font-size:32px;font-weight:700;line-height:1;margin-bottom:4px}
-.kpi-unit{font-family:var(--mono);font-size:10px;color:#94a3b8;margin-bottom:10px}
+.kpi-unit{font-family:var(--mono);font-size:14px;color:#94a3b8;margin-bottom:10px}
 .kpi-delta{
-  font-family:var(--mono);font-size:10px;font-weight:600;
+  font-family:var(--mono);font-size:14px;font-weight:600;
   padding-top:8px;border-top:1px solid var(--border);
 }
 .up{color:#15803d} .down{color:#dc2626} .warn{color:#b45309}
@@ -128,7 +128,7 @@ header{
 .mode-bar{display:flex;height:44px;border-radius:8px;overflow:hidden;margin-bottom:14px;gap:2px}
 .mode-seg{
   display:flex;align-items:center;justify-content:center;
-  font-family:var(--mono);font-size:10px;font-weight:700;
+  font-family:var(--mono);font-size:14px;font-weight:700;
   color:rgba(255,255,255,0.95);transition:opacity 0.2s;
   cursor:default;flex-shrink:0;overflow:hidden;
 }
@@ -136,20 +136,20 @@ header{
 
 /* LEGEND */
 .legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
-.leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim)}
+.leg{display:flex;align-items:center;gap:6px;font-size:16px;color:var(--dim)}
 .leg-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
 
 /* TABLE */
 .tbl{width:100%;border-collapse:collapse}
 .tbl th{
-  font-family:var(--mono);font-size:10px;
+  font-family:var(--mono);font-size:14px;
   letter-spacing:0.1em;text-transform:uppercase;
   color:var(--dim);text-align:left;
   padding:10px 8px;border-bottom:2px solid var(--border);font-weight:600;
 }
 .tbl td{
   padding:9px 8px;border-bottom:1px solid var(--border);
-  font-size:12px;vertical-align:middle;color:#334155;
+  font-size:14px;vertical-align:middle;color:#334155;
 }
 .tbl tr:last-child td{border-bottom:none}
 .tbl tr:hover td{background:#f8fafc}
@@ -158,7 +158,7 @@ header{
 /* YEAR TABS */
 .yr-tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
 .yr-btn{
-  font-family:var(--mono);font-size:11px;font-weight:600;
+  font-family:var(--mono);font-size:14px;font-weight:600;
   padding:6px 16px;border:1px solid var(--border);
   background:#fff;cursor:pointer;color:var(--dim);
   transition:all 0.2s;border-radius:6px;
@@ -169,7 +169,7 @@ header{
 /* SRC TAG */
 .src{
   display:inline-flex;align-items:center;
-  font-family:var(--mono);font-size:10px;color:var(--muted);
+  font-family:var(--mono);font-size:14px;color:var(--muted);
   border:1px solid var(--border);padding:3px 8px;
   border-radius:4px;margin:2px;
 }
@@ -183,7 +183,7 @@ footer{
   background:#f1f5f9;border-top:1px solid var(--border);
   padding:24px 48px;
   display:flex;justify-content:space-between;align-items:center;
-  font-family:var(--mono);font-size:10px;color:#64748b;line-height:1.8;
+  font-family:var(--mono);font-size:14px;color:#64748b;line-height:1.8;
 }
 footer strong{color:#1d4ed8}
 
@@ -192,7 +192,7 @@ footer strong{color:#1d4ed8}
   background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.18);
   border-left:4px solid #ef4444;border-radius:8px;
   padding:12px 18px;margin-bottom:22px;
-  font-size:13px;color:#b91c1c;font-family:var(--thai);line-height:1.7;
+  font-size:16px;color:#b91c1c;font-family:var(--thai);line-height:1.7;
 }
 
 /* ANIM */
@@ -295,7 +295,7 @@ footer strong{color:#1d4ed8}
         <canvas id="overviewChart"></canvas>
       </div>
       <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:6px">
-        <span class="src">ขสมก. (ปีงบประมาณ)</span>
+        <span class="src">ขสมก.</span>
         <span class="src">กทม. / รฟม. / รฟท.</span>
         <span class="src">กรมเจ้าท่า — กทม.</span>
       </div>
@@ -310,7 +310,7 @@ footer strong{color:#1d4ed8}
   </div>
 
   <div class="card">
-    <div class="card-title">📊 สัดส่วนขนส่งสาธารณะ และ รถส่วนบุคคล — ปี 2560–2567 <span style="font-weight:400;font-size:11px;color:var(--muted)">(ที่มา: สนข. จากแบบจำลอง BTDM ปีฐาน 2565)</span></div>
+    <div class="card-title">📊 สัดส่วนขนส่งสาธารณะ และ รถส่วนบุคคล — ปี 2560–2567 <span style="font-weight:400;font-size:14px;color:var(--muted)">(ที่มา: สนข. จากแบบจำลอง BTDM ปีฐาน 2565)</span></div>
     <div class="yr-tabs" id="modeYrTabs">
       <button class="yr-btn active" onclick="showModeYear(this,7)">2567</button>
       <button class="yr-btn" onclick="showModeYear(this,6)">2566</button>
@@ -351,7 +351,7 @@ footer strong{color:#1d4ed8}
     <div style="overflow-x:auto">
       <table class="tbl" id="ridershipTable"></table>
     </div>
-    <div style="margin-top:14px;font-size:11px;color:var(--muted);line-height:1.9;font-family:var(--mono)">
+    <div style="margin-top:14px;font-size:14px;color:var(--muted);line-height:1.9;font-family:var(--mono)">
       หมายเหตุ: ขสมก. = ปีงบประมาณ (ต.ค.–ก.ย.) · อื่นๆ = ปีปฏิทิน · "—" = ยังไม่เปิดให้บริการ · N/A = ไม่มีข้อมูล<br>
       BRT ปี 2567 ไม่มีข้อมูล (ปรับเปลี่ยนระบบ) · เรือ 2568 = CSV กทม. 5 ประเภท
     </div>
@@ -381,18 +381,18 @@ footer strong{color:#1d4ed8}
 
   <div class="g2">
     <div class="card">
-      <div class="card-title">📄 รายละเอียดปี 2566 (ล้านคน-เที่ยว/ปี)<br><span style="font-weight:400;font-size:11px;color:var(--muted)">ที่มา: สนข. ข้อมูล ณ 29 พ.ค. 2568</span></div>
+      <div class="card-title">📄 รายละเอียดปี 2566 (ล้านคน-เที่ยว/ปี)<br><span style="font-weight:400;font-size:14px;color:var(--muted)">ที่มา: สนข. ข้อมูล ณ 29 พ.ค. 2568</span></div>
       <div id="detail2566"></div>
     </div>
     <div class="card">
-      <div class="card-title">📄 รายละเอียดปี 2567 (ล้านคน-เที่ยว/ปี)<br><span style="font-weight:400;font-size:11px;color:var(--muted)">ที่มา: สนข. ข้อมูล ณ 20 ม.ค. 2569</span></div>
+      <div class="card-title">📄 รายละเอียดปี 2567 (ล้านคน-เที่ยว/ปี)<br><span style="font-weight:400;font-size:14px;color:var(--muted)">ที่มา: สนข. ข้อมูล ณ 20 ม.ค. 2569</span></div>
       <div id="detail2567"></div>
     </div>
   </div>
 
   <div class="card">
     <div class="card-title">ℹ️ หมายเหตุ Methodology</div>
-    <div style="font-size:13px;color:var(--dim);line-height:2.2">
+    <div style="font-size:16px;color:var(--dim);line-height:2.2">
       <strong style="color:var(--text)">(1)</strong> ข้อมูลปีปฏิทิน 1 ม.ค. – 31 ธ.ค.<br>
       <strong style="color:var(--text)">(2)</strong> สนข. ใช้แบบจำลอง BTDM (Bangkok Travel Demand Model) ปีฐาน 2565 จากโครงการสำรวจการเดินทางในเขตกรุงเทพฯ และปริมณฑล<br>
       <strong style="color:var(--text)">(3)</strong> Trip Rate ปี 2566 = 1.49 เที่ยว/คน/วัน · ปี 2567: รถไฟฟ้า 1.15 / ขนส่งอื่น 1.38<br>
@@ -457,7 +457,7 @@ footer strong{color:#1d4ed8}
 
   <div class="card">
     <div class="card-title">⚠️ ข้อจำกัดของข้อมูล</div>
-    <div style="font-size:13px;color:var(--dim);line-height:2.3">
+    <div style="font-size:16px;color:var(--dim);line-height:2.3">
       <strong style="color:#dc2626">1.</strong> หน่วยต่างกัน: ไฟล์ผู้โดยสาร = <strong>เที่ยวคน</strong> · ไฟล์สัดส่วน = <strong>ล้านคน-เที่ยว/ปี</strong> (ปรับด้วย trip rate)<br>
       <strong style="color:#dc2626">2.</strong> ขสมก. ใช้ <strong>ปีงบประมาณ</strong> (ต.ค.–ก.ย.) ระบบรางใช้ <strong>ปีปฏิทิน</strong> (ม.ค.–ธ.ค.) — เปรียบเทียบตรงๆ ต้องระวัง<br>
       <strong style="color:#dc2626">3.</strong> BRT ปี 2567 ไม่มีข้อมูล เนื่องจากปรับเปลี่ยนระบบการให้บริการ ม.ค.–ต.ค. 2567<br>
@@ -739,18 +739,18 @@ function showModeYear(btn, idx) {
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
       <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:18px">
-        <div style="font-size:12px;color:#15803d;margin-bottom:8px;font-weight:600">ขนส่งสาธารณะ</div>
-        <div style="font-family:var(--mono);font-size:28px;font-weight:700;color:#15803d">${pt.toFixed(2)}<span style="font-size:16px">%</span></div>
-        <div style="font-size:11px;color:#64748b;margin-top:6px">${vol.toFixed(1)} ล้านคน-เที่ยว/ปี</div>
+        <div style="font-size:16px;color:#15803d;margin-bottom:8px;font-weight:600">ขนส่งสาธารณะ</div>
+        <div style="font-family:var(--mono);font-size:28px;font-weight:700;color:#15803d">${pt.toFixed(2)}<span style="font-size:20px">%</span></div>
+        <div style="font-size:14px;color:#64748b;margin-top:6px">${vol.toFixed(1)} ล้านคน-เที่ยว/ปี</div>
       </div>
       <div style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:18px">
-        <div style="font-size:12px;color:#dc2626;margin-bottom:8px;font-weight:600">รถส่วนบุคคล</div>
-        <div style="font-family:var(--mono);font-size:28px;font-weight:700;color:#dc2626">${pv.toFixed(2)}<span style="font-size:16px">%</span></div>
+        <div style="font-size:16px;color:#dc2626;margin-bottom:8px;font-weight:600">รถส่วนบุคคล</div>
+        <div style="font-family:var(--mono);font-size:28px;font-weight:700;color:#dc2626">${pv.toFixed(2)}<span style="font-size:20px">%</span></div>
       </div>
       <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.18);border-radius:10px;padding:18px">
-        <div style="font-size:12px;color:#1d4ed8;margin-bottom:8px;font-weight:600">ปีที่แสดงข้อมูล</div>
+        <div style="font-size:16px;color:#1d4ed8;margin-bottom:8px;font-weight:600">ปีที่แสดงข้อมูล</div>
         <div style="font-family:var(--mono);font-size:26px;font-weight:700;color:#1d4ed8">พ.ศ. ${yr}</div>
-        <div style="font-size:11px;color:#64748b;margin-top:6px">สนข. แบบจำลอง BTDM</div>
+        <div style="font-size:14px;color:#64748b;margin-top:6px">สนข. แบบจำลอง BTDM</div>
       </div>
     </div>`;
 }
@@ -919,20 +919,20 @@ function renderDetail(elId, data) {
   el.innerHTML = data.map(d=>`
     <div style="margin-bottom:11px">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">
-        <span style="font-size:12px;color:#334155">${d.n}</span>
-        <span style="font-family:var(--mono);font-size:12px;color:#1d4ed8;font-weight:600">${d.v.toFixed(2)}</span>
+        <span style="font-size:14px;color:#334155">${d.n}</span>
+        <span style="font-family:var(--mono);font-size:14px;color:#1d4ed8;font-weight:600">${d.v.toFixed(2)}</span>
       </div>
       <div class="pbar">
         <div class="pbar-fill" style="width:${(d.v/maxV*100).toFixed(1)}%;background:${d.v>200?'#22c55e':d.v>50?'#3b82f6':'#a855f7'}"></div>
       </div>
-      <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px">
+      <div style="font-family:var(--mono);font-size:14px;color:var(--muted);margin-top:2px">
         ${(d.v/total*100).toFixed(1)}% ของรวม · ${d.s}
       </div>
     </div>`).join('')+
   `<div style="border-top:2px solid var(--border);padding-top:10px;margin-top:6px;
     display:flex;justify-content:space-between;align-items:baseline">
-    <span style="font-size:13px;font-weight:700;color:#1e293b">รวมทั้งสิ้น</span>
-    <span style="font-family:var(--mono);font-size:15px;font-weight:700;color:#15803d">${total.toFixed(2)} ล้านคน-เที่ยว/ปี</span>
+    <span style="font-size:16px;font-weight:700;color:#1e293b">รวมทั้งสิ้น</span>
+    <span style="font-family:var(--mono);font-size:18px;font-weight:700;color:#15803d">${total.toFixed(2)} ล้านคน-เที่ยว/ปี</span>
   </div>`;
 }
 renderDetail('detail2566', D2566);
@@ -982,17 +982,17 @@ function renderAnnual(idx) {
     <div class="card">
       <div class="card-title">
         📊 ปี พ.ศ. ${y} — ผู้โดยสารรายระบบ (ล้านเที่ยวคน/ปี)
-        ${isCovid  ?'<span style="background:#dc2626;color:#fff;font-size:10px;padding:3px 10px;border-radius:4px;margin-left:8px;font-family:var(--mono)">⚠ COVID-19</span>':''}
-        ${isPreCov ?'<span style="background:#f59e0b;color:#fff;font-size:10px;padding:3px 10px;border-radius:4px;margin-left:8px;font-family:var(--mono)">⚠ ได้รับผลกระทบ COVID-19 ปลายปี</span>':''}
-        ${is2568   ?'<span style="background:#1d4ed8;color:#fff;font-size:10px;padding:3px 10px;border-radius:4px;margin-left:8px;font-family:var(--mono)">● ข้อมูลล่าสุด</span>':''}
+        ${isCovid  ?'<span style="background:#dc2626;color:#fff;font-size:14px;padding:3px 10px;border-radius:4px;margin-left:8px;font-family:var(--mono)">⚠ COVID-19</span>':''}
+        ${isPreCov ?'<span style="background:#f59e0b;color:#fff;font-size:14px;padding:3px 10px;border-radius:4px;margin-left:8px;font-family:var(--mono)">⚠ ได้รับผลกระทบ COVID-19 ปลายปี</span>':''}
+        ${is2568   ?'<span style="background:#1d4ed8;color:#fff;font-size:14px;padding:3px 10px;border-radius:4px;margin-left:8px;font-family:var(--mono)">● ข้อมูลล่าสุด</span>':''}
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px">
         ${rows.map(r=>`
           <div style="background:#f8fafc;border:1px solid var(--border);border-left:4px solid ${r[2]};
             border-radius:10px;padding:14px">
-            <div style="font-size:12px;color:#64748b;margin-bottom:6px;font-weight:600">${r[0]}</div>
+            <div style="font-size:16px;color:#64748b;margin-bottom:6px;font-weight:600">${r[0]}</div>
             <div style="font-family:var(--mono);font-size:26px;font-weight:700;color:${r[2]}">${r[1].toFixed(1)}</div>
-            <div style="font-size:10px;color:var(--muted);margin-top:3px">ล้านเที่ยวคน · ${(r[1]/total*100).toFixed(1)}%</div>
+            <div style="font-size:14px;color:var(--muted);margin-top:3px">ล้านเที่ยวคน · ${(r[1]/total*100).toFixed(1)}%</div>
             <div class="pbar" style="margin-top:8px">
               <div class="pbar-fill" style="width:${(r[1]/maxV*100).toFixed(0)}%;background:${r[2]}"></div>
             </div>
@@ -1000,15 +1000,15 @@ function renderAnnual(idx) {
       </div>
       <div style="margin-top:18px;padding-top:14px;border-top:2px solid var(--border);
         display:flex;justify-content:space-between;align-items:baseline">
-        <span style="font-size:13px;color:var(--dim)">รวมทุกระบบ (ข้อมูลที่มี)</span>
+        <span style="font-size:16px;color:var(--dim)">รวมทุกระบบ (ข้อมูลที่มี)</span>
         <span style="font-family:var(--mono);font-size:20px;font-weight:700;color:#15803d">${total.toFixed(1)} ล้านเที่ยวคน/ปี</span>
       </div>
       ${isCovid?`<div class="covid-note" style="margin-top:16px;margin-bottom:0">
         ⚠️ <strong>เหตุการณ์ COVID-19</strong> — การระบาดของโรคติดเชื้อไวรัสโคโรนา 2019
         มาตรการล็อกดาวน์ส่งผลให้ตัวเลขต่ำกว่าปกติ ไม่ควรนำมาเปรียบเทียบกับปีอื่น</div>`:''}
       ${is2568?`<div style="margin-top:14px;background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.18);
-        border-left:4px solid #3b82f6;border-radius:8px;padding:10px 14px;font-size:12px;color:#1e40af;line-height:1.8">
-        * เรือโดยสาร 2568: CSV กทม. รวม 5 ประเภท — เรือข้ามฟาก 18.33 | เรือด่วนเจ้าพระยา 6.72 | 
+        border-left:4px solid #3b82f6;border-radius:8px;padding:10px 14px;font-size:14px;color:#1e40af;line-height:1.8">
+        * เรือโดยสาร 2568: รวม 5 ประเภท — เรือข้ามฟาก 18.33 | เรือด่วนเจ้าพระยา 6.72 | 
         คลองแสนแสบ 11.48 | เรือไฟฟ้า 1.61 | เรือภัตตาคาร 2.57 ล้านเที่ยว</div>`:''}
     </div>`;
 }
