@@ -54,7 +54,7 @@ header {
   position: relative; z-index: 2;
   background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
   border-bottom: 2px solid #e2e8f0;
-  padding: 36px 48px 28px;
+  padding: 36px 46px 28px;
 }
 
 .hdr-flex { display: flex; justify-content: space-between; align-items: flex-end; }
@@ -64,7 +64,7 @@ header {
   letter-spacing: 0.2em; text-transform: uppercase;
   color: #1d4ed8; background: rgba(59,130,246,0.08);
   border: 1px solid rgba(59,130,246,0.25);
-  padding: 4px 12px; margin-bottom: 14px; border-radius: 2px;
+  padding: 4px 16px; margin-bottom: 16px; border-radius: 2px;
 }
 
 .hdr-title {
@@ -75,7 +75,7 @@ header {
 .hdr-title em { font-style: normal; color: #1d4ed8; }
 
 .hdr-sub {
-  font-family: var(--mono); font-size: 10px;
+  font-family: var(--mono); font-size: 12px;
   color: var(--muted); margin-top: 8px; letter-spacing: 0.05em;
 }
 
@@ -91,7 +91,7 @@ header {
   position: sticky; top: 0; z-index: 10;
   background: #ffffff;
   border-bottom: 1px solid var(--border);
-  display: flex; gap: 0; padding: 0 48px;
+  display: flex; gap: 0; padding: 0 46px;
   overflow-x: auto;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
@@ -356,14 +356,14 @@ footer strong { color: #1d4ed8; }
     </div>
     <div class="kpi">
       <div style="position:absolute;top:0;left:0;right:0;height:2px;background:#ec4899"></div>
-      <div class="kpi-label">MRT สายสีชมพู (2568)</div>
+      <div class="kpi-label">MRT สายสีชมพู</div>
       <div class="kpi-val" style="color:#ec4899">21.5</div>
       <div class="kpi-unit">ล้านเที่ยวคน/ปี (2568)</div>
       <div class="kpi-delta up">▲ +6.3% จาก 20.2 ล. (2567)</div>
     </div>
     <div class="kpi">
       <div style="position:absolute;top:0;left:0;right:0;height:2px;background:#facc15"></div>
-      <div class="kpi-label">MRT สายสีเหลือง (2568)</div>
+      <div class="kpi-label">MRT สายสีเหลือง</div>
       <div class="kpi-val" style="color:#b45309">16.2</div>
       <div class="kpi-unit">ล้านเที่ยวคน/ปี (2568)</div>
       <div class="kpi-delta up">▲ +13.4% จาก 14.3 ล. (2567)</div>
@@ -373,8 +373,8 @@ footer strong { color: #1d4ed8; }
   <!-- COVID note -->
   <div class="covid-note">
     ⚠️ <strong>ปี 2563–2564: เหตุการณ์ COVID-19</strong> — การแพร่ระบาดของโรคติดเชื้อไวรัสโคโรนา 2019 ส่งผลให้ผู้โดยสารลดลงอย่างรุนแรงในทุกระบบขนส่งสาธารณะ
-    โดยเฉพาะ <strong>ปี 2564</strong> ที่มีมาตรการล็อกดาวน์และระงับการเดินทาง ตัวเลขปีดังกล่าวจึงต่ำผิดปกติและไม่ควรนำมาเปรียบเทียบกับปีอื่น &nbsp;|&nbsp;
-    ⚠️ <strong>ปี 2568:</strong> BTS สีทอง = 11 เดือน · เรือโดยสาร = CSV กทม. (5 ประเภท รวม 40.72 ล้านเที่ยว)
+    โดยเฉพาะ <strong>ปี 2564</strong> ที่มีมาตรการล็อกดาวน์-ตัวเลขปีดังกล่าวจึงน้อยกว่าปกติ ไม่ควรนำมาเปรียบเทียบกับปีอื่น &nbsp;|&nbsp;
+    ⚠️ <strong>ปี 2568:</strong> BTS สีทอง = 12 เดือน · เรือโดยสาร = CSV กทม. (5 ประเภท รวม 40.72 ล้านเที่ยว)
   </div>
 
   <div class="g21">
@@ -393,7 +393,7 @@ footer strong { color: #1d4ed8; }
 
     <!-- 2567 breakdown donut -->
     <div class="card">
-      <div class="card-title">🥧 สัดส่วนผู้โดยสาร ปี 2568 (เที่ยวคน — ระบบที่มีข้อมูล)</div>
+      <div class="card-title">🥧 สัดส่วนผู้โดยสาร ปี 2568 (เที่ยวคน)</div>
       <div class="ch-wrap" style="height:260px">
         <canvas id="donut2567"></canvas>
       </div>
@@ -403,7 +403,7 @@ footer strong { color: #1d4ed8; }
 
   <!-- Modal share over time -->
   <div class="card">
-    <div class="card-title">📊 สัดส่วนขนส่งสาธารณะ vs. รถส่วนบุคคล — ปี 2560–2567 (ที่มา: สนข. แบบจำลอง BTDM)</div>
+    <div class="card-title">📊 สัดส่วนขนส่งสาธารณะ กับรถส่วนบุคคล — ปี 2560–2567 (ที่มา: สนข. จากแบบจำลอง BTDM)</div>
     <div class="yr-tabs" id="modeYrTabs">
       <button class="yr-btn active" onclick="showModeYear(this,7)">2567</button>
       <button class="yr-btn" onclick="showModeYear(this,6)">2566</button>
@@ -426,7 +426,7 @@ footer strong { color: #1d4ed8; }
 <div class="panel" id="panel-ridership">
 <div class="wrap">
 
-  <div class="sec">ผู้โดยสารรายสาย — รายปี 2556–2568 (ล้านเที่ยวคน) <span class="sec-badge">ข้อมูลทางการจากผู้ประกอบการ</span></div>
+  <div class="sec">ผู้โดยสารรายสาย — รายปี 2556–2568 (ล้านเที่ยวคน) <span class="sec-badge">ข้อมูลทางการ</span></div>
 
   <div class="g2">
     <div class="card">
@@ -450,8 +450,7 @@ footer strong { color: #1d4ed8; }
     </div>
     <div style="margin-top:12px;font-family:var(--mono);font-size:9px;color:var(--muted);line-height:1.8">
       หมายเหตุ: ขสมก. = ปีงบประมาณ (ต.ค.–ก.ย.) · อื่นๆ = ปีปฏิทิน (ม.ค.–ธ.ค.) · "—" = ยังไม่เปิดให้บริการ · N/A = ไม่มีข้อมูล<br>
-      BRT ปี 2567 ไม่มีข้อมูล (ปรับเปลี่ยนระบบ) · BTS_gold 2568 = 11 เดือน · ARL/SRT/เรือ 2568 = ยังไม่มีข้อมูล ณ วันที่จัดทำ<br>
-      ปี 2568: คำนวณจากการรวมรายเดือนในไฟล์ข้อมูล สจส.
+      BRT ปี 2567 ไม่มีข้อมูล (ปรับเปลี่ยนระบบ) <br>
     </div>
   </div>
 
@@ -464,7 +463,7 @@ footer strong { color: #1d4ed8; }
 <div class="panel" id="panel-modal">
 <div class="wrap">
 
-  <div class="sec">สัดส่วนรูปแบบการเดินทาง กรุงเทพฯ และปริมณฑล <span class="sec-badge">ที่มา: สนข. แบบจำลอง BTDM ปีฐาน 2565</span></div>
+  <div class="sec">สัดส่วนรูปแบบการเดินทาง กรุงเทพฯ และปริมณฑล <span class="sec-badge">ที่มา: สนข. จากแบบจำลอง BTDM ปีฐาน 2565</span></div>
 
   <div class="g2">
     <div class="card">
@@ -562,7 +561,7 @@ footer strong { color: #1d4ed8; }
           <tr><td><span class="dot-sm" style="background:#facc15"></span>MRT สีเหลือง</td><td>รฟม.</td><td>2567–2568</td></tr>
           <tr><td><span class="dot-sm" style="background:#ec4899"></span>MRT สีชมพู</td><td>รฟม.</td><td>2567–2568</td></tr>
           <tr><td><span class="dot-sm" style="background:#06b6d4"></span>ARL</td><td>รฟท. / กรมการขนส่งทางราง</td><td>2556–2567</td></tr>
-          <tr><td><span class="dot-sm" style="background:#ef4444"></span>SRT Red Line</td><td>รฟฟท. / กรมการขนส่งทางราง</td><td>2564–2567</td></tr>
+          <tr><td><span class="dot-sm" style="background:#ef4444"></span>SRT Red Line</td><td>รฟฟท. / กรมการขนส่งทางราง</td><td>2564–2568</td></tr>
           <tr><td><span class="dot-sm" style="background:#0ea5e9"></span>เรือข้ามฟาก</td><td>กรมเจ้าท่า</td><td>2556–2567</td></tr>
         </tbody>
       </table>
@@ -574,7 +573,7 @@ footer strong { color: #1d4ed8; }
     <div style="font-size:12px;color:var(--dim);line-height:2.2">
       <strong style="color:#ef4444">1.</strong> หน่วยไม่เหมือนกัน: ไฟล์ 1 = <strong style="color:var(--text)">เที่ยวคน (trip)</strong> · ไฟล์ 2 = <strong style="color:var(--text)">ล้านคน-เที่ยว/ปี</strong> (ปรับด้วย trip rate)<br>
       <strong style="color:#ef4444">2.</strong> ขสมก. ใช้ <strong style="color:var(--text)">ปีงบประมาณ</strong> (ต.ค.–ก.ย.) ขณะที่ระบบรางใช้ <strong style="color:var(--text)">ปีปฏิทิน</strong> (ม.ค.–ธ.ค.) — เปรียบเทียบโดยตรงต้องระวัง<br>
-      <strong style="color:#ef4444">3.</strong> BRT ปี 2567 ไม่มีข้อมูลในไฟล์ต้นฉบับ<br>
+      <strong style="color:#ef4444">3.</strong> BRT ปี 2567 ไม่มีข้อมูล<br>
       <strong style="color:#ef4444">4.</strong> สัดส่วนปี 2567 (11.7%) ต่ำกว่าปี 2566 เนื่องจากปรับ methodology BTDM ไม่ใช่ผู้โดยสารลดลงจริง<br>
       <strong style="color:#ef4444">5.</strong> เรือโดยสาร ปี 2560–2568: ใช้ข้อมูลจาก CSV กทม. (5 ประเภท) | ปี 2556–2559: เฉพาะเรือข้ามฟาก จาก Ferry sheet xlsx<br>
       <strong style="color:#ef4444">6.</strong> ไม่รวม: รถตู้โดยสาร, รถไฟระหว่างเมือง, สองแถว, มอเตอร์ไซค์รับจ้าง<br>
@@ -588,12 +587,12 @@ footer strong { color: #1d4ed8; }
 <!-- FOOTER -->
 <footer>
   <div>
-    ข้อมูลจาก: สถิติจำนวนผู้โดยสารที่ใช้บริการระบบขนส่งสาธารณะในกรุงเทพมหานคร (สจส.) · สัดส่วนการเดินทางด้วยระบบขนส่งสาธารณะในเขตเมือง (สนข.)<br>
-    ข้อมูล ณ: 20 มกราคม 2569 (ปี 2567) · 29 พฤษภาคม 2568 (ปี 2566) · หน่วยเป็นเที่ยวคน และ ล้านคน-เที่ยว/ปี ตามที่ระบุ
+    ข้อมูลจาก: สถิติจำนวนผู้โดยสารที่ใช้บริการระบบขนส่งสาธารณะในกรุงเทพมหานคร (สจส.) (หน่วยเป็นเที่ยวคน) · สัดส่วนการเดินทางด้วยระบบขนส่งสาธารณะในเขตเมือง (สนข.) (หน่วยเป็นล้านคน-เที่ยว/ปี)<br>
+             
   </div>
   <div style="text-align:right">
     <strong>© Prapawadee_W.</strong><br>
-    กลุ่มงานสถิติและวิจัย · กองนโยบายและแผนงาน · สจส. · กทม.
+    กลุ่มงานสถิติและวิจัย · กองนโยบายและแผนงาน · สำนักการจราจรและขนส่ง · กรุงเทพมหานคร
   </div>
 </footer>
 
@@ -908,7 +907,7 @@ function showModeYear(btn, idx) {
       <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.25);padding:16px;">
         <div style="font-size:11px;color:#60a5fa;margin-bottom:6px">ปี / ที่มา</div>
         <div style="font-family:var(--mono);font-size:22px;font-weight:600;color:#60a5fa">พ.ศ. ${yr}</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:4px">สนข. แบบจำลอง BTDM</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">สนข. จากแบบจำลอง BTDM</div>
       </div>
     </div>
   `;
