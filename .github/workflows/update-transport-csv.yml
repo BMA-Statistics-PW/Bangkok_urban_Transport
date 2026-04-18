@@ -20,14 +20,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Download latest CSV files
+      - name: Refresh local CSV files
         run: |
           set -euo pipefail
-          mkdir -p dashboard-template/data
-
-          curl -fL "https://docs.google.com/spreadsheets/d/1fOIvRw9bxC1DOWCnTN8hVW2Z8L4n6ICgzD_WxgIDYt0/gviz/tq?tqx=out:csv" -o dashboard-template/data/transport_share.csv
-          curl -fL "https://docs.google.com/spreadsheets/d/1OV02tcFrMC6_gNKoHrb3K8mheRallx0cwYsFjZFqNb4/gviz/tq?tqx=out:csv&sheet=Report" -o dashboard-template/data/transport_report.csv
+          chmod +x scripts/update_transport_csv.sh
+          ./scripts/update_transport_csv.sh
 
       - name: Commit and push if data changed
         run: |
