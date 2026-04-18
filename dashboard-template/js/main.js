@@ -53,17 +53,30 @@ class Dashboard {
     for (const ds of (this.config.datasets || [])) {
       const rows = await this.loadCSV(ds.dataPath);
       const transformed = this.transformReportRows(rows, ds.systemCol || 0);
+      const normalizedDataset = this.normalizeDatasetValues(transformed.dataset, ds.valueScale);
       this.datasetStore[ds.id] = {
         rawRows: rows,
-        dataset: transformed.dataset,
+        dataset: normalizedDataset,
         years: transformed.years,
-        systems: transformed.systems
+        systems: transformed.systems,
+        valueScale: this.getValueScale(ds.valueScale)
       };
 
       if (ds.id === 'share') {
         this.modalSeries = this.extractModalSeries(rows, ds.systemCol || 0);
       }
     }
+  }
+
+  getValueScale(scale) {
+    const n = Number(scale);
+    return Number.isFinite(n) && n > 0 ? n : 1;
+  }
+
+  normalizeDatasetValues(dataset, scale) {
+    const factor = this.getValueScale(scale);
+    if (factor === 1) return dataset;
+    return dataset.map(item => ({ ...item, value: item.value * factor }));
   }
 
   async switchDataset(datasetId) {

@@ -14,6 +14,7 @@
       "label": "สัดส่วนการเดินทางด้วยระบบขนส่งสาธารณะในเขตเมืองต่อการเดินทางในกรุงเทพฯ และปริมณฑล",
       "dataPath": "data/transport_share.csv",
       "dataUnit": "ล้านคน-เที่ยว/ปี",
+      "valueScale": 1,
       "systemCol": 0,
       "sourceName": "Google Sheet: Travel Share",
       "_source": "https://docs.google.com/spreadsheets/d/1fOIvRw9bxC1DOWCnTN8hVW2Z8L4n6ICgzD_WxgIDYt0"
@@ -22,7 +23,8 @@
       "id": "report",
       "label": "ตารางเปรียบเทียบจำนวนผู้โดยสารที่ใช้ระบบขนส่งสาธารณะในกรุงเทพมหานคร",
       "dataPath": "data/transport_report.csv",
-      "dataUnit": "ราย/ปี",
+      "dataUnit": "ล้านคน-เที่ยว/ปี",
+      "valueScale": 0.000001,
       "systemCol": 1,
       "sourceName": "Google Sheet: Report",
       "_source": "https://docs.google.com/spreadsheets/d/1OV02tcFrMC6_gNKoHrb3K8mheRallx0cwYsFjZFqNb4"
