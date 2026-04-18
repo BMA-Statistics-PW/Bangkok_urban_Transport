@@ -450,7 +450,11 @@ class Dashboard {
   renderOverviewNote() {
     const el = document.getElementById('overview-note');
     if (!el) return;
-    el.innerHTML = '⚠️ <strong>ปี 2563-2564: เหตุการณ์ COVID-19</strong> ข้อมูลผู้โดยสารลดลงผิดปกติ ไม่ควรเทียบตรงกับปีปกติ &nbsp;|&nbsp; ⚠️ <strong>ปี 2556-2559:</strong> ข้อมูลเรือเป็นเฉพาะเรือข้ามฟาก';
+    const overview = this.getOverviewContext();
+    const latest = overview.years[overview.years.length - 1];
+    const ferry = overview.dataset.find(d => /เรือ/.test(d.system) && d.year === latest)?.value;
+    const ferryText = Number.isFinite(ferry) ? `${this.formatDisplayValue(ferry)} ล้านเที่ยว` : '-';
+    el.innerHTML = `⚠️ <strong>ปี 2563–2564: เหตุการณ์ COVID-19</strong> — การแพร่ระบาดส่งผลให้ตัวเลขผู้โดยสารลดลงผิดปกติ ไม่ควรนำไปเปรียบเทียบกับปีอื่น &nbsp;|&nbsp; ⚠️ <strong>ปี ${latest}:</strong> ข้อมูลเรือโดยสาร ${ferryText}`;
   }
 
   renderOverviewModeDisplay() {
@@ -465,6 +469,13 @@ class Dashboard {
 
     if (!Number.isFinite(this.modeSelectedYear) || !this.modalSeries.years.includes(this.modeSelectedYear)) {
       this.modeSelectedYear = this.modalSeries.years[this.modalSeries.years.length - 1];
+    }
+
+    const modeTitle = document.getElementById('overview-mode-title');
+    if (modeTitle) {
+      const minY = this.modalSeries.years[0];
+      const maxY = this.modalSeries.years[this.modalSeries.years.length - 1];
+      modeTitle.innerHTML = `📊 สัดส่วนผู้ใช้ระบบขนส่งสาธารณะ และ รถส่วนบุคคล — ปี ${minY}-${maxY} <span style="font-weight:400;font-size:14px;color:var(--muted)">(ที่มา: สนข. จากแบบจำลอง BTDM ปีฐาน 2565)</span>`;
     }
 
     tabs.innerHTML = [...this.modalSeries.years].reverse().map(y =>
@@ -535,13 +546,55 @@ class Dashboard {
     if (typeof Chart === 'undefined') return;
 
     const overview = this.getOverviewContext();
+    const minYear = overview.years[0];
     const latest = overview.years[overview.years.length - 1];
     const latestRows = overview.dataset.filter(d => d.year === latest).sort((a, b) => b.value - a.value);
 
-    this.renderMainBar(latestRows, latest, overview.unit);
+    const mainTitle = document.getElementById('overview-main-title');
+    if (mainTitle) {
+      mainTitle.textContent = `📊 จำนวนผู้โดยสารรายปี เปรียบเทียบทุกระบบ ปี ${minYear}-${latest} (ล้านเที่ยวคน)`;
+    }
+    const donutTitle = document.getElementById('overview-donut-title');
+    if (donutTitle) {
+      donutTitle.textContent = `🥧 สัดส่วนผู้โดยสาร ปี ${latest}`;
+    }
+
+    this.renderOverviewComparisonChart(overview);
     this.renderDonut(latestRows, latest);
-    this.renderTopSystemsTrend(overview);
-    this.renderYearTotals(overview);
+  }
+
+  renderOverviewComparisonChart(overview) {
+    const canvas = document.getElementById('main-chart');
+    if (!canvas) return;
+
+    const latest = overview.years[overview.years.length - 1];
+    const latestRows = overview.dataset.filter(d => d.year === latest).sort((a, b) => b.value - a.value);
+    const focusSystems = latestRows.slice(0, 6).map(d => d.system);
+    const grouped = this.groupBySystemDataset(overview.dataset);
+    const palette = ['#22c55e', '#3b82f6', '#f97316', '#ef4444', '#06b6d4', '#a855f7'];
+
+    const chart = new Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: overview.years.map(y => `ปี ${y}`),
+        datasets: focusSystems.map((system, idx) => ({
+          label: system,
+          data: overview.years.map(y => grouped[system]?.[y] || null),
+          borderColor: palette[idx % palette.length],
+          backgroundColor: `${palette[idx % palette.length]}22`,
+          tension: 0.3,
+          pointRadius: 2.5,
+          borderWidth: 2
+        }))
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: { y: { ticks: { callback: value => this.formatCompact(value) } } }
+      }
+    });
+    this.charts.push(chart);
   }
 
   renderMainBar(latestRows, latest, unitLabel = this.activeDs?.dataUnit || '') {

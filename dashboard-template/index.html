@@ -40,7 +40,7 @@
 <div class="panel active" id="panel-overview">
   <div class="wrap">
 
-    <div class="sec" id="overview-sec">ตัวชี้วัดสำคัญ <span class="sec-badge">● ข้อมูลล่าสุด</span></div>
+    <div class="sec" id="overview-sec">ตัวชี้วัดสำคัญ — ปีล่าสุด <span class="sec-badge">● ข้อมูล สจส.</span></div>
 
     <!-- KPI Cards -->
     <div class="kpi-row" id="kpi-container">
@@ -52,7 +52,7 @@
     <!-- Charts Row -->
     <div class="g21">
       <div class="card">
-        <div class="card-title">📊 จำนวนผู้โดยสารรายปี เปรียบเทียบทุกระบบ</div>
+        <div class="card-title" id="overview-main-title">📊 จำนวนผู้โดยสารรายปี เปรียบเทียบทุกระบบ ปี 2556-2568 (ล้านเที่ยวคน)</div>
         <div style="height:340px;position:relative">
           <canvas id="main-chart"></canvas>
         </div>
@@ -63,7 +63,7 @@
         </div>
       </div>
       <div class="card">
-        <div class="card-title">🥧 สัดส่วนผู้โดยสารปีล่าสุด</div>
+        <div class="card-title" id="overview-donut-title">🥧 สัดส่วนผู้โดยสาร ปีล่าสุด</div>
         <div style="height:270px;position:relative">
           <canvas id="donut-chart"></canvas>
         </div>
@@ -72,24 +72,9 @@
     </div>
 
     <div class="card">
-      <div class="card-title">📊 สัดส่วนผู้ใช้ระบบขนส่งสาธารณะ และ รถส่วนบุคคล</div>
+      <div class="card-title" id="overview-mode-title">📊 สัดส่วนผู้ใช้ระบบขนส่งสาธารณะ และ รถส่วนบุคคล — ปี 2560-2567 <span style="font-weight:400;font-size:14px;color:var(--muted)">(ที่มา: สนข. จากแบบจำลอง BTDM ปีฐาน 2565)</span></div>
       <div class="yr-tabs" id="modeYrTabs"></div>
       <div id="modeDisplay"></div>
-    </div>
-
-    <div class="g2" style="margin-top:20px">
-      <div class="card">
-        <div class="card-title">📈 แนวโน้ม Top 5 ระบบ</div>
-        <div style="height:300px;position:relative">
-          <canvas id="overview-chart-1"></canvas>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">📉 แนวโน้มรวมทุกระบบ</div>
-        <div style="height:300px;position:relative">
-          <canvas id="overview-chart-2"></canvas>
-        </div>
-      </div>
     </div>
 
   </div>
