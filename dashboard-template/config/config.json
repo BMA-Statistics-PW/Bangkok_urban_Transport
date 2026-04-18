@@ -1,0 +1,51 @@
+{
+  "projectName": "Dashboard Template",
+
+  "datasets": [
+    {
+      "id": "share",
+      "label": "สัดส่วนการเดินทาง (ล้านคน-เที่ยว/ปี)",
+      "dataPath": "data/transport_share.csv",
+      "dataUnit": "ล้านคน-เที่ยว/ปี",
+      "systemCol": 0,
+      "_source": "https://docs.google.com/spreadsheets/d/1fOIvRw9bxC1DOWCnTN8hVW2Z8L4n6ICgzD_WxgIDYt0"
+    },
+    {
+      "id": "report",
+      "label": "จำนวนผู้โดยสารระบบขนส่งสาธารณะ (ราย/ปี)",
+      "dataPath": "data/transport_report.csv",
+      "dataUnit": "ราย/ปี",
+      "systemCol": 1,
+      "_source": "https://docs.google.com/spreadsheets/d/1OV02tcFrMC6_gNKoHrb3K8mheRallx0cwYsFjZFqNb4"
+    }
+  ],
+
+  "activeDataset": "share",
+  "targetYear": 2569,
+
+  "columns": {
+    "labelCol":  "year",
+    "groupCol":  "category",
+    "valueCol":  "value",
+    "unitCol":   "unit",
+    "noteCol":   "note"
+  },
+
+  "kpi": [
+    { "label": "KPI 1", "col": "value", "agg": "sum",  "unit": "ราย", "color": "#22c55e" },
+    { "label": "KPI 2", "col": "value", "agg": "avg",  "unit": "เฉลี่ย/ปี","color": "#3b82f6" },
+    { "label": "KPI 3", "col": "value", "agg": "max",  "unit": "สูงสุด",  "color": "#f97316" }
+  ],
+
+  "chart": {
+    "type":  "bar",
+    "title": "Chart Title"
+  },
+
+  "map": {
+    "center": [13.7563, 100.5018],
+    "zoom":   12
+  },
+
+  "autoRefreshInterval": 300000
+}

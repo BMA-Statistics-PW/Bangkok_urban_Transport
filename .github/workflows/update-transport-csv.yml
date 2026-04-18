@@ -1,0 +1,49 @@
+name: Update Transport CSV Data
+
+on:
+  schedule:
+    # Every Monday at 01:00 UTC
+    - cron: '0 1 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-transport-csv
+  cancel-in-progress: false
+
+jobs:
+  refresh-csv:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download latest CSV files
+        run: |
+          set -euo pipefail
+          mkdir -p dashboard-template/data
+
+          curl -fL "https://docs.google.com/spreadsheets/d/1fOIvRw9bxC1DOWCnTN8hVW2Z8L4n6ICgzD_WxgIDYt0/gviz/tq?tqx=out:csv" -o dashboard-template/data/transport_share.csv
+          curl -fL "https://docs.google.com/spreadsheets/d/1OV02tcFrMC6_gNKoHrb3K8mheRallx0cwYsFjZFqNb4/gviz/tq?tqx=out:csv&sheet=Report" -o dashboard-template/data/transport_report.csv
+
+      - name: Commit and push if data changed
+        run: |
+          set -euo pipefail
+
+          if git diff --quiet -- dashboard-template/data/transport_share.csv dashboard-template/data/transport_report.csv; then
+            echo "No CSV changes detected."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add dashboard-template/data/transport_share.csv dashboard-template/data/transport_report.csv
+          git commit -m "chore(data): weekly update transport CSV files"
+
+          # Rebase with latest remote to reduce push failures when main moved
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Template — BMA Statistics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="hdr-flex">
+    <div>
+      <div class="hdr-badge"><!-- ใส่ชื่อหน่วยงาน --></div>
+      <div class="hdr-title">
+        ชื่อ Dashboard<br>
+        <em>ชื่อ Project / หัวข้อ</em>
+      </div>
+      <div class="hdr-sub">[ DASHBOARD SUBTITLE ]</div>
+    </div>
+    <div class="hdr-meta">
+      ข้อมูล ณ: <strong id="meta-date"><!-- วันที่ --></strong><br>
+      หน่วย: <strong><!-- หน่วย --></strong>
+    </div>
+  </div>
+</header>
+
+<!-- ══ NAV ══ -->
+<nav class="nav-tabs">
+  <button class="nav-tab active" onclick="switchPanel('overview',this)">ภาพรวม</button>
+  <button class="nav-tab" onclick="switchPanel('data',this)">ข้อมูล</button>
+  <button class="nav-tab" onclick="switchPanel('chart',this)">กราฟ</button>
+  <button class="nav-tab" onclick="switchPanel('sources',this)">แหล่งข้อมูล</button>
+</nav>
+
+<!-- ══ PANEL: ภาพรวม ══ -->
+<div class="panel active" id="panel-overview">
+  <div class="wrap">
+
+    <div class="sec">ตัวชี้วัดสำคัญ <span class="sec-badge">● ข้อมูลล่าสุด</span></div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-row" id="kpi-container">
+      <!-- สร้างโดย main.js -->
+    </div>
+
+    <!-- Charts Row -->
+    <div class="g21">
+      <div class="card">
+        <div class="card-title">📊 กราฟหลัก</div>
+        <div style="height:340px;position:relative">
+          <canvas id="main-chart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🥧 สัดส่วน</div>
+        <div style="height:270px;position:relative">
+          <canvas id="donut-chart"></canvas>
+        </div>
+        <div class="legend" id="donut-legend"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ PANEL: ข้อมูล ══ -->
+<div class="panel" id="panel-data">
+  <div class="wrap">
+    <div class="sec">ตารางข้อมูล</div>
+    <div class="card g1">
+      <div class="card-title">📋 รายละเอียดข้อมูล</div>
+      <div style="overflow-x:auto">
+        <table class="tbl" id="data-table"></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PANEL: กราฟ ══ -->
+<div class="panel" id="panel-chart">
+  <div class="wrap">
+    <div class="sec">กราฟวิเคราะห์</div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-title">📈 กราฟที่ 1</div>
+        <div style="height:300px;position:relative">
+          <canvas id="chart-1"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📉 กราฟที่ 2</div>
+        <div style="height:300px;position:relative">
+          <canvas id="chart-2"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PANEL: แหล่งข้อมูล ══ -->
+<div class="panel" id="panel-sources">
+  <div class="wrap">
+    <div class="sec">แหล่งข้อมูล</div>
+    <div class="card">
+      <div class="card-title">📁 ข้อมูลที่ใช้</div>
+      <table class="tbl">
+        <thead><tr><th>ไฟล์</th><th>หน่วยงาน</th><th>ช่วงเวลา</th></tr></thead>
+        <tbody id="sources-table">
+          <!-- เพิ่มข้อมูลแหล่งที่มา -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div>
+    ข้อมูล: <!-- ชื่อหน่วยงาน --><br>
+    <!-- วันที่อัปเดต -->
+  </div>
+  <div style="text-align:right">
+    <strong>© <!-- ชื่อผู้จัดทำ --></strong><br>
+    <!-- ตำแหน่ง / หน่วยงาน -->
+  </div>
+</footer>
+
+<!-- ══ SCRIPTS ══ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="js/chart.js"></script>
+<script src="js/map.js"></script>
+<script src="js/main.js"></script>
+
+<script>
+  // Panel switch
+  function switchPanel(id, btn) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + id).classList.add('active');
+    if (btn) btn.classList.add('active');
+  }
+
+  // Set today's date
+  const d = new Date();
+  const thaiMonths = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  document.getElementById('meta-date').textContent =
+    d.getDate() + ' ' + thaiMonths[d.getMonth()] + ' ' + (d.getFullYear() + 543);
+</script>
+
+</body>
+</html>
