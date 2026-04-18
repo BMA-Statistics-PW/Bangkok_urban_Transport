@@ -29,6 +29,11 @@ jobs:
           chmod +x scripts/update_transport_csv.sh
           ./scripts/update_transport_csv.sh
 
+      - name: Run dashboard sanity checks
+        run: |
+          set -euo pipefail
+          node scripts/sanity_check_dashboard_template.mjs
+
       - name: Commit and push if data changed
         run: |
           set -euo pipefail

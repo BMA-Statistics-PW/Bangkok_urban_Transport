@@ -5,10 +5,20 @@ class Dashboard {
     this.config = null;
     this.activeDs = null;   // active dataset config object
     this.metadata = null;
+    this.datasetStore = {};
+    this.modalSeries = null;
+    this.sanityReport = [];
+    this.businessRules = {
+      covidYears: [2563, 2564],
+      preCovidYear: 2563,
+      ferryOnlyYears: [2556, 2557, 2558, 2559],
+      brtNoDataYears: [2567]
+    };
     this.rawRows = [];
     this.dataset = [];
     this.years = [];
     this.systems = [];
+    this.annualSelectedYear = null;
     this.charts = [];
     this.init(configPath);
   }
@@ -28,6 +38,8 @@ class Dashboard {
     try {
       this.config = await this.loadConfig(configPath);
       this.metadata = await this.loadMetadata(this.config.metadataPath);
+      await this.preloadDatasets();
+      this.runSanityChecks();
       this.renderStaticContent();
       await this.switchDataset(this.config.activeDataset || this.config.datasets[0].id);
     } catch (error) {
@@ -36,22 +48,42 @@ class Dashboard {
     }
   }
 
+  async preloadDatasets() {
+    this.datasetStore = {};
+    for (const ds of (this.config.datasets || [])) {
+      const rows = await this.loadCSV(ds.dataPath);
+      const transformed = this.transformReportRows(rows, ds.systemCol || 0);
+      this.datasetStore[ds.id] = {
+        rawRows: rows,
+        dataset: transformed.dataset,
+        years: transformed.years,
+        systems: transformed.systems
+      };
+
+      if (ds.id === 'share') {
+        this.modalSeries = this.extractModalSeries(rows, ds.systemCol || 0);
+      }
+    }
+  }
+
   async switchDataset(datasetId) {
     try {
       const ds = this.config.datasets.find(d => d.id === datasetId) || this.config.datasets[0];
       this.activeDs = ds;
+      const cached = this.datasetStore[ds.id];
+      if (!cached) throw new Error(`ไม่พบข้อมูลชุด: ${ds.id}`);
 
-      const rawRows = await this.loadCSV(ds.dataPath);
-      const transformed = this.transformReportRows(rawRows, ds.systemCol || 0);
-      this.dataset = transformed.dataset;
-      this.years = transformed.years;
-      this.systems = transformed.systems;
+      this.rawRows = cached.rawRows;
+      this.dataset = cached.dataset;
+      this.years = cached.years;
+      this.systems = cached.systems;
 
       if (this.dataset.length === 0) throw new Error(`ไม่พบข้อมูลในชุดข้อมูล: ${ds.label}`);
 
       this.renderDatasetMeta();
       this.renderAll();
       this.renderDatasetSwitcher();
+      this.renderSanityChecks();
       console.log('Dataset loaded:', ds.id, { rows: this.dataset.length, years: this.years });
     } catch (error) {
       console.error('Dataset switch failed:', error);
@@ -230,10 +262,97 @@ class Dashboard {
     return Number.isFinite(n) ? n : NaN;
   }
 
+  extractModalSeries(rows, systemColIndex = 0) {
+    if (!rows?.length) return null;
+    const headers = Object.keys(rows[0]);
+    const systemHeader = headers[systemColIndex] || headers[0];
+    const yearHeaders = headers.filter((h, i) => i !== systemColIndex && Number.isFinite(this.extractYear(h)));
+
+    const findRow = (keyword) => rows.find(r => String(r[systemHeader] || '').includes(keyword));
+    const ptRow = findRow('สัดส่วนสาธารณะ');
+    const pvRow = findRow('สัดส่วนระบบรถส่วนบุคคล');
+    const ptVolRow = findRow('รวมจำนวนเที่ยวสาธารณะ');
+
+    if (!ptRow || !pvRow || !ptVolRow) return null;
+
+    const years = [];
+    const pt = [];
+    const pv = [];
+    const ptVol = [];
+
+    yearHeaders.forEach(h => {
+      const y = this.extractYear(h);
+      const ptVal = this.parseNumber(String(ptRow[h] || '').replace('%', ''));
+      const pvVal = this.parseNumber(String(pvRow[h] || '').replace('%', ''));
+      const volVal = this.parseNumber(ptVolRow[h]);
+      if (!Number.isFinite(y)) return;
+      years.push(y);
+      pt.push(Number.isFinite(ptVal) ? ptVal : null);
+      pv.push(Number.isFinite(pvVal) ? pvVal : null);
+      ptVol.push(Number.isFinite(volVal) ? volVal : null);
+    });
+
+    return { years, pt, pv, ptVol };
+  }
+
+  runSanityChecks() {
+    const checks = [];
+    for (const ds of (this.config.datasets || [])) {
+      const cached = this.datasetStore[ds.id];
+      if (!cached) {
+        checks.push({ level: 'error', msg: `Dataset ${ds.id} ไม่ถูก preload` });
+        continue;
+      }
+
+      if (!cached.years.length) {
+        checks.push({ level: 'error', msg: `Dataset ${ds.id}: ไม่พบปีข้อมูล` });
+      } else {
+        checks.push({ level: 'ok', msg: `Dataset ${ds.id}: ปีข้อมูล ${cached.years[0]}-${cached.years[cached.years.length - 1]}` });
+      }
+
+      const invalid = cached.dataset.filter(d => !Number.isFinite(d.value) || d.value < 0).length;
+      if (invalid > 0) checks.push({ level: 'warn', msg: `Dataset ${ds.id}: พบค่าไม่ถูกต้อง ${invalid} รายการ` });
+      else checks.push({ level: 'ok', msg: `Dataset ${ds.id}: ไม่พบค่าติดลบหรือ NaN` });
+
+      if (ds.id === 'report') {
+        const hasBrtNoData = !cached.dataset.some(d => String(d.system).includes('BRT') && d.year === 2567);
+        checks.push({
+          level: hasBrtNoData ? 'ok' : 'warn',
+          msg: hasBrtNoData ? 'Rule check: BRT ปี 2567 ไม่มีข้อมูล (ผ่าน)' : 'Rule check: BRT ปี 2567 มีข้อมูล ควรตรวจสอบ'
+        });
+      }
+    }
+
+    if (!this.modalSeries) {
+      checks.push({ level: 'warn', msg: 'ไม่พบข้อมูลสัดส่วนสาธารณะ (modal series)' });
+    } else {
+      checks.push({ level: 'ok', msg: `Modal series พร้อมใช้งาน ${this.modalSeries.years[0]}-${this.modalSeries.years[this.modalSeries.years.length - 1]}` });
+    }
+
+    this.sanityReport = checks;
+  }
+
+  renderSanityChecks() {
+    const el = document.getElementById('sanity-checks');
+    if (!el) return;
+    if (!this.sanityReport.length) {
+      el.innerHTML = 'ยังไม่มีผลการตรวจสอบ';
+      return;
+    }
+
+    const color = { ok: '#15803d', warn: '#b45309', error: '#b91c1c' };
+    el.innerHTML = this.sanityReport.map(item =>
+      `<div style="margin-bottom:6px"><span style="color:${color[item.level] || '#334155'}">●</span> ${item.msg}</div>`
+    ).join('');
+  }
+
   renderAll() {
     this.renderKPI();
     this.renderTable();
-    this.renderCharts();
+    this.renderOverviewCharts();
+    this.renderRidershipCharts();
+    this.renderModalCharts();
+    this.renderAnnualPanel();
     this.renderSources();
   }
 
@@ -315,7 +434,7 @@ class Dashboard {
     table.innerHTML = html;
   }
 
-  renderCharts() {
+  renderOverviewCharts() {
     this.destroyCharts();
     if (typeof Chart === 'undefined') return;
 
@@ -411,7 +530,7 @@ class Dashboard {
   }
 
   renderTopSystemsTrend() {
-    const canvas = document.getElementById('chart-1');
+    const canvas = document.getElementById('overview-chart-1');
     if (!canvas) return;
 
     const latest = this.latestYear();
@@ -444,7 +563,7 @@ class Dashboard {
   }
 
   renderYearTotals() {
-    const canvas = document.getElementById('chart-2');
+    const canvas = document.getElementById('overview-chart-2');
     if (!canvas) return;
     const totals = this.years.map(y => this.sumByYear(y));
 
@@ -471,6 +590,201 @@ class Dashboard {
       }
     });
     this.charts.push(chart);
+  }
+
+  renderRidershipCharts() {
+    if (typeof Chart === 'undefined') return;
+
+    const railCanvas = document.getElementById('ridership-rail');
+    const busCanvas = document.getElementById('ridership-bus');
+    if (!railCanvas || !busCanvas) return;
+
+    const grouped = this.groupBySystem();
+    const systems = Object.keys(grouped);
+    const railSystems = systems.filter(s => /(BTS|MRT|ARL|SRT|รถไฟฟ้า|รถไฟ)/i.test(s)).slice(0, 6);
+    const busSystems = systems.filter(s => /(ขสมก|BRT|เรือ|รถประจำทาง)/i.test(s)).slice(0, 4);
+    const palette = ['#22c55e', '#3b82f6', '#f97316', '#ef4444', '#06b6d4', '#a855f7'];
+
+    const railChart = new Chart(railCanvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: this.years.map(y => `ปี ${y}`),
+        datasets: railSystems.map((system, idx) => ({
+          label: system,
+          data: this.years.map(y => grouped[system][y] || null),
+          borderColor: palette[idx % palette.length],
+          tension: 0.28,
+          pointRadius: 2,
+          borderWidth: 2
+        }))
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: { y: { ticks: { callback: value => this.formatCompact(value) } } }
+      }
+    });
+    this.charts.push(railChart);
+
+    const busChart = new Chart(busCanvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: this.years.map(y => `ปี ${y}`),
+        datasets: busSystems.map((system, idx) => ({
+          label: system,
+          data: this.years.map(y => grouped[system][y] || null),
+          borderColor: palette[(idx + 2) % palette.length],
+          tension: 0.28,
+          pointRadius: 2,
+          borderWidth: 2,
+          borderDash: /BRT|เรือ/i.test(system) ? [4, 3] : []
+        }))
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: { y: { ticks: { callback: value => this.formatCompact(value) } } }
+      }
+    });
+    this.charts.push(busChart);
+
+    const note = document.getElementById('ridership-note');
+    if (note) {
+      note.innerHTML = [
+        'หมายเหตุ: ปี 2563-2564 ได้รับผลกระทบจาก COVID-19',
+        'BRT ปี 2567 ไม่มีข้อมูล (ตามชุดข้อมูลหลัก)',
+        'ปี 2556-2559 เรือโดยสารเป็นข้อมูลเฉพาะเรือข้ามฟาก'
+      ].join(' · ');
+    }
+  }
+
+  renderModalCharts() {
+    if (typeof Chart === 'undefined') return;
+    const shareCanvas = document.getElementById('modal-share');
+    const volCanvas = document.getElementById('modal-volume');
+    const note = document.getElementById('modal-note');
+    if (!shareCanvas || !volCanvas) return;
+
+    if (!this.modalSeries) {
+      if (note) {
+        note.style.display = 'block';
+        note.textContent = 'ไม่พบข้อมูลสัดส่วนสาธารณะในชุดข้อมูล share';
+      }
+      return;
+    }
+
+    if (note) {
+      note.style.display = 'block';
+      note.textContent = 'ที่มา: สนข. จากแบบจำลอง BTDM ปีฐาน 2565';
+    }
+
+    const labels = this.modalSeries.years.map(y => `ปี ${y}`);
+    const shareChart = new Chart(shareCanvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label: 'สัดส่วนสาธารณะ (%)', data: this.modalSeries.pt, borderColor: '#3b82f6', tension: 0.3, borderWidth: 2 },
+          { label: 'สัดส่วนรถส่วนบุคคล (%)', data: this.modalSeries.pv, borderColor: '#ef4444', tension: 0.3, borderWidth: 2 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: { y: { min: 0, max: 100, ticks: { callback: v => `${v}%` } } }
+      }
+    });
+    this.charts.push(shareChart);
+
+    const volChart = new Chart(volCanvas.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'รวมจำนวนเที่ยวสาธารณะ',
+          data: this.modalSeries.ptVol,
+          backgroundColor: '#22c55e99',
+          borderColor: '#22c55e',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { ticks: { callback: value => this.formatCompact(value) } } }
+      }
+    });
+    this.charts.push(volChart);
+  }
+
+  renderAnnualPanel() {
+    const tabs = document.getElementById('annual-year-tabs');
+    const detail = document.getElementById('annual-detail');
+    if (!tabs || !detail) return;
+
+    if (!this.annualSelectedYear || !this.years.includes(this.annualSelectedYear)) {
+      this.annualSelectedYear = this.latestYear();
+    }
+
+    tabs.innerHTML = [...this.years].reverse().map(y =>
+      `<button class="yr-btn ${y === this.annualSelectedYear ? 'active' : ''}" onclick="window.__dashboard.setAnnualYear(${y})">ปี ${y}</button>`
+    ).join('');
+
+    const rows = this.getYearRows(this.annualSelectedYear).sort((a, b) => b.value - a.value);
+    const total = rows.reduce((sum, r) => sum + r.value, 0);
+    const maxValue = Math.max(...rows.map(r => r.value), 1);
+    const note = this.getBusinessNoteForYear(this.annualSelectedYear);
+
+    detail.innerHTML = `
+      <div class="card">
+        <div class="card-title">📊 ปี ${this.annualSelectedYear} — รายละเอียดรายระบบ</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px">
+          ${rows.map(r => `
+            <div style="background:#f8fafc;border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:10px;padding:14px">
+              <div style="font-size:14px;color:#64748b;margin-bottom:6px;font-weight:600">${this.formatSystemLabel(r.system, this.annualSelectedYear)}</div>
+              <div style="font-family:var(--mono);font-size:24px;font-weight:700;color:#1d4ed8">${this.formatDisplayValue(r.value)}</div>
+              <div style="font-size:14px;color:var(--muted)">${this.activeDs?.dataUnit || '-'} · ${(r.value / total * 100).toFixed(1)}%</div>
+              <div class="pbar" style="margin-top:8px"><div class="pbar-fill" style="width:${(r.value / maxValue * 100).toFixed(0)}%;background:#1d4ed8"></div></div>
+            </div>
+          `).join('')}
+        </div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between">
+          <span style="color:var(--dim)">รวมทุกระบบ (ข้อมูลที่มี)</span>
+          <span style="font-family:var(--mono);font-weight:700;color:#15803d">${this.formatDisplayValue(total)} ${this.activeDs?.dataUnit || ''}</span>
+        </div>
+        ${note ? `<div class="note" style="margin-top:14px">${note}</div>` : ''}
+      </div>
+    `;
+  }
+
+  setAnnualYear(year) {
+    this.annualSelectedYear = year;
+    this.renderAnnualPanel();
+  }
+
+  getBusinessNoteForYear(year) {
+    const notes = [];
+    if (this.businessRules.ferryOnlyYears.includes(year)) {
+      notes.push('ข้อมูลเรือโดยสารปีนี้เป็นเฉพาะเรือข้ามฟาก');
+    }
+    if (this.businessRules.covidYears.includes(year)) {
+      notes.push('ปีนี้ได้รับผลกระทบจาก COVID-19 ไม่ควรเทียบตรงกับปีปกติ');
+    }
+    if (this.businessRules.brtNoDataYears.includes(year)) {
+      notes.push('BRT ปีนี้ไม่มีข้อมูลตามชุดหลัก');
+    }
+    return notes.join(' · ');
+  }
+
+  formatSystemLabel(system, year) {
+    if (/เรือ/.test(system) && this.businessRules.ferryOnlyYears.includes(year)) {
+      return 'เรือโดยสาร*';
+    }
+    return system;
   }
 
   renderSources() {

@@ -30,8 +30,9 @@
 <!-- ══ NAV ══ -->
 <nav class="nav-tabs">
   <button class="nav-tab active" onclick="switchPanel('overview',this)">ภาพรวม</button>
-  <button class="nav-tab" onclick="switchPanel('data',this)">ข้อมูล</button>
-  <button class="nav-tab" onclick="switchPanel('chart',this)">กราฟ</button>
+  <button class="nav-tab" onclick="switchPanel('ridership',this)">ผู้โดยสารรายสาย</button>
+  <button class="nav-tab" onclick="switchPanel('modal',this)">สัดส่วนรูปแบบ</button>
+  <button class="nav-tab" onclick="switchPanel('annual',this)">รายปี</button>
   <button class="nav-tab" onclick="switchPanel('sources',this)">แหล่งข้อมูล</button>
 </nav>
 
@@ -49,13 +50,13 @@
     <!-- Charts Row -->
     <div class="g21">
       <div class="card">
-        <div class="card-title">📊 กราฟหลัก</div>
+        <div class="card-title">📊 ผู้โดยสารรายระบบ ปีล่าสุด</div>
         <div style="height:340px;position:relative">
           <canvas id="main-chart"></canvas>
         </div>
       </div>
       <div class="card">
-        <div class="card-title">🥧 สัดส่วน</div>
+        <div class="card-title">🥧 สัดส่วนปีล่าสุด</div>
         <div style="height:270px;position:relative">
           <canvas id="donut-chart"></canvas>
         </div>
@@ -63,39 +64,84 @@
       </div>
     </div>
 
+    <div class="g2">
+      <div class="card">
+        <div class="card-title">📈 แนวโน้ม Top 5 ระบบ</div>
+        <div style="height:300px;position:relative">
+          <canvas id="overview-chart-1"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📉 แนวโน้มรวมทุกระบบ</div>
+        <div style="height:300px;position:relative">
+          <canvas id="overview-chart-2"></canvas>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<!-- ══ PANEL: ข้อมูล ══ -->
-<div class="panel" id="panel-data">
+<!-- ══ PANEL: ผู้โดยสารรายสาย ══ -->
+<div class="panel" id="panel-ridership">
   <div class="wrap">
-    <div class="sec">ตารางข้อมูล</div>
+    <div class="sec">ผู้โดยสารรายสาย</div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="card-title">🚆 กลุ่มระบบราง</div>
+        <div style="height:300px;position:relative">
+          <canvas id="ridership-rail"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🚌 ขสมก. · BRT · เรือโดยสาร</div>
+        <div style="height:300px;position:relative">
+          <canvas id="ridership-bus"></canvas>
+        </div>
+      </div>
+    </div>
+
     <div class="card g1">
-      <div class="card-title">📋 รายละเอียดข้อมูล</div>
+      <div class="card-title">📋 ตารางข้อมูลรายปี</div>
       <div style="overflow-x:auto">
         <table class="tbl" id="data-table"></table>
       </div>
+      <div id="ridership-note" style="margin-top:12px;font-size:14px;color:var(--dim);line-height:1.8"></div>
     </div>
   </div>
 </div>
 
-<!-- ══ PANEL: กราฟ ══ -->
-<div class="panel" id="panel-chart">
+<!-- ══ PANEL: สัดส่วนรูปแบบ ══ -->
+<div class="panel" id="panel-modal">
   <div class="wrap">
-    <div class="sec">กราฟวิเคราะห์</div>
+    <div class="sec">สัดส่วนรูปแบบการเดินทาง</div>
     <div class="g2">
       <div class="card">
-        <div class="card-title">📈 กราฟที่ 1</div>
+        <div class="card-title">📊 สัดส่วนขนส่งสาธารณะ vs รถส่วนบุคคล</div>
         <div style="height:300px;position:relative">
-          <canvas id="chart-1"></canvas>
+          <canvas id="modal-share"></canvas>
         </div>
       </div>
       <div class="card">
-        <div class="card-title">📉 กราฟที่ 2</div>
+        <div class="card-title">📈 ปริมาณการเดินทางสาธารณะ</div>
         <div style="height:300px;position:relative">
-          <canvas id="chart-2"></canvas>
+          <canvas id="modal-volume"></canvas>
         </div>
       </div>
+    </div>
+    <div id="modal-note" class="note" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ══ PANEL: รายปี ══ -->
+<div class="panel" id="panel-annual">
+  <div class="wrap">
+    <div class="sec">รายปี</div>
+    <div class="card g1">
+      <div class="card-title">📅 เลือกปี</div>
+      <div class="yr-tabs" id="annual-year-tabs"></div>
+      <div id="annual-detail"></div>
     </div>
   </div>
 </div>
@@ -112,6 +158,11 @@
           <!-- เพิ่มข้อมูลแหล่งที่มา -->
         </tbody>
       </table>
+    </div>
+    <div class="spacer"></div>
+    <div class="card">
+      <div class="card-title">✅ Sanity Checks</div>
+      <div id="sanity-checks" style="font-family:var(--mono);font-size:13px;color:var(--dim);line-height:1.9"></div>
     </div>
   </div>
 </div>
