@@ -361,6 +361,8 @@ class Dashboard {
 
   renderAll() {
     this.renderKPI();
+    this.renderOverviewNote();
+    this.renderOverviewModeDisplay();
     this.renderTable();
     this.renderOverviewCharts();
     this.renderRidershipCharts();
@@ -371,6 +373,23 @@ class Dashboard {
 
   latestYear() {
     return this.years[this.years.length - 1];
+  }
+
+  getOverviewContext() {
+    const reportCfg = (this.config?.datasets || []).find(d => d.id === 'report');
+    const report = this.datasetStore?.report;
+    if (report?.dataset?.length) {
+      return {
+        dataset: report.dataset,
+        years: report.years,
+        unit: reportCfg?.dataUnit || this.activeDs?.dataUnit || '-'
+      };
+    }
+    return {
+      dataset: this.dataset,
+      years: this.years,
+      unit: this.activeDs?.dataUnit || '-'
+    };
   }
 
   getYearRows(year) {
@@ -385,12 +404,16 @@ class Dashboard {
     const container = document.getElementById('kpi-container');
     if (!container) return;
 
-    const latestDataYear = [...new Set(this.dataset.map(d => d.year))].sort((a, b) => a - b).pop();
-    const latest = latestDataYear || this.latestYear();
-    const prev = this.years[this.years.length - 2];
-    const latestRows = this.getYearRows(latest).sort((a, b) => b.value - a.value).slice(0, 5);
+    const overview = this.getOverviewContext();
+    const overviewDataset = overview.dataset;
+    const overviewYears = overview.years;
+
+    const latestDataYear = [...new Set(overviewDataset.map(d => d.year))].sort((a, b) => a - b).pop();
+    const latest = latestDataYear || overviewYears[overviewYears.length - 1];
+    const prev = overviewYears[overviewYears.length - 2];
+    const latestRows = overviewDataset.filter(d => d.year === latest).sort((a, b) => b.value - a.value).slice(0, 5);
     const targetYear = Number(this.config?.targetYear);
-    const targetRows = Number.isFinite(targetYear) ? this.getYearRows(targetYear) : [];
+    const targetRows = Number.isFinite(targetYear) ? overviewDataset.filter(d => d.year === targetYear) : [];
     const readinessCard = Number.isFinite(targetYear)
       ? `
         <div class="kpi" style="border-left-color:${targetRows.length ? '#22c55e' : '#f59e0b'}">
@@ -403,7 +426,7 @@ class Dashboard {
       : '';
 
     container.innerHTML = latestRows.map((row, idx) => {
-      const prevValue = this.dataset.find(d => d.system === row.system && d.year === prev)?.value || 0;
+      const prevValue = overviewDataset.find(d => d.system === row.system && d.year === prev)?.value || 0;
       const delta = prevValue > 0 ? ((row.value - prevValue) / prevValue) * 100 : 0;
       const deltaClass = delta >= 0 ? 'up' : 'down';
       const color = ['#22c55e', '#3b82f6', '#f97316', '#ef4444', '#06b6d4'][idx % 5];
@@ -412,11 +435,71 @@ class Dashboard {
         <div class="kpi" style="border-left-color:${color}">
           <div class="kpi-label">${row.system}</div>
           <div class="kpi-val" style="color:${color}">${this.formatDisplayValue(row.value)}</div>
-          <div class="kpi-unit">${this.activeDs?.dataUnit || '-'} ปี ${latest}</div>
+          <div class="kpi-unit">${overview.unit || '-'} ปี ${latest}</div>
           <div class="kpi-delta ${deltaClass}">${delta >= 0 ? '▲' : '▼'} ${Math.abs(delta).toFixed(1)}% จากปี ${prev || '-'}</div>
         </div>
       `;
     }).join('') + readinessCard;
+
+    const sec = document.getElementById('overview-sec');
+    if (sec) {
+      sec.innerHTML = `ตัวชี้วัดสำคัญ — ปี ${latest} (ล่าสุด) <span class="sec-badge">● ข้อมูล สจส.</span>`;
+    }
+  }
+
+  renderOverviewNote() {
+    const el = document.getElementById('overview-note');
+    if (!el) return;
+    el.innerHTML = '⚠️ <strong>ปี 2563-2564: เหตุการณ์ COVID-19</strong> ข้อมูลผู้โดยสารลดลงผิดปกติ ไม่ควรเทียบตรงกับปีปกติ &nbsp;|&nbsp; ⚠️ <strong>ปี 2556-2559:</strong> ข้อมูลเรือเป็นเฉพาะเรือข้ามฟาก';
+  }
+
+  renderOverviewModeDisplay() {
+    const tabs = document.getElementById('modeYrTabs');
+    const display = document.getElementById('modeDisplay');
+    if (!tabs || !display) return;
+    if (!this.modalSeries || !this.modalSeries.years?.length) {
+      tabs.innerHTML = '';
+      display.innerHTML = '<div class="note">ไม่พบข้อมูลสัดส่วนรูปแบบการเดินทาง</div>';
+      return;
+    }
+
+    if (!Number.isFinite(this.modeSelectedYear) || !this.modalSeries.years.includes(this.modeSelectedYear)) {
+      this.modeSelectedYear = this.modalSeries.years[this.modalSeries.years.length - 1];
+    }
+
+    tabs.innerHTML = [...this.modalSeries.years].reverse().map(y =>
+      `<button class="yr-btn ${y === this.modeSelectedYear ? 'active' : ''}" onclick="window.__dashboard.setModeYear(${y})">${y}</button>`
+    ).join('');
+
+    const idx = this.modalSeries.years.indexOf(this.modeSelectedYear);
+    const pt = this.modalSeries.pt[idx];
+    const pv = this.modalSeries.pv[idx];
+    const vol = this.modalSeries.ptVol[idx];
+
+    display.innerHTML = `
+      <div class="g2" style="margin-bottom:0">
+        <div class="card" style="padding:16px">
+          <div class="card-title" style="margin-bottom:10px">ปี ${this.modeSelectedYear}</div>
+          <div class="kpi-row" style="grid-template-columns:1fr 1fr;margin-bottom:0">
+            <div class="kpi" style="border-left-color:#3b82f6"><div class="kpi-label">สาธารณะ</div><div class="kpi-val" style="color:#3b82f6">${Number.isFinite(pt) ? pt.toFixed(2) : '-'}</div><div class="kpi-unit">%</div></div>
+            <div class="kpi" style="border-left-color:#ef4444"><div class="kpi-label">ส่วนบุคคล</div><div class="kpi-val" style="color:#ef4444">${Number.isFinite(pv) ? pv.toFixed(2) : '-'}</div><div class="kpi-unit">%</div></div>
+          </div>
+        </div>
+        <div class="card" style="padding:16px">
+          <div class="card-title" style="margin-bottom:10px">ปริมาณเดินทางสาธารณะ</div>
+          <div class="kpi" style="border-left-color:#22c55e">
+            <div class="kpi-label">รวมจำนวนเที่ยวสาธารณะ</div>
+            <div class="kpi-val" style="color:#22c55e">${Number.isFinite(vol) ? this.formatDisplayValue(vol) : '-'}</div>
+            <div class="kpi-unit">ล้านคน-เที่ยว/ปี</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  setModeYear(year) {
+    this.modeSelectedYear = year;
+    this.renderOverviewModeDisplay();
   }
 
   renderTable() {
@@ -451,16 +534,17 @@ class Dashboard {
     this.destroyCharts();
     if (typeof Chart === 'undefined') return;
 
-    const latest = this.latestYear();
-    const latestRows = this.getYearRows(latest).sort((a, b) => b.value - a.value);
+    const overview = this.getOverviewContext();
+    const latest = overview.years[overview.years.length - 1];
+    const latestRows = overview.dataset.filter(d => d.year === latest).sort((a, b) => b.value - a.value);
 
-    this.renderMainBar(latestRows, latest);
+    this.renderMainBar(latestRows, latest, overview.unit);
     this.renderDonut(latestRows, latest);
-    this.renderTopSystemsTrend();
-    this.renderYearTotals();
+    this.renderTopSystemsTrend(overview);
+    this.renderYearTotals(overview);
   }
 
-  renderMainBar(latestRows, latest) {
+  renderMainBar(latestRows, latest, unitLabel = this.activeDs?.dataUnit || '') {
     const canvas = document.getElementById('main-chart');
     if (!canvas) return;
 
@@ -482,7 +566,7 @@ class Dashboard {
         maintainAspectRatio: false,
         plugins: {
           legend: { display: false },
-          tooltip: { callbacks: { label: ctx => `${this.formatDisplayValue(ctx.parsed.y)} ${this.activeDs?.dataUnit || ''}` } }
+          tooltip: { callbacks: { label: ctx => `${this.formatDisplayValue(ctx.parsed.y)} ${unitLabel}` } }
         },
         scales: {
           x: { ticks: { maxRotation: 40, minRotation: 30 } },
@@ -542,22 +626,23 @@ class Dashboard {
     }).join('');
   }
 
-  renderTopSystemsTrend() {
+  renderTopSystemsTrend(overview = this.getOverviewContext()) {
     const canvas = document.getElementById('overview-chart-1');
     if (!canvas) return;
 
-    const latest = this.latestYear();
-    const topSystems = this.getYearRows(latest).sort((a, b) => b.value - a.value).slice(0, 5).map(d => d.system);
-    const grouped = this.groupBySystem();
+    const latest = overview.years[overview.years.length - 1];
+    const latestRows = overview.dataset.filter(d => d.year === latest);
+    const topSystems = latestRows.sort((a, b) => b.value - a.value).slice(0, 5).map(d => d.system);
+    const grouped = this.groupBySystemDataset(overview.dataset);
     const palette = ['#22c55e', '#3b82f6', '#f97316', '#ef4444', '#06b6d4'];
 
     const chart = new Chart(canvas.getContext('2d'), {
       type: 'line',
       data: {
-        labels: this.years.map(y => `ปี ${y}`),
+        labels: overview.years.map(y => `ปี ${y}`),
         datasets: topSystems.map((system, idx) => ({
           label: system,
-          data: this.years.map(y => grouped[system][y] || null),
+          data: overview.years.map(y => grouped[system][y] || null),
           borderColor: palette[idx % palette.length],
           backgroundColor: `${palette[idx % palette.length]}33`,
           tension: 0.3,
@@ -575,15 +660,19 @@ class Dashboard {
     this.charts.push(chart);
   }
 
-  renderYearTotals() {
+  renderYearTotals(overview = this.getOverviewContext()) {
     const canvas = document.getElementById('overview-chart-2');
     if (!canvas) return;
-    const totals = this.years.map(y => this.sumByYear(y));
+    const grouped = this.groupBySystemDataset(overview.dataset);
+    const totals = overview.years.map(y => {
+      const systems = Object.keys(grouped);
+      return systems.reduce((sum, s) => sum + (grouped[s][y] || 0), 0);
+    });
 
     const chart = new Chart(canvas.getContext('2d'), {
       type: 'bar',
       data: {
-        labels: this.years.map(y => `ปี ${y}`),
+        labels: overview.years.map(y => `ปี ${y}`),
         datasets: [{
           label: 'รวมทุกระบบ',
           data: totals,
@@ -597,7 +686,7 @@ class Dashboard {
         maintainAspectRatio: false,
         plugins: {
           legend: { display: false },
-          tooltip: { callbacks: { label: ctx => `${this.formatDisplayValue(ctx.parsed.y)} ${this.activeDs?.dataUnit || ''}` } }
+          tooltip: { callbacks: { label: ctx => `${this.formatDisplayValue(ctx.parsed.y)} ${overview.unit || ''}` } }
         },
         scales: { y: { ticks: { callback: value => this.formatCompact(value) } } }
       }
@@ -847,6 +936,15 @@ class Dashboard {
   groupBySystem() {
     const grouped = {};
     this.dataset.forEach(item => {
+      if (!grouped[item.system]) grouped[item.system] = {};
+      grouped[item.system][item.year] = item.value;
+    });
+    return grouped;
+  }
+
+  groupBySystemDataset(dataset) {
+    const grouped = {};
+    dataset.forEach(item => {
       if (!grouped[item.system]) grouped[item.system] = {};
       grouped[item.system][item.year] = item.value;
     });

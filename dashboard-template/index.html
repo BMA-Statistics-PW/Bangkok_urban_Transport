@@ -40,31 +40,44 @@
 <div class="panel active" id="panel-overview">
   <div class="wrap">
 
-    <div class="sec">ตัวชี้วัดสำคัญ <span class="sec-badge">● ข้อมูลล่าสุด</span></div>
+    <div class="sec" id="overview-sec">ตัวชี้วัดสำคัญ <span class="sec-badge">● ข้อมูลล่าสุด</span></div>
 
     <!-- KPI Cards -->
     <div class="kpi-row" id="kpi-container">
       <!-- สร้างโดย main.js -->
     </div>
 
+    <div class="covid-note" id="overview-note"></div>
+
     <!-- Charts Row -->
     <div class="g21">
       <div class="card">
-        <div class="card-title">📊 ผู้โดยสารรายระบบ ปีล่าสุด</div>
+        <div class="card-title">📊 จำนวนผู้โดยสารรายปี เปรียบเทียบทุกระบบ</div>
         <div style="height:340px;position:relative">
           <canvas id="main-chart"></canvas>
         </div>
+        <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:6px">
+          <span class="src">ขสมก.</span>
+          <span class="src">กทม. / รฟม. / รฟท.</span>
+          <span class="src">กรมเจ้าท่า — กทม.</span>
+        </div>
       </div>
       <div class="card">
-        <div class="card-title">🥧 สัดส่วนปีล่าสุด</div>
+        <div class="card-title">🥧 สัดส่วนผู้โดยสารปีล่าสุด</div>
         <div style="height:270px;position:relative">
           <canvas id="donut-chart"></canvas>
         </div>
-        <div class="legend" id="donut-legend"></div>
+        <div class="legend" id="donut-legend" style="justify-content:center"></div>
       </div>
     </div>
 
-    <div class="g2">
+    <div class="card">
+      <div class="card-title">📊 สัดส่วนผู้ใช้ระบบขนส่งสาธารณะ และ รถส่วนบุคคล</div>
+      <div class="yr-tabs" id="modeYrTabs"></div>
+      <div id="modeDisplay"></div>
+    </div>
+
+    <div class="g2" style="margin-top:20px">
       <div class="card">
         <div class="card-title">📈 แนวโน้ม Top 5 ระบบ</div>
         <div style="height:300px;position:relative">

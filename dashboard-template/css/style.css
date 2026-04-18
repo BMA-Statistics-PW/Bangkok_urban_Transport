@@ -173,6 +173,18 @@ header{
   font-size:12px;color:#b91c1c;font-family:var(--thai);line-height:1.7;
 }
 
+.covid-note{
+  background:rgba(245,158,11,0.08);
+  border:1px solid rgba(245,158,11,0.28);
+  border-left:4px solid #f59e0b;
+  border-radius:8px;
+  padding:12px 16px;
+  margin-bottom:20px;
+  color:#7c2d12;
+  font-size:14px;
+  line-height:1.8;
+}
+
 /* ── FOOTER ── */
 footer{
   background:#f1f5f9;border-top:1px solid var(--border);
