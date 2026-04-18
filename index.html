@@ -972,6 +972,8 @@ function renderAnnual(idx) {
   const isCovid  = y===2564;
   const isPreCov = y===2563;
   const is2568   = y===2568;
+  const isFerryOnly = y>=2556 && y<=2559;
+  const ferryLabel = isFerryOnly ? 'เรือโดยสาร*' : 'เรือโดยสาร (5 ประเภท)*';
 
   const rows = [
     ['ขสมก. (รถประจำทาง)',    DATA.bmta[idx],     C.bmta],
@@ -984,7 +986,7 @@ function renderAnnual(idx) {
     ['MRT สายสีชมพู',         idx>=11?DATA.mrtPk[idx]:null, C.mrtPk],
     ['Airport Rail Link',      DATA.arl[idx],      C.arl],
     ['SRT สายสีแดง (รวม)',   idx>=8?(DATA.srtN[idx]||0)+(DATA.srtW[idx]||0):null, C.srtN],
-    ['เรือโดยสาร (5 ประเภท)*', FERRY[idx],        C.ferry],
+    [ferryLabel,               FERRY[idx],        C.ferry],
   ].filter(r => r[1] !== null && r[1] !== undefined && r[1] > 0);
 
   const total = rows.reduce((s,r)=>s+(r[1]||0),0);
@@ -1022,6 +1024,9 @@ function renderAnnual(idx) {
         border-left:4px solid #3b82f6;border-radius:8px;padding:10px 14px;font-size:14px;color:#1e40af;line-height:1.8">
         * เรือโดยสาร 2568: รวม 5 ประเภท — เรือข้ามฟาก 18.33 | เรือด่วนเจ้าพระยา 6.72 | 
         คลองแสนแสบ 11.48 | เรือไฟฟ้า 1.61 | เรือภัตตาคาร 2.57 ล้านเที่ยว</div>`:''}
+      ${isFerryOnly?`<div style="margin-top:14px;background:rgba(14,165,233,0.06);border:1px solid rgba(14,165,233,0.22);
+        border-left:4px solid #0ea5e9;border-radius:8px;padding:10px 14px;font-size:14px;color:#0c4a6e;line-height:1.8">
+        * ปี ${y}: ข้อมูลเรือโดยสารเป็น <strong>เฉพาะเรือข้ามฟาก</strong></div>`:''}
     </div>`;
 }
 renderAnnual(YEARS.indexOf(2568));
