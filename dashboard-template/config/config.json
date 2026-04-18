@@ -1,5 +1,11 @@
 {
   "projectName": "Dashboard Template",
+  "organization": "สำนักการจราจรและขนส่ง กรุงเทพมหานคร",
+  "dashboardTitle": "สถิติการเดินทางด้วยระบบขนส่งสาธารณะ",
+  "dashboardSubtitle": "Bangkok Urban Transport Statistics Dashboard Template",
+  "dashboardTopic": "ข้อมูลสรุปและเปรียบเทียบจากไฟล์ CSV ที่อัปเดตอัตโนมัติ",
+  "preparedBy": "BMA Statistics Team",
+  "preparedByRole": "กลุ่มงานสถิติและวิจัย กองนโยบายและแผนงาน",
 
   "datasets": [
     {

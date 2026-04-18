@@ -13,16 +13,16 @@
 <header>
   <div class="hdr-flex">
     <div>
-      <div class="hdr-badge"><!-- ใส่ชื่อหน่วยงาน --></div>
+      <div class="hdr-badge" id="hdr-badge"></div>
       <div class="hdr-title">
-        ชื่อ Dashboard<br>
-        <em>ชื่อ Project / หัวข้อ</em>
+        <span id="hdr-title"></span><br>
+        <em id="hdr-topic"></em>
       </div>
-      <div class="hdr-sub">[ DASHBOARD SUBTITLE ]</div>
+      <div class="hdr-sub" id="hdr-sub"></div>
     </div>
     <div class="hdr-meta">
-      ข้อมูล ณ: <strong id="meta-date"><!-- วันที่ --></strong><br>
-      หน่วย: <strong><!-- หน่วย --></strong>
+      ข้อมูล ณ: <strong id="meta-date"></strong><br>
+      หน่วย: <strong id="meta-unit"></strong>
     </div>
   </div>
 </header>
@@ -119,12 +119,12 @@
 <!-- ══ FOOTER ══ -->
 <footer>
   <div>
-    ข้อมูล: <!-- ชื่อหน่วยงาน --><br>
-    <!-- วันที่อัปเดต -->
+    ข้อมูล: <span id="footer-org"></span><br>
+    <span id="footer-updated"></span>
   </div>
   <div style="text-align:right">
-    <strong>© <!-- ชื่อผู้จัดทำ --></strong><br>
-    <!-- ตำแหน่ง / หน่วยงาน -->
+    <strong id="footer-owner"></strong><br>
+    <span id="footer-role"></span>
   </div>
 </footer>
 
@@ -142,12 +142,6 @@
     document.getElementById('panel-' + id).classList.add('active');
     if (btn) btn.classList.add('active');
   }
-
-  // Set today's date
-  const d = new Date();
-  const thaiMonths = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-  document.getElementById('meta-date').textContent =
-    d.getDate() + ' ' + thaiMonths[d.getMonth()] + ' ' + (d.getFullYear() + 543);
 </script>
 
 </body>

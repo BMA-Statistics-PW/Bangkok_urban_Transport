@@ -26,6 +26,7 @@ class Dashboard {
   async init(configPath) {
     try {
       this.config = await this.loadConfig(configPath);
+      this.renderStaticContent();
       await this.switchDataset(this.config.activeDataset || this.config.datasets[0].id);
     } catch (error) {
       console.error('Dashboard init failed:', error);
@@ -46,6 +47,7 @@ class Dashboard {
 
       if (this.dataset.length === 0) throw new Error(`ไม่พบข้อมูลในชุดข้อมูล: ${ds.label}`);
 
+      this.renderDatasetMeta();
       this.renderAll();
       this.renderDatasetSwitcher();
       console.log('Dataset loaded:', ds.id, { rows: this.dataset.length, years: this.years });
@@ -72,6 +74,33 @@ class Dashboard {
         background:${active ? '#3b82f6' : 'var(--surf)'};color:${active ? '#fff' : 'var(--text)'};
         cursor:pointer;font-family:inherit;font-size:0.85rem;">${ds.label}</button>`;
     }).join('');
+  }
+
+  formatThaiDate(date = new Date()) {
+    const thaiMonths = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    return `${date.getDate()} ${thaiMonths[date.getMonth()]} ${date.getFullYear() + 543}`;
+  }
+
+  setTextContent(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value || '';
+  }
+
+  renderStaticContent() {
+    document.title = `${this.config.dashboardTitle} — ${this.config.projectName}`;
+    this.setTextContent('hdr-badge', this.config.organization);
+    this.setTextContent('hdr-title', this.config.dashboardTitle);
+    this.setTextContent('hdr-topic', this.config.dashboardTopic);
+    this.setTextContent('hdr-sub', this.config.dashboardSubtitle);
+    this.setTextContent('footer-org', this.config.organization);
+    this.setTextContent('footer-owner', `© ${this.config.preparedBy}`);
+    this.setTextContent('footer-role', this.config.preparedByRole);
+    this.setTextContent('meta-date', this.formatThaiDate());
+    this.setTextContent('footer-updated', `อัปเดตล่าสุด: ${this.formatThaiDate()}`);
+  }
+
+  renderDatasetMeta() {
+    this.setTextContent('meta-unit', this.activeDs?.dataUnit || '-');
   }
 
   async loadConfig(configPath) {
