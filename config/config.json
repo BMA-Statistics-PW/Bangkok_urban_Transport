@@ -1,0 +1,29 @@
+{
+  "projectName": "Bangkok Urban Transport Dashboard",
+  "dataPath": "data/sample.csv",
+  "autoRefreshInterval": 300000,
+  "chartEnabled": true,
+  "mapEnabled": true,
+  "theme": "light",
+  "language": "th",
+  "features": {
+    "statistics": true,
+    "export": true,
+    "filter": true,
+    "search": true
+  },
+  "chart": {
+    "type": "bar",
+    "title": "Transport Data",
+    "updateInterval": 60000
+  },
+  "map": {
+    "center": [13.7563, 100.5018],
+    "zoom": 12,
+    "provider": "leaflet"
+  },
+  "api": {
+    "baseUrl": "https://api.example.com",
+    "timeout": 5000
+  }
+}

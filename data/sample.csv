@@ -1,0 +1,13 @@
+date,location,category,value,status
+2026-01-15,Silom,Traffic,450,high
+2026-01-15,Sukhumvit,Traffic,380,high
+2026-01-15,Phayathai,Traffic,320,medium
+2026-01-15,Watthana,Traffic,250,low
+2026-01-16,Silom,Traffic,480,high
+2026-01-16,Sukhumvit,Traffic,420,high
+2026-01-16,Phayathai,Traffic,300,medium
+2026-01-16,Watthana,Traffic,280,low
+2026-01-17,Silom,Traffic,500,high
+2026-01-17,Sukhumvit,Traffic,450,high
+2026-01-17,Phayathai,Traffic,350,medium
+2026-01-17,Watthana,Traffic,290,low
