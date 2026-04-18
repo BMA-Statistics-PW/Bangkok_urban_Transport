@@ -739,15 +739,24 @@ class Dashboard {
     const detail = document.getElementById('annual-detail');
     if (!tabs || !detail) return;
 
-    if (!this.annualSelectedYear || !this.years.includes(this.annualSelectedYear)) {
-      this.annualSelectedYear = this.latestYear();
+    const annual = this.getAnnualContext();
+    const annualYears = annual.years;
+    const annualDataset = annual.dataset;
+    const annualUnit = annual.unit;
+
+    if (!this.annualSelectedYear || !annualYears.includes(this.annualSelectedYear)) {
+      this.annualSelectedYear = annualYears.includes(2568)
+        ? 2568
+        : annualYears[annualYears.length - 1];
     }
 
-    tabs.innerHTML = [...this.years].reverse().map(y =>
+    tabs.innerHTML = [...annualYears].reverse().map(y =>
       `<button class="yr-btn ${y === this.annualSelectedYear ? 'active' : ''}" onclick="window.__dashboard.setAnnualYear(${y})">ปี ${y}</button>`
     ).join('');
 
-    const rows = this.getYearRows(this.annualSelectedYear).sort((a, b) => b.value - a.value);
+    const rows = annualDataset
+      .filter(d => d.year === this.annualSelectedYear)
+      .sort((a, b) => b.value - a.value);
     const total = rows.reduce((sum, r) => sum + r.value, 0);
     const maxValue = Math.max(...rows.map(r => r.value), 1);
     const note = this.getBusinessNoteForYear(this.annualSelectedYear);
@@ -760,18 +769,36 @@ class Dashboard {
             <div style="background:#f8fafc;border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:10px;padding:14px">
               <div style="font-size:14px;color:#64748b;margin-bottom:6px;font-weight:600">${this.formatSystemLabel(r.system, this.annualSelectedYear)}</div>
               <div style="font-family:var(--mono);font-size:24px;font-weight:700;color:#1d4ed8">${this.formatDisplayValue(r.value)}</div>
-              <div style="font-size:14px;color:var(--muted)">${this.activeDs?.dataUnit || '-'} · ${(r.value / total * 100).toFixed(1)}%</div>
+              <div style="font-size:14px;color:var(--muted)">${annualUnit || '-'} · ${total > 0 ? (r.value / total * 100).toFixed(1) : '0.0'}%</div>
               <div class="pbar" style="margin-top:8px"><div class="pbar-fill" style="width:${(r.value / maxValue * 100).toFixed(0)}%;background:#1d4ed8"></div></div>
             </div>
           `).join('')}
         </div>
         <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between">
           <span style="color:var(--dim)">รวมทุกระบบ (ข้อมูลที่มี)</span>
-          <span style="font-family:var(--mono);font-weight:700;color:#15803d">${this.formatDisplayValue(total)} ${this.activeDs?.dataUnit || ''}</span>
+          <span style="font-family:var(--mono);font-weight:700;color:#15803d">${this.formatDisplayValue(total)} ${annualUnit || ''}</span>
         </div>
         ${note ? `<div class="note" style="margin-top:14px">${note}</div>` : ''}
       </div>
     `;
+  }
+
+  getAnnualContext() {
+    const reportCfg = (this.config?.datasets || []).find(d => d.id === 'report');
+    const report = this.datasetStore?.report;
+    if (report?.dataset?.length) {
+      return {
+        dataset: report.dataset,
+        years: report.years,
+        unit: reportCfg?.dataUnit || this.activeDs?.dataUnit || '-'
+      };
+    }
+
+    return {
+      dataset: this.dataset,
+      years: this.years,
+      unit: this.activeDs?.dataUnit || '-'
+    };
   }
 
   setAnnualYear(year) {
