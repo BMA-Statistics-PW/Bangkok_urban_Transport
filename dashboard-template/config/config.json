@@ -1,27 +1,30 @@
 {
-  "projectName": "Dashboard Template",
-  "organization": "สำนักการจราจรและขนส่ง กรุงเทพมหานคร",
-  "dashboardTitle": "สถิติการเดินทางด้วยระบบขนส่งสาธารณะ",
-  "dashboardSubtitle": "Bangkok Urban Transport Statistics Dashboard Template",
-  "dashboardTopic": "ข้อมูลสรุปและเปรียบเทียบจากไฟล์ CSV ที่อัปเดตอัตโนมัติ",
-  "preparedBy": "BMA Statistics Team",
-  "preparedByRole": "กลุ่มงานสถิติและวิจัย กองนโยบายและแผนงาน",
+  "projectName": "Bangkok Urban Transport Dashboard",
+  "organization": "กลุ่มงานสถิติและวิจัย · กองนโยบายและแผนงาน · สำนักการจราจรและขนส่ง · กรุงเทพมหานคร",
+  "dashboardTitle": "สถิติผู้โดยสารระบบขนส่งสาธารณะ",
+  "dashboardSubtitle": "BANGKOK PUBLIC TRANSPORT RIDERSHIP STATISTICS DASHBOARD",
+  "dashboardTopic": "กรุงเทพมหานคร ปี 2556-2568",
+  "preparedBy": "Prapawadee_W.",
+  "preparedByRole": "กลุ่มงานสถิติและวิจัย กองนโยบายและแผนงาน สำนักการจราจรและขนส่ง กรุงเทพมหานคร",
+  "metadataPath": "data/transport_metadata.json",
 
   "datasets": [
     {
       "id": "share",
-      "label": "สัดส่วนการเดินทาง (ล้านคน-เที่ยว/ปี)",
+      "label": "สัดส่วนการเดินทางด้วยระบบขนส่งสาธารณะในเขตเมืองต่อการเดินทางในกรุงเทพฯ และปริมณฑล",
       "dataPath": "data/transport_share.csv",
       "dataUnit": "ล้านคน-เที่ยว/ปี",
       "systemCol": 0,
+      "sourceName": "Google Sheet: Travel Share",
       "_source": "https://docs.google.com/spreadsheets/d/1fOIvRw9bxC1DOWCnTN8hVW2Z8L4n6ICgzD_WxgIDYt0"
     },
     {
       "id": "report",
-      "label": "จำนวนผู้โดยสารระบบขนส่งสาธารณะ (ราย/ปี)",
+      "label": "ตารางเปรียบเทียบจำนวนผู้โดยสารที่ใช้ระบบขนส่งสาธารณะในกรุงเทพมหานคร",
       "dataPath": "data/transport_report.csv",
       "dataUnit": "ราย/ปี",
       "systemCol": 1,
+      "sourceName": "Google Sheet: Report",
       "_source": "https://docs.google.com/spreadsheets/d/1OV02tcFrMC6_gNKoHrb3K8mheRallx0cwYsFjZFqNb4"
     }
   ],

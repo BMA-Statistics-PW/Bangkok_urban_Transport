@@ -4,6 +4,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 DATA_DIR="$ROOT_DIR/dashboard-template/data"
+METADATA_FILE="$DATA_DIR/transport_metadata.json"
 
 mkdir -p "$DATA_DIR"
 
@@ -38,5 +39,25 @@ download_csv \
 download_csv \
   "https://docs.google.com/spreadsheets/d/1OV02tcFrMC6_gNKoHrb3K8mheRallx0cwYsFjZFqNb4/gviz/tq?tqx=out:csv&sheet=Report" \
   "$DATA_DIR/transport_report.csv"
+
+share_updated_at="$(date -u -r "$DATA_DIR/transport_share.csv" +"%Y-%m-%dT%H:%M:%SZ")"
+report_updated_at="$(date -u -r "$DATA_DIR/transport_report.csv" +"%Y-%m-%dT%H:%M:%SZ")"
+generated_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+cat > "$METADATA_FILE" <<EOF
+{
+  "generatedAt": "$generated_at",
+  "datasets": {
+    "share": {
+      "file": "transport_share.csv",
+      "updatedAt": "$share_updated_at"
+    },
+    "report": {
+      "file": "transport_report.csv",
+      "updatedAt": "$report_updated_at"
+    }
+  }
+}
+EOF
 
 echo "CSV refresh completed successfully."

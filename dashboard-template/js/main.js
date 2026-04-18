@@ -4,6 +4,7 @@ class Dashboard {
   constructor(configPath = 'config/config.json') {
     this.config = null;
     this.activeDs = null;   // active dataset config object
+    this.metadata = null;
     this.rawRows = [];
     this.dataset = [];
     this.years = [];
@@ -26,6 +27,7 @@ class Dashboard {
   async init(configPath) {
     try {
       this.config = await this.loadConfig(configPath);
+      this.metadata = await this.loadMetadata(this.config.metadataPath);
       this.renderStaticContent();
       await this.switchDataset(this.config.activeDataset || this.config.datasets[0].id);
     } catch (error) {
@@ -81,6 +83,15 @@ class Dashboard {
     return `${date.getDate()} ${thaiMonths[date.getMonth()]} ${date.getFullYear() + 543}`;
   }
 
+  formatThaiDateTime(dateInput) {
+    const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+    if (Number.isNaN(date.getTime())) return '-';
+    const thaiMonths = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${date.getDate()} ${thaiMonths[date.getMonth()]} ${date.getFullYear() + 543} ${hours}:${minutes} น.`;
+  }
+
   setTextContent(id, value) {
     const el = document.getElementById(id);
     if (el) el.textContent = value || '';
@@ -95,12 +106,14 @@ class Dashboard {
     this.setTextContent('footer-org', this.config.organization);
     this.setTextContent('footer-owner', `© ${this.config.preparedBy}`);
     this.setTextContent('footer-role', this.config.preparedByRole);
-    this.setTextContent('meta-date', this.formatThaiDate());
-    this.setTextContent('footer-updated', `อัปเดตล่าสุด: ${this.formatThaiDate()}`);
+    this.setTextContent('meta-date', '-');
+    this.setTextContent('footer-updated', `อัปเดตล่าสุด: ${this.metadata?.generatedAt ? this.formatThaiDateTime(this.metadata.generatedAt) : '-'}`);
   }
 
   renderDatasetMeta() {
     this.setTextContent('meta-unit', this.activeDs?.dataUnit || '-');
+    const datasetUpdatedAt = this.metadata?.datasets?.[this.activeDs?.id]?.updatedAt;
+    this.setTextContent('meta-date', datasetUpdatedAt ? this.formatThaiDateTime(datasetUpdatedAt) : '-');
   }
 
   async loadConfig(configPath) {
@@ -114,6 +127,17 @@ class Dashboard {
     if (!res.ok) throw new Error(`Cannot load data: ${dataPath}`);
     const text = await res.text();
     return this.parseCSV(text);
+  }
+
+  async loadMetadata(metadataPath) {
+    if (!metadataPath) return null;
+    try {
+      const res = await fetch(metadataPath);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch {
+      return null;
+    }
   }
 
   parseCSV(csv) {
@@ -456,11 +480,12 @@ class Dashboard {
     const maxYear = this.years[this.years.length - 1] || '-';
     const targetYear = Number(this.config?.targetYear);
     const targetNote = Number.isFinite(targetYear) ? ` · เตรียมปี ${targetYear}` : '';
+    const updatedAt = this.metadata?.datasets?.[this.activeDs?.id]?.updatedAt;
     tbody.innerHTML = `
       <tr>
-        <td>${this.activeDs?.label || 'ข้อมูลขนส่งสาธารณะ'}</td>
+        <td>${this.activeDs?.sourceName || this.activeDs?.label || 'ข้อมูลขนส่งสาธารณะ'}</td>
         <td>สำนักการจราจรและขนส่ง กรุงเทพมหานคร</td>
-        <td>ปี ${minYear} - ปี ${maxYear}${targetNote}</td>
+        <td>ปี ${minYear} - ปี ${maxYear}${targetNote}${updatedAt ? ` · อัปเดต ${this.formatThaiDateTime(updatedAt)}` : ''}</td>
       </tr>
     `;
   }

@@ -1,0 +1,13 @@
+{
+  "generatedAt": "2026-04-18T18:52:30Z",
+  "datasets": {
+    "share": {
+      "file": "transport_share.csv",
+      "updatedAt": "2026-04-18T18:52:29Z"
+    },
+    "report": {
+      "file": "transport_report.csv",
+      "updatedAt": "2026-04-18T18:52:30Z"
+    }
+  }
+}
