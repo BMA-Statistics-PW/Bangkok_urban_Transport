@@ -263,15 +263,15 @@ footer strong{color:#1d4ed8}
   <div class="kpi-row">
     <div class="kpi" style="border-left-color:#22c55e">
       <div class="kpi-label">BTS สายสีเขียว</div>
-      <div class="kpi-val" style="color:#22c55e">261.8</div>
+      <div class="kpi-val" style="color:#22c55e">255.8</div>
       <div class="kpi-unit">ล้านเที่ยวคน/ปี 2568</div>
-      <div class="kpi-delta down">▼ −1.6% จาก 266.2 ล. (2567)</div>
+      <div class="kpi-delta down">▼ −3.9% จาก 266.2 ล. (2567)</div>
     </div>
     <div class="kpi" style="border-left-color:#3b82f6">
       <div class="kpi-label">MRT สายสีน้ำเงิน</div>
       <div class="kpi-val" style="color:#3b82f6">151.9</div>
       <div class="kpi-unit">ล้านเที่ยวคน/ปี 2568</div>
-      <div class="kpi-delta down">▼ −2.7% จาก 156.1 ล. (2567)</div>
+      <div class="kpi-delta down">▼ −3.4% จาก 157.2 ล. (2567)</div>
     </div>
     <div class="kpi" style="border-left-color:#f97316">
       <div class="kpi-label">รถโดยสาร ขสมก.</div>
@@ -456,8 +456,8 @@ footer strong{color:#1d4ed8}
           <tr><td><span class="dot-sm" style="background:#eab308"></span>BTS สีทอง</td><td>กทม.</td><td>2564–2568 </td></tr>
           <tr><td><span class="dot-sm" style="background:#3b82f6"></span>MRT สีน้ำเงิน</td><td>รฟม. / กรมการขนส่งทางราง</td><td>2556–2568</td></tr>
           <tr><td><span class="dot-sm" style="background:#a855f7"></span>MRT สีม่วง</td><td>รฟม.</td><td>2559–2568</td></tr>
-          <tr><td><span class="dot-sm" style="background:#facc15"></span>MRT สีเหลือง</td><td>รฟม.</td><td>2567–2568</td></tr>
-          <tr><td><span class="dot-sm" style="background:#ec4899"></span>MRT สีชมพู</td><td>รฟม.</td><td>2567–2568</td></tr>
+          <tr><td><span class="dot-sm" style="background:#facc15"></span>MRT สีเหลือง</td><td>รฟม.</td><td>2566–2568</td></tr>
+          <tr><td><span class="dot-sm" style="background:#ec4899"></span>MRT สีชมพู</td><td>รฟม.</td><td>2566–2568</td></tr>
           <tr><td><span class="dot-sm" style="background:#06b6d4"></span>ARL</td><td>รฟท. / กรมการขนส่งทางราง</td><td>2556–2568</td></tr>
           <tr><td><span class="dot-sm" style="background:#ef4444"></span>SRT สีแดง</td><td>รฟฟท. / กรมการขนส่งทางราง</td><td>2564–2568</td></tr>
           <tr><td><span class="dot-sm" style="background:#0ea5e9"></span>เรือโดยสาร กทม.</td><td>กทม. / กรมเจ้าท่า</td><td>2560–2568 </td></tr>
@@ -501,16 +501,16 @@ footer strong{color:#1d4ed8}
 // ══════════════════════════════════════
 const YEARS = [2556,2557,2558,2559,2560,2561,2562,2563,2564,2565,2566,2567,2568];
 
-// ล้านเที่ยวคน/ปี — 2556-2567 = Chart sheet ทางการ | 2568 = คำนวณจากรายเดือน
+// ล้านเที่ยวคน/ปี — 2556-2564,2566 = Chart sheet | 2565,2567 = แก้ไขตาม MRT sheet | 2568 = คำนวณจากรายเดือน
 const DATA = {
   bmta:   [330.96,306.01,315.16,307.41,278.21,372.62,358.96,261.43,177.00,200.61,233.84,214.60,181.26],
   brt:    [5.57,  6.49,  6.89,  7.05,  5.33,  4.56,  4.65,  3.31,  1.89,  2.47,  3.48,  null,  2.66],
-  btsG:   [214.96,229.30,241.11,248.64,252.73,252.69,272.02,182.19,108.17,194.38,264.68,266.18,261.82],
-  btsGold:[0,    0,    0,    0,    0,    0,    0,    0,    0.68,  1.35,  2.46,  2.78,  2.38],
-  mrtB:   [86.44, 92.44, 95.02,100.37,107.54,113.71,123.62, 95.60, 53.53, 91.57,143.38,156.11,151.87],
-  mrtP:   [null,  null,  null,  3.07, 11.63, 17.64, 19.73, 16.84,  9.84, 11.61, 21.51, 24.53, 24.41],
-  mrtY:   [null,null,null,null,null,null,null,null,null,null,null,  14.30, 16.22],
-  mrtPk:  [null,null,null,null,null,null,null,null,null,null,null,  20.19, 21.46],
+  btsG:   [214.96,229.30,241.11,248.64,252.73,252.69,272.02,182.19,108.17,194.38,264.68,266.18,255.82],
+  btsGold:[0,    0,    0,    0,    0,    0,    0,    0,    0.68,  1.35,  2.46,  2.78,  2.71],
+  mrtB:   [86.44, 92.44, 95.02,100.37,107.54,113.71,123.62, 95.60, 53.53, 99.00,143.38,157.15,151.87],
+  mrtP:   [null,  null,  null,  3.07, 11.63, 17.64, 19.73, 16.84,  9.84, 16.15, 21.51, 24.72, 24.41],
+  mrtY:   [null,null,null,null,null,null,null,null,null,null, 7.47, 14.30, 16.22],
+  mrtPk:  [null,null,null,null,null,null,null,null,null,null, 3.35, 20.19, 21.46],
   arl:    [15.38, 17.00, 19.37, 21.18, 22.64, 23.57, 25.86, 14.93,  7.95, 15.98, 22.56, 24.19, 24.50],
   srtN:   [0,    0,    0,    0,    0,    0,    0,    0,    0.93,  4.46,  6.64,  9.24, 10.40],
   srtW:   [0,    0,    0,    0,    0,    0,    0,    0,    0.07,  0.34,  0.50,  0.70,  0.81],
@@ -687,7 +687,7 @@ new Chart(overviewCtx, {
 // ══════════════════════════════════════
 const DONUT_DATA = [
   {l:'ขสมก.',        v:181.26, c:C.bmta},
-  {l:'BTS สีเขียว',  v:261.82, c:C.btsG},
+  {l:'BTS สีเขียว',  v:255.82, c:C.btsG},
   {l:'MRT น้ำเงิน',  v:151.87, c:C.mrtB},
   {l:'MRT ม่วง',     v:24.41,  c:C.mrtP},
   {l:'MRT เหลือง',   v:16.22,  c:C.mrtY},
@@ -695,7 +695,7 @@ const DONUT_DATA = [
   {l:'ARL',          v:24.50,  c:C.arl},
   {l:'SRT (รวม)',    v:11.21,  c:C.srtN},
   {l:'BRT',          v:2.66,   c:C.brt},
-  {l:'BTS สีทอง',   v:2.38,   c:C.btsGold},
+  {l:'BTS สีทอง',   v:2.71,   c:C.btsGold},
   {l:'เรือโดยสาร',  v:40.72,  c:C.ferry},
 ];
 const total68 = DONUT_DATA.reduce((s,d)=>s+d.v, 0);
@@ -834,8 +834,8 @@ const TBL_ROWS = [
   {key:'btsGold', label:'BTS สายสีทอง',               color:C.btsGold, start:8},
   {key:'mrtB',    label:'MRT สายสีน้ำเงิน',           color:C.mrtB,    start:0},
   {key:'mrtP',    label:'MRT สายสีม่วง',              color:C.mrtP,    start:3},
-  {key:'mrtY',    label:'MRT สายสีเหลือง',            color:C.mrtY,    start:11},
-  {key:'mrtPk',   label:'MRT สายสีชมพู',              color:C.mrtPk,   start:11},
+  {key:'mrtY',    label:'MRT สายสีเหลือง',            color:C.mrtY,    start:10},
+  {key:'mrtPk',   label:'MRT สายสีชมพู',              color:C.mrtPk,   start:10},
   {key:'arl',     label:'Airport Rail Link',           color:C.arl,     start:0},
   {key:'srtN',    label:'SRT สายเหนือ (Dark Red)',    color:C.srtN,    start:8},
   {key:'srtW',    label:'SRT สายตะวันตก (Light Red)', color:C.srtW,    start:8},
@@ -982,8 +982,8 @@ function renderAnnual(idx) {
     ['BTS สายสีทอง',          idx>=8?DATA.btsGold[idx]:null, C.btsGold],
     ['MRT สายสีน้ำเงิน',      DATA.mrtB[idx],     C.mrtB],
     ['MRT สายสีม่วง',         idx>=3?DATA.mrtP[idx]:null, C.mrtP],
-    ['MRT สายสีเหลือง',       idx>=11?DATA.mrtY[idx]:null, C.mrtY],
-    ['MRT สายสีชมพู',         idx>=11?DATA.mrtPk[idx]:null, C.mrtPk],
+    ['MRT สายสีเหลือง',       idx>=10?DATA.mrtY[idx]:null, C.mrtY],
+    ['MRT สายสีชมพู',         idx>=10?DATA.mrtPk[idx]:null, C.mrtPk],
     ['Airport Rail Link',      DATA.arl[idx],      C.arl],
     ['SRT สายสีแดง (รวม)',   idx>=8?(DATA.srtN[idx]||0)+(DATA.srtW[idx]||0):null, C.srtN],
     [ferryLabel,               FERRY[idx],        C.ferry],
@@ -1029,7 +1029,4 @@ function renderAnnual(idx) {
         * ปี ${y}: ข้อมูลเรือโดยสารเป็น <strong>เฉพาะเรือข้ามฟาก</strong></div>`:''}
     </div>`;
 }
-renderAnnual(YEARS.indexOf(2568));
-</script>
-</body>
-</html>
+renderAnnual(YEARS.indexO
