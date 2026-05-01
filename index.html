@@ -708,7 +708,7 @@ new Chart(overviewCtx, {
 // ══════════════════════════════════════
 const DONUT_DATA = [
   {l:'ขสมก.',        v:181.26, c:C.bmta},
-  {l:'BTS สีเขียว',  v:2255.82, c:C.btsG},
+  {l:'BTS สีเขียว',  v:255.82, c:C.btsG},
   {l:'MRT น้ำเงิน',  v:151.87, c:C.mrtB},
   {l:'MRT ม่วง',     v:24.41,  c:C.mrtP},
   {l:'MRT เหลือง',   v:16.22,  c:C.mrtY},
@@ -723,10 +723,10 @@ const total68 = DONUT_DATA.reduce((s,d)=>s+d.v, 0);
 new Chart(document.getElementById('donutChart').getContext('2d'), {
   type:'doughnut',
   data:{
-    labels: DONUT_[DATA.map](http://DATA.map)(d=>d.l),
+    labels: DONUT_DATA.map()(http://DATA.map)(d=>d.l),
     datasets:[{
-      data: DONUT_[DATA.map](http://DATA.map)(d=>d.v),
-      backgroundColor: DONUT_[DATA.map](http://DATA.map)(d=>d.c),
+      data: DONUT_DATA.map()(http://DATA.map)(d=>d.v),
+      backgroundColor: DONUT_DATA.map()(http://DATA.map)(d=>d.c),
       borderWidth:2, borderColor:'#fff', hoverOffset:6
     }]
   },
@@ -891,7 +891,7 @@ tbl.appendChild(tbody);
 new Chart(document.getElementById('modalTrendChart').getContext('2d'), {
   type:'line',
   data:{
-    labels: MODAL_[YEARS.map](http://YEARS.map)(y=>'ปี '+y),
+    labels: MODAL_YEARS.map()(http://YEARS.map)(y=>'ปี '+y),
     datasets:[
       {label:'ขนส่งสาธารณะ (%)', data:MODAL_PT,
        borderColor:'
@@ -921,7 +921,7 @@ new Chart(document.getElementById('modalTrendChart').getContext('2d'), {
 new Chart(document.getElementById('modalVolumeChart').getContext('2d'), {
   type:'bar',
   data:{
-    labels: MODAL_[YEARS.map](http://YEARS.map)(y=>'ปี '+y),
+    labels: MODAL_YEARS.map()(http://YEARS.map)(y=>'ปี '+y),
     datasets:[{
       label:'ปริมาณการเดินทางสาธารณะ',
       data: MODAL_PT_VOL,
@@ -949,7 +949,7 @@ new Chart(document.getElementById('modalVolumeChart').getContext('2d'), {
 function renderDetail(elId, data) {
   const el = document.getElementById(elId);
   const total = data.reduce((s,d)=>s+d.v, 0);
-  const maxV  = Math.max(...[data.map](http://data.map)(d=>d.v));
+  const maxV  = Math.max(...data.map(http://data.map)(d=>d.v));
   el.innerHTML = [data.map](http://data.map)(d=>`
     <div style="margin-bottom:11px">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">
