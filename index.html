@@ -470,12 +470,11 @@ footer strong{color:#1d4ed8}
     <div class="card-title">⚠️ ข้อจำกัดของข้อมูล</div>
     <div style="font-size:16px;color:var(--dim);line-height:2.3">
       <strong style="color:#dc2626">1.</strong> หน่วยต่างกัน: ไฟล์ผู้โดยสาร = <strong>เที่ยวคน</strong> · ไฟล์สัดส่วน = <strong>ล้านคน-เที่ยว/ปี</strong> (ปรับด้วย trip rate)<br>
-      <strong style="color:#dc2626">2.</strong> ขสมก. ใช้ <strong>ปีงบประมาณ</strong> (ต.ค.–ก.ย.) ระบบรางใช้ <strong>ปีปฏิทิน</strong> (ม.ค.–ธ.ค.) — การเปรียบเทียบต้องระวัง<br>
-      <strong style="color:#dc2626">3.</strong> BRT ปี 2567 ไม่มีข้อมูล เนื่องจากปรับเปลี่ยนระบบการให้บริการ ม.ค.–ต.ค. 2567<br>
-      <strong style="color:#dc2626">4.</strong> MRT เหลือง/ชมพู เริ่มปี 2567 (เปิดให้บริการปี 2566 ปลายปี)<br>
-      <strong style="color:#dc2626">5.</strong> เรือโดยสาร ปี 2560–2568: (5 ประเภท) · ปี 2556–2559: Ferry sheet (เฉพาะเรือข้ามฟาก)<br>
-      <strong style="color:#dc2626">6.</strong> ปี 2563–2564: ผลกระทบ COVID-19 ทำให้ตัวเลขต่ำกว่าปกติ ไม่ควรเปรียบเทียบกับปีอื่น<br>
-      <strong style="color:#dc2626">7.</strong> ไม่รวม: รถตู้โดยสาร รถไฟระหว่างเมือง สองแถว มอเตอร์ไซค์รับจ้าง
+      <strong style="color:#dc2626">2.</strong> BRT ปี 2567 ไม่มีข้อมูล เนื่องจากปรับเปลี่ยนระบบการให้บริการ ม.ค.–ต.ค. 2567<br>
+      <strong style="color:#dc2626">3.</strong> MRT เหลือง/ชมพู เริ่มปี 2567 (เปิดให้บริการปี 2566 ปลายปี)<br>
+      <strong style="color:#dc2626">4.</strong> เรือโดยสาร ปี 2560–2568: รวม 5 ประเภท · ปี 2556–2559: เฉพาะเรือข้ามฟาก<br>
+      <strong style="color:#dc2626">5.</strong> ปี 2563–2564: ผลกระทบ COVID-19 ทำให้ตัวเลขต่ำกว่าปกติ ไม่ควรเปรียบเทียบกับปีอื่น<br>
+      <strong style="color:#dc2626">6.</strong> ไม่รวม: รถตู้โดยสาร รถไฟระหว่างเมือง สองแถว มอเตอร์ไซค์รับจ้าง
     </div>
   </div>
 
@@ -497,28 +496,27 @@ footer strong{color:#1d4ed8}
 
 <script>
 // ══════════════════════════════════════
-// DATA — ตรวจสอบจากไฟล์ xlsx แล้ว
+// DATA — อัปเดตข้อมูลให้ตรงตาม Google Sheets (หน่วย: ล้านเที่ยวคน)
 // ══════════════════════════════════════
 const YEARS = [2556,2557,2558,2559,2560,2561,2562,2563,2564,2565,2566,2567,2568];
 
-// ล้านเที่ยวคน/ปี — 2556-2567 = Chart sheet ทางการ | 2568 = คำนวณจากรายเดือน
+// ล้านเที่ยวคน/ปี — อ้างอิงจากชีต "Report"
 const DATA = {
-  bmta:   [330.96,306.01,315.16,307.41,278.21,372.62,358.96,261.43,177.00,200.61,233.84,214.60,181.26],
-  brt:    [5.57,  6.49,  6.89,  7.05,  5.33,  4.56,  4.65,  3.31,  1.89,  2.47,  3.48,  null,  2.66],
-  btsG:   [214.96,229.30,241.11,248.64,252.73,252.69,272.02,182.19,108.17,194.38,264.68,266.18,261.82],
-  btsGold:[0,    0,    0,    0,    0,    0,    0,    0,    0.68,  1.35,  2.46,  2.78,  2.38],
-  mrtB:   [86.44, 92.44, 95.02,100.37,107.54,113.71,123.62, 95.60, 53.53, 91.57,143.38,156.11,151.87],
-  mrtP:   [null,  null,  null,  3.07, 11.63, 17.64, 19.73, 16.84,  9.84, 11.61, 21.51, 24.53, 24.41],
-  mrtY:   [null,null,null,null,null,null,null,null,null,null,null,  14.30, 16.22],
-  mrtPk:  [null,null,null,null,null,null,null,null,null,null,null,  20.19, 21.46],
-  arl:    [15.38, 17.00, 19.37, 21.18, 22.64, 23.57, 25.86, 14.93,  7.95, 15.98, 22.56, 24.19, 24.50],
-  srtN:   [0,    0,    0,    0,    0,    0,    0,    0,    0.93,  4.46,  6.64,  9.24, 10.40],
-  srtW:   [0,    0,    0,    0,    0,    0,    0,    0,    0.07,  0.34,  0.50,  0.70,  0.81],
+  bmta:    [326.28, 305.67, 313.70, 299.77, 293.65, 382.18, 346.67, 240.81, 157.19, 217.06, 233.84, 214.60, 181.26],
+  brt:     [5.57,   6.49,   6.89,   7.05,   5.33,   4.56,   4.65,   3.31,   1.89,   2.47,   3.48,   0.48,   2.66],
+  btsG:    [214.96, 229.30, 241.11, 248.64, 252.73, 252.69, 272.02, 182.19, 108.17, 194.38, 264.68, 266.18, 255.82],
+  btsGold: [0,      0,      0,      0,      0,      0,      0,      0,      0.68,   1.35,   2.46,   2.78,   2.71],
+  mrtB:    [86.44,  92.44,  95.02,  100.37, 107.54, 113.71, 123.62, 95.60,  53.53,  99.00,  143.38, 157.15, 151.87],
+  mrtP:    [null,   null,   null,   3.07,   11.63,  17.64,  19.73,  16.84,  9.84,   16.15,  21.51,  24.72,  24.41],
+  mrtY:    [null,   null,   null,   null,   null,   null,   null,   null,   null,   null,   7.47,   14.30,  16.22],
+  mrtPk:   [null,   null,   null,   null,   null,   null,   null,   null,   null,   null,   3.35,   20.19,  21.46],
+  arl:     [15.38,  17.00,  19.37,  21.18,  22.64,  23.57,  25.86,  14.93,  7.95,   15.83,  22.56,  24.19,  24.50],
+  srtN:    [0,      0,      0,      0,      0,      0,      0,      0,      0.93,   4.46,   6.64,   9.24,   10.40],
+  srtW:    [0,      0,      0,      0,      0,      0,      0,      0,      0.07,   0.34,   0.50,   0.70,   0.81],
 };
 
-// เรือโดยสาร — 2556-2559: Ferry sheet xlsx | 2560-2568: กทม. (5 ประเภท)
-// 2564 = null เพราะไม่ได้สำรวจ (COVID-19)
-const FERRY = [44.55,41.51,41.23,37.88, 65.93,65.59,64.65,26.30,null, 23.47,38.01,42.24,40.72];
+// เรือโดยสาร — ปรับให้ตรงกับชีต (เรือยนต์ข้ามฟากแม่น้ำเจ้าพระยา)
+const FERRY = [44.55, 41.51, 41.23, 37.88, 37.67, 36.35, 33.93, 16.85, 12.90, 17.56, 25.83, 27.60, 23.60];
 
 // Modal share (สนข. BTDM) ปี 2560-2567
 const MODAL_YEARS  = ['2560','2561','2562','2563','2564','2565','2566','2567'];
@@ -569,7 +567,7 @@ const C = {
 const LBL = {
   bmta:'ขสมก.', brt:'BRT', btsG:'BTS สีเขียว', btsGold:'BTS สีทอง',
   mrtB:'MRT น้ำเงิน', mrtP:'MRT ม่วง', mrtY:'MRT เหลือง', mrtPk:'MRT ชมพู',
-  arl:'ARL', srtN:'SRT เหนือ', srtW:'SRT ตะวันตก', ferry:'เรือโดยสาร',
+  arl:'ARL', srtN:'SRT เหนือ', srtW:'SRT ตะวันตก', ferry:'เรือข้ามฟาก',
 };
 
 // Chart.js defaults
@@ -659,7 +657,7 @@ new Chart(overviewCtx, {
       {label:LBL.arl,     data:DATA.arl,     backgroundColor:C.arl    +'cc', stack:'s'},
       {label:LBL.btsGold, data:DATA.btsGold, backgroundColor:C.btsGold+'cc', stack:'s'},
       {label:LBL.srtN,    data:DATA.srtN,    backgroundColor:C.srtN   +'cc', stack:'s'},
-      {label:LBL.ferry,   data:FERRY,         backgroundColor:C.ferry  +'99', stack:'s'},
+      {label:LBL.ferry,   data:FERRY,        backgroundColor:C.ferry  +'99', stack:'s'},
     ]
   },
   options: {
@@ -685,9 +683,10 @@ new Chart(overviewCtx, {
 // ══════════════════════════════════════
 // DONUT 2568
 // ══════════════════════════════════════
+// อัปเดตข้อมูลให้ตรงกับตารางในปี 2568
 const DONUT_DATA = [
   {l:'ขสมก.',        v:181.26, c:C.bmta},
-  {l:'BTS สีเขียว',  v:261.82, c:C.btsG},
+  {l:'BTS สีเขียว',  v:255.82, c:C.btsG},
   {l:'MRT น้ำเงิน',  v:151.87, c:C.mrtB},
   {l:'MRT ม่วง',     v:24.41,  c:C.mrtP},
   {l:'MRT เหลือง',   v:16.22,  c:C.mrtY},
@@ -695,8 +694,8 @@ const DONUT_DATA = [
   {l:'ARL',          v:24.50,  c:C.arl},
   {l:'SRT (รวม)',    v:11.21,  c:C.srtN},
   {l:'BRT',          v:2.66,   c:C.brt},
-  {l:'BTS สีทอง',   v:2.38,   c:C.btsGold},
-  {l:'เรือโดยสาร',  v:40.72,  c:C.ferry},
+  {l:'BTS สีทอง',   v:2.71,   c:C.btsGold},
+  {l:'เรือข้ามฟาก',  v:23.60,  c:C.ferry},
 ];
 const total68 = DONUT_DATA.reduce((s,d)=>s+d.v, 0);
 
@@ -857,7 +856,7 @@ TBL_ROWS.forEach(row => {
     else if (v===0) txt = `<span style="color:var(--muted)">—</span>`;
     else {
       const isNew = y===2568;
-      txt = `<span style="font-family:var(--mono);color:${isNew?'#1d4ed8':row.color};font-weight:${isNew?700:400}">${v.toFixed(1)}</span>`;
+      txt = `<span style="font-family:var(--mono);color:${isNew?'#1d4ed8':row.color};font-weight:${isNew?700:400}">${v.toFixed(2)}</span>`;
     }
     const bg = y===2564 ? 'background:rgba(239,68,68,0.05)' : '';
     cells += `<td style="text-align:right;${bg}">${txt}</td>`;
@@ -972,21 +971,20 @@ function renderAnnual(idx) {
   const isCovid  = y===2564;
   const isPreCov = y===2563;
   const is2568   = y===2568;
-  const isFerryOnly = y>=2556 && y<=2559;
-  const ferryLabel = isFerryOnly ? 'เรือโดยสาร*' : 'เรือโดยสาร (5 ประเภท)*';
 
+  // ปรับการตรวจสอบให้แสดงผลตามข้อมูลที่มี
   const rows = [
     ['ขสมก. (รถประจำทาง)',    DATA.bmta[idx],     C.bmta],
     ['BRT',                    DATA.brt[idx],      C.brt],
     ['BTS สายสีเขียว',        DATA.btsG[idx],     C.btsG],
-    ['BTS สายสีทอง',          idx>=8?DATA.btsGold[idx]:null, C.btsGold],
+    ['BTS สายสีทอง',          DATA.btsGold[idx],  C.btsGold],
     ['MRT สายสีน้ำเงิน',      DATA.mrtB[idx],     C.mrtB],
-    ['MRT สายสีม่วง',         idx>=3?DATA.mrtP[idx]:null, C.mrtP],
-    ['MRT สายสีเหลือง',       idx>=11?DATA.mrtY[idx]:null, C.mrtY],
-    ['MRT สายสีชมพู',         idx>=11?DATA.mrtPk[idx]:null, C.mrtPk],
+    ['MRT สายสีม่วง',         DATA.mrtP[idx],     C.mrtP],
+    ['MRT สายสีเหลือง',       DATA.mrtY[idx],     C.mrtY],
+    ['MRT สายสีชมพู',         DATA.mrtPk[idx],    C.mrtPk],
     ['Airport Rail Link',      DATA.arl[idx],      C.arl],
-    ['SRT สายสีแดง (รวม)',   idx>=8?(DATA.srtN[idx]||0)+(DATA.srtW[idx]||0):null, C.srtN],
-    [ferryLabel,               FERRY[idx],        C.ferry],
+    ['SRT สายสีแดง (รวม)',   (DATA.srtN[idx]||0)+(DATA.srtW[idx]||0), C.srtN],
+    ['เรือข้ามฟาก',            FERRY[idx],         C.ferry],
   ].filter(r => r[1] !== null && r[1] !== undefined && r[1] > 0);
 
   const total = rows.reduce((s,r)=>s+(r[1]||0),0);
@@ -1005,7 +1003,7 @@ function renderAnnual(idx) {
           <div style="background:#f8fafc;border:1px solid var(--border);border-left:4px solid ${r[2]};
             border-radius:10px;padding:14px">
             <div style="font-size:14px;color:#64748b;margin-bottom:6px;font-weight:600">${r[0]}</div>
-            <div style="font-family:var(--mono);font-size:26px;font-weight:700;color:${r[2]}">${r[1].toFixed(1)}</div>
+            <div style="font-family:var(--mono);font-size:26px;font-weight:700;color:${r[2]}">${r[1].toFixed(2)}</div>
             <div style="font-size:14px;color:var(--muted);margin-top:3px">ล้านเที่ยวคน · ${(r[1]/total*100).toFixed(1)}%</div>
             <div class="pbar" style="margin-top:8px">
               <div class="pbar-fill" style="width:${(r[1]/maxV*100).toFixed(0)}%;background:${r[2]}"></div>
@@ -1015,20 +1013,14 @@ function renderAnnual(idx) {
       <div style="margin-top:18px;padding-top:14px;border-top:2px solid var(--border);
         display:flex;justify-content:space-between;align-items:baseline">
         <span style="font-size:16px;color:var(--dim)">รวมทุกระบบ (ข้อมูลที่มี)</span>
-        <span style="font-family:var(--mono);font-size:20px;font-weight:700;color:#15803d">${total.toFixed(1)} ล้านเที่ยวคน/ปี</span>
+        <span style="font-family:var(--mono);font-size:20px;font-weight:700;color:#15803d">${total.toFixed(2)} ล้านเที่ยวคน/ปี</span>
       </div>
       ${isCovid?`<div class="covid-note" style="margin-top:16px;margin-bottom:0">
         ⚠️ <strong>เหตุการณ์ COVID-19</strong> — การระบาดของโรคติดเชื้อไวรัสโคโรนา 2019
         มาตรการล็อกดาวน์ส่งผลให้ตัวเลขต่ำกว่าปกติ ไม่ควรนำมาเปรียบเทียบกับปีอื่น</div>`:''}
-      ${is2568?`<div style="margin-top:14px;background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.18);
-        border-left:4px solid #3b82f6;border-radius:8px;padding:10px 14px;font-size:14px;color:#1e40af;line-height:1.8">
-        * เรือโดยสาร 2568: รวม 5 ประเภท — เรือข้ามฟาก 18.33 | เรือด่วนเจ้าพระยา 6.72 | 
-        คลองแสนแสบ 11.48 | เรือไฟฟ้า 1.61 | เรือภัตตาคาร 2.57 ล้านเที่ยว</div>`:''}
-      ${isFerryOnly?`<div style="margin-top:14px;background:rgba(14,165,233,0.06);border:1px solid rgba(14,165,233,0.22);
-        border-left:4px solid #0ea5e9;border-radius:8px;padding:10px 14px;font-size:14px;color:#0c4a6e;line-height:1.8">
-        * ปี ${y}: ข้อมูลเรือโดยสารเป็น <strong>เฉพาะเรือข้ามฟาก</strong></div>`:''}
     </div>`;
 }
+
 renderAnnual(YEARS.indexOf(2568));
 </script>
 </body>
