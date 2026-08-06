@@ -40,6 +40,10 @@ download_csv \
   "https://docs.google.com/spreadsheets/d/1OV02tcFrMC6_gNKoHrb3K8mheRallx0cwYsFjZFqNb4/gviz/tq?tqx=out:csv&sheet=Report" \
   "$DATA_DIR/transport_report.csv"
 
+# Auto-clean headers pulled from Google Sheets (e.g. year columns polluted with
+# unit text). Only the header row is normalized; data rows are left untouched.
+node "$ROOT_DIR/scripts/normalize_transport_csv.mjs"
+
 share_updated_at="$(date -u -r "$DATA_DIR/transport_share.csv" +"%Y-%m-%dT%H:%M:%SZ")"
 report_updated_at="$(date -u -r "$DATA_DIR/transport_report.csv" +"%Y-%m-%dT%H:%M:%SZ")"
 generated_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"

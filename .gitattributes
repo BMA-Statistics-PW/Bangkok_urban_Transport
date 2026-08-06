@@ -1,0 +1,8 @@
+# Enforce LF for shell scripts and JS so Windows checkouts don't break CI.
+*.sh    text eol=lf
+*.mjs   text eol=lf
+*.js    text eol=lf
+*.json  text eol=lf
+
+# Data files are pulled from Google Sheets (may be CRLF); store as LF for clean diffs.
+*.csv   text eol=lf
