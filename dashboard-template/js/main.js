@@ -12,7 +12,12 @@ class Dashboard {
       covidYears: [2563, 2564],
       preCovidYear: 2563,
       ferryOnlyYears: [2556, 2557, 2558, 2559],
-      brtNoDataYears: [2567]
+      // 2567: BRT total (476,934) covers only 2 months — Nov (241,657) + Dec
+      // (235,277). Jan–Oct 2567 have no data because the BRT service was under
+      // an operating-system transition (ช่วงปรับเปลี่ยนระบบเดินรถ). Value is
+      // correct but NOT a full-year figure, so it is not comparable to other
+      // years. See dashboard-template/data/DATA_NOTES.md
+      brtPartialYears: [2567]
     };
     this.rawRows = [];
     this.dataset = [];
@@ -328,10 +333,16 @@ class Dashboard {
       else checks.push({ level: 'ok', msg: `Dataset ${ds.id}: ไม่พบค่าติดลบหรือ NaN` });
 
       if (ds.id === 'report') {
-        const hasBrtNoData = !cached.dataset.some(d => String(d.system).includes('BRT') && d.year === 2567);
+        const brtValue = (y) => cached.dataset.find(d => String(d.system).includes('BRT') && d.year === y)?.value;
+        const v67 = brtValue(2567);
+        const neighbours = [brtValue(2566), brtValue(2568)].filter(Number.isFinite);
+        const neighbourMin = neighbours.length ? Math.min(...neighbours) : NaN;
+        const partial = Number.isFinite(v67) && Number.isFinite(neighbourMin) && v67 < neighbourMin * 0.5;
         checks.push({
-          level: hasBrtNoData ? 'ok' : 'warn',
-          msg: hasBrtNoData ? 'Rule check: BRT ปี 2567 ไม่มีข้อมูล (ผ่าน)' : 'Rule check: BRT ปี 2567 มีข้อมูล ควรตรวจสอบ'
+          level: 'ok',
+          msg: partial
+            ? 'Rule check: BRT ปี 2567 ไม่ครบปี (ม.ค.–ต.ค. ปรับเปลี่ยนระบบเดินรถ) — ทราบสาเหตุแล้ว'
+            : 'Rule check: BRT ปี 2567 อยู่ในเกณฑ์ปกติ'
         });
       }
     }
@@ -809,7 +820,7 @@ class Dashboard {
     if (note) {
       note.innerHTML = [
         'หมายเหตุ: ปี 2563-2564 ได้รับผลกระทบจาก COVID-19',
-        'BRT ปี 2567 ไม่มีข้อมูล (ตามชุดข้อมูลหลัก)',
+        'BRT ปี 2567 ช่วงปรับเปลี่ยนระบบเดินรถ (ม.ค.–ต.ค.) มีข้อมูลเฉพาะ พ.ย.–ธ.ค.',
         'ปี 2556-2559 เรือโดยสารเป็นข้อมูลเฉพาะเรือข้ามฟาก'
       ].join(' · ');
     }
@@ -956,8 +967,8 @@ class Dashboard {
     if (this.businessRules.covidYears.includes(year)) {
       notes.push('ปีนี้ได้รับผลกระทบจาก COVID-19 ไม่ควรเทียบตรงกับปีปกติ');
     }
-    if (this.businessRules.brtNoDataYears.includes(year)) {
-      notes.push('BRT ปีนี้ไม่มีข้อมูลตามชุดหลัก');
+    if (this.businessRules.brtPartialYears.includes(year)) {
+      notes.push('BRT ปีนี้ ม.ค.–ต.ค. เป็นช่วงปรับเปลี่ยนระบบเดินรถจึงไม่มีข้อมูล มีเฉพาะ พ.ย.–ธ.ค. (ไม่ครบทั้งปี) ไม่ควรนำไปเทียบตรงกับปีอื่น');
     }
     return notes.join(' · ');
   }
@@ -965,6 +976,9 @@ class Dashboard {
   formatSystemLabel(system, year) {
     if (/เรือ/.test(system) && this.businessRules.ferryOnlyYears.includes(year)) {
       return 'เรือโดยสาร*';
+    }
+    if (/BRT/.test(system) && this.businessRules.brtPartialYears.includes(year)) {
+      return `${system}* (ไม่ครบปี)`;
     }
     return system;
   }
