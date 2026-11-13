@@ -15,11 +15,11 @@
 | BRT 2567 | "ไม่มีข้อมูล" | "เฉพาะ 2 เดือน" (ตรงกับ DATA_NOTES.md และค่า 0.48 ในตาราง) |
 
 ## สลับภาษา ไทย / EN
-ปุ่ม ไทย | EN ที่ top bar · `assets/i18n.js` (พจนานุกรม + กฎ พ.ศ./วันที่) แปลทั้งข้อความที่ JS สร้าง กราฟ และ aria-label · เปิดด้วย `?lang=en` หรือจำค่าใน localStorage `bma-dashboard-lang` (คีย์เดียวกับ travel-time) · โหมด EN แปลงปี พ.ศ. เป็น ค.ศ. (2569 → 2026)
-เพิ่มข้อความใหม่: เติมคู่ [ไทย, English] ใน `G` ของ i18n.js
+ปุ่ม ไทย | EN ที่ top bar · บล็อก i18n.js ใน index.html (พจนานุกรม + กฎ พ.ศ./วันที่) แปลทั้งข้อความที่ JS สร้าง กราฟ และ aria-label · เปิดด้วย `?lang=en` หรือจำค่าใน localStorage `bma-dashboard-lang` (คีย์เดียวกับ travel-time) · โหมด EN แปลงปี พ.ศ. เป็น ค.ศ. (2569 → 2026)
+เพิ่มข้อความใหม่: เติมคู่ [ไทย, English] ใน `G` ของบล็อก i18n.js
 
 ## ไฟล์
-assets/{typography,dashboard-shell,gov-bkk-theme}.css (ชุดเดียวกับ travel-time) · urban.css · shell.js · index.html (JS/ข้อมูลเดิม)
+แก้เฉพาะ `index.html` (ไฟล์เดียว รวม CSS/JS ไว้ภายใน เหมือนหน้าเดิม ไม่ต้องอัปโหลดโฟลเดอร์ assets) — ส่วนที่รวมไว้: typography · dashboard-shell · urban · gov-bkk-theme (CSS) และ shell · i18n (JS) แยกเป็นบล็อกมีคอมเมนต์ชื่อไฟล์กำกับ
 
 ## ข้อสังเกตข้อมูล (ไม่ได้แก้ค่าในตาราง)
 - ARL ปี 2566: ชุด สนข. 45.21 vs ชุด สจส. 22.56 — คนละแหล่ง/หน่วยนับ ควรระบุให้ชัด
