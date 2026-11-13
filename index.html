@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#007744">
+<title>ระบบขนส่งสาธารณะกรุงเทพมหานคร — Dashboard</title>
+<meta name="description" content="สถิติผู้โดยสารระบบขนส่งสาธารณะกรุงเทพมหานคร ปี 2556–2568 · กลุ่มงานสถิติและวิจัย กองนโยบายและแผนงาน สำนักการจราจรและขนส่ง กทม.">
+<script>/* ตั้งธีมก่อนวาดหน้า (คีย์เดียวกับ BMA-travel-time-dashboard-TH) */
+(function(){try{if(localStorage.getItem('bma-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700&display=swap" rel="stylesheet">
+<style>/* assets/typography.css */
+/* ════════════════════════════════════════════════════════════════════
+   typography.css — มาตรฐานตัวอักษร (โหลดหลังสุด ทุกหน้า)
+   • หัวข้อ (header)      → Anuphan
+   • รายละเอียด/ตัวเลข/ตาราง/ปุ่ม → Sarabun
+   • ตัวเลขทั้งหมดเป็นเลขอารบิก (ไม่ใช้เลขไทย) · ตัวเลขกว้างเท่ากัน (tabular)
+   • พิมพ์รายงาน: TH Sarabun New ตามมาตรฐานเอกสารราชการ
+   © Prapawadee_W.
+   ════════════════════════════════════════════════════════════════════ */
+:root{
+  --font-head:'Anuphan','Sarabun',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-body:'Sarabun',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-sans:var(--font-body);
+  --font-mono:var(--font-body);   /* เดิมเป็น monospace → ใช้ Sarabun + tabular-nums แทน */
+  --font-serif:var(--font-head);  /* ตัวแปรเดิมของหัวข้อ → Anuphan */
+}
+html{font-variant-numeric:lining-nums tabular-nums}
+body,button,input,select,textarea,table,th,td,caption,.chip,.badge{font-family:var(--font-body)}
+
+/* ── หัวข้อ = Anuphan ── */
+h1,h2,h3,h4,
+.tb-h,.sb-title,.hb-title,.card-title,.kpi-l,.qa-t,.pd-t,
+.hero-title,.section-heading,.section-title,.compare-title,.line-title,.scenario-title,.method-title,
+.zone-district-header h2,.zd-title,.zone-summary-title,.scenario-zone,.about-name,.tomtom-city{
+  font-family:var(--font-head)}
+
+/* ── รายละเอียด/ตัวเลข = Sarabun ── */
+.kpi-v,.hb-tile-v,.hb-unit,.mt b,.top-v b,.top-n,.pd-n,.ins-dot,.rank,.sb-avatar,.tb-avatar,
+.tomtom-value,.tt-kpi__value,.rt-table .rd-name,.card-value,.kpi-speed,.scenario-kpi strong{
+  font-family:var(--font-body);font-variant-numeric:lining-nums tabular-nums}
+
+@media print{
+  :root{--font-head:'TH Sarabun New','THSarabunNew','Sarabun',sans-serif;--font-body:'TH Sarabun New','THSarabunNew','Sarabun',sans-serif}
+}
+
+</style>
+<style>/* assets/dashboard-shell.css */
+/* ════════════════════════════════════════════════════════════════════
+   dashboard-shell.css — เปลือกแดชบอร์ดแบบ Admin (sidebar · top bar · banner · KPI cards)
+   โหลดหลัง formal-theme.css · เขียนทับด้วย .app-shell เพื่อคง specificity ต่ำ ไม่ใช้ !important
+   Fonts: Anuphan (หัวข้อ) · Sarabun (เนื้อหา) · © Prapawadee_W.
+   ลำดับ: tokens → shell → sidebar → topbar → home → legacy restyle → dark → responsive → print
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ───────────── 1) Tokens ───────────── */
+:root{
+  --d-bg:#FFFFFF; --d-soft:#F3F6FA; --d-card:#FFFFFF; --d-line:#E3E9F1; --d-text:#14233A; --d-muted:#566677;
+  --d-brand:#0B63B0; --d-brand-d:#0A4A85; --d-brand-9:#0A2E5C; --d-active:#1F6FEB; --d-focus:#1F6FEB;
+  --d-radius:16px; --d-radius-sm:10px;
+  --d-shadow:0 1px 2px rgba(15,42,73,.05),0 8px 20px rgba(15,42,73,.06);
+  --sb-w:248px; --tb-h:72px;
+  /* สีโซน: ตัวอักษร/แท่ง (เข้ม ผ่าน 4.5:1 กับตัวอักษรขาว) · สีสว่างสำหรับพื้นหลัง/แผนที่คงเดิม */
+  --zc-inner:#C0282A; --zc-middle:#B3401F; --zc-outer:#007A63; --zc-jam:#B42318;
+  --zf-inner:#C0282A; --zf-middle:#B3401F; --zf-outer:#007A63; /* พื้นทึบ + ตัวอักษรขาว ≥ 4.5:1 ทั้งสองโหมด */
+  --pad-x:28px;
+}
+:root[data-theme='dark']{
+  --d-bg:#0B1220; --d-soft:#0B1220; --d-card:#111C2E; --d-line:#233149; --d-text:#E6EDF7; --d-muted:#A9B6C7;
+  --d-brand:#5AA9F0; --d-focus:#8CC4FF;
+  --d-shadow:0 1px 2px rgba(0,0,0,.4),0 8px 20px rgba(0,0,0,.35);
+  --zc-inner:#E5484D; --zc-middle:#D9622F; --zc-outer:#0F9D82;
+}
+
+/* ───────────── 2) Shell ───────────── */
+body{background:var(--d-bg);color:var(--d-text);font-family:var(--font-body);padding:0;margin:0}
+.app-shell{display:grid;grid-template-columns:var(--sb-w) minmax(0,1fr);min-height:100vh;background:var(--d-bg);transition:grid-template-columns .2s ease}
+.app-shell.sb-collapsed{--sb-w:76px}
+.app-main{min-width:0;display:flex;flex-direction:column}
+.app-shell :where(h1,h2,h3,h4){font-family:var(--font-head);color:var(--d-text)}
+:root[data-theme='dark'] .app-shell :is(h1,h2,h3,h4){color:var(--d-text)}
+:root[data-theme='dark'] .app-shell .hero-banner .hb-title{color:#fff}
+:root[data-theme='dark'] .app-shell .pd .pd-t{color:#14233A}
+.app-shell :focus-visible{outline:3px solid var(--d-focus);outline-offset:2px;border-radius:6px}
+.app-shell .a4-canvas{width:100%;max-width:1480px;min-height:0;margin:0 auto;background:transparent;box-shadow:none;border-radius:0;overflow:visible;padding:0 0 24px;gap:0}
+.app-shell .a4-body{padding:24px var(--pad-x) 8px;gap:24px}
+.app-shell .tab-panel{gap:24px}
+html{scroll-padding-top:calc(var(--tb-h) + 16px)}
+[id]{scroll-margin-top:calc(var(--tb-h) + 16px)}
+.print-only{display:none}
+.sr-only,.app-shell.sb-collapsed .sb-label{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* ───────────── 3) Sidebar ───────────── */
+.sidebar{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;color:#fff;z-index:50;
+  background:linear-gradient(180deg,#0C66B3 0%,#0A4A85 100%);overflow:hidden}
+.sb-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:18px 16px 14px;min-height:var(--tb-h)}
+.sb-brand{display:flex;align-items:center;gap:10px;min-width:0}
+.sb-logo{flex:0 0 auto;width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.16);display:grid;place-items:center}
+.sb-title{font:700 17px/1.2 var(--font-head);white-space:nowrap}
+.sb-sub{font-size:12.5px;color:#DCE9F6;white-space:nowrap}
+.sb-close{flex:0 0 auto;width:36px;height:36px;border-radius:10px;border:0;background:transparent;color:#fff;cursor:pointer;display:grid;place-items:center}
+.sb-close:hover{background:rgba(255,255,255,.14)}
+.sb-nav{flex:1;overflow-y:auto;padding:8px 12px;scrollbar-width:thin}
+.sb-list{display:block}
+.app-shell .tab-bar.is-side{display:flex;flex-direction:column;gap:4px;overflow:visible;padding:0;border:0;border-radius:0;background:transparent;position:static}
+.app-shell .tab-bar.is-side .tab-btn{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:10px 14px;border-radius:12px;border:0;background:transparent;color:#fff;
+  font:600 14.5px/1.3 var(--font-body);text-align:left;white-space:normal;box-shadow:none}
+.app-shell .tab-bar.is-side .tab-btn:hover{background:rgba(255,255,255,.14)}
+.app-shell .tab-bar.is-side .tab-btn[aria-selected="true"]{background:var(--d-active);color:#fff;box-shadow:0 6px 14px rgba(8,40,90,.35)}
+.app-shell .tab-bar.is-side .tab-btn:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.sb-ico{flex:0 0 auto}
+.sb-foot{display:flex;align-items:center;gap:10px;padding:14px 16px;border-top:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.12)}
+.sb-avatar{flex:0 0 auto;width:36px;height:36px;border-radius:50%;background:#fff;color:var(--d-brand-d);font:700 13px var(--font-head);display:grid;place-items:center}
+.sb-user{font-weight:700;font-size:14px;white-space:nowrap}
+.sb-mail{font-size:12.5px;color:#DCE9F6;line-height:1.35}
+.sb-collapsed .sb-brand-text,.sb-collapsed .sb-foot-text{display:none}
+.sb-collapsed .sb-head{flex-direction:column;justify-content:center;padding:14px 8px}
+.sb-collapsed .tab-bar.is-side .tab-btn{justify-content:center;padding:10px}
+.sb-collapsed .sb-foot{justify-content:center}
+.sb-collapsed .sb-close svg{transform:rotate(45deg)}
+.sb-backdrop{position:fixed;inset:0;background:rgba(8,20,40,.55);z-index:45}
+.sb-backdrop[hidden]{display:none}
+
+/* ───────────── 4) Top bar ───────────── */
+.topbar{position:sticky;top:0;z-index:40;height:var(--tb-h);display:flex;align-items:center;gap:16px;padding:0 var(--pad-x);background:var(--d-card);border-bottom:1px solid var(--d-line)}
+.menu-btn{display:none;width:44px;height:44px;border-radius:12px;border:1px solid var(--d-line);background:var(--d-card);color:var(--d-text);cursor:pointer;place-items:center}
+.tb-title{min-width:0;flex:1}
+.tb-h{font:700 22px/1.25 var(--font-head);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-sub{margin:0;font-size:13.5px;color:var(--d-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-search{display:flex;align-items:center;gap:8px;width:min(300px,28vw);height:44px;padding:0 14px;border-radius:999px;background:var(--d-soft);border:1px solid var(--d-line);color:var(--d-muted)}
+.tb-search:focus-within{border-color:var(--d-brand);box-shadow:0 0 0 3px rgba(31,111,235,.18)}
+.tb-search input{flex:1;min-width:0;border:0;background:transparent;font:500 14.5px var(--font-body);color:var(--d-text);outline:0;height:100%}
+.tb-search input::placeholder{color:var(--d-muted);opacity:1}
+.tb-actions{display:flex;align-items:center;gap:10px}
+.app-shell .util-btn{width:44px;height:44px;border-radius:50%;border:1px solid var(--d-line);background:var(--d-card);color:var(--d-text);font-size:18px}
+.app-shell .util-btn:hover{background:var(--d-soft);border-color:var(--d-brand);color:var(--d-text)}
+.app-shell .lang-toggle{background:var(--d-soft);border:1px solid var(--d-line);border-radius:999px;padding:3px}
+.app-shell .lang-btn{min-height:36px;min-width:44px;padding:0 12px;border-radius:999px;color:var(--d-text);font:600 13.5px var(--font-body)}
+.app-shell .lang-btn:hover{color:var(--d-brand)}
+.app-shell .lang-btn.active{background:var(--d-brand-d);color:#fff}
+:root[data-theme='dark'] .app-shell .lang-btn.active{background:#1F6FEB}
+.tb-avatar{width:44px;height:44px;border-radius:50%;background:var(--d-brand-d);color:#fff;font:700 14px var(--font-head);display:grid;place-items:center;text-decoration:none}
+.tb-avatar:hover{background:var(--d-active)}
+
+/* ───────────── 5) Home (ภาพรวม) ───────────── */
+.dash-home{display:flex;flex-direction:column;gap:24px}
+.dash-home .ico{flex:0 0 auto}
+.load-error{padding:16px;border-radius:12px;background:#FEE2E2;color:#7F1D1D;font-weight:600}
+
+/* 5.1 Banner */
+.hero-banner{position:relative;overflow:hidden;color:#fff;border-radius:20px;padding:28px;background:linear-gradient(135deg,#0F5C9E 0%,#0A4A82 100%);box-shadow:0 12px 28px rgba(10,74,130,.28)}
+.hero-banner::after{content:'';position:absolute;right:-70px;top:-90px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.07);pointer-events:none}
+.hb-top{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.hb-line{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hb-title{color:#fff;font:700 clamp(22px,2.6vw,32px)/1.3 var(--font-head);margin:0}
+.app-shell .hero-banner .hb-title{color:#fff}
+.hb-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);font-size:13.5px;font-weight:600}
+.hb-sub{margin:8px 0 0;font-size:16px;color:#E3EEF9}
+.hb-actions{display:flex;gap:10px}
+.hb-btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:12px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;font:600 14px var(--font-body);cursor:pointer}
+.hb-btn:hover{background:rgba(255,255,255,.22)}
+.hb-btn-icon{width:44px;padding:0;justify-content:center}
+.hb-btn:focus-visible{outline-color:#fff}
+.hb-tiles{position:relative;z-index:1;list-style:none;margin:24px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:16px}
+.hb-tile{padding:16px 18px;border-radius:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22)}
+.hb-tile-h{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:#EAF2FB}
+.hb-ico{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.16);display:grid;place-items:center}
+.hb-tile-v{margin-top:12px;font:700 34px/1.1 var(--font-head);font-variant-numeric:tabular-nums}
+.hb-unit{font:600 15px var(--font-body);color:#EAF2FB}
+.hb-tile-s{margin-top:8px;font-size:13px;color:#E3EEF9}
+
+/* 5.2 Cards */
+.card,.kpi{background:var(--d-card);border:1px solid var(--d-line);border-radius:var(--d-radius);box-shadow:var(--d-shadow)}
+.card{padding:22px}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.card-title{font:700 19px/1.3 var(--font-head);margin:0}
+.card-sub{margin:4px 0 0;font-size:14px;color:var(--d-muted)}
+.card-link{display:inline-flex;align-items:center;gap:4px;min-height:44px;font-weight:600;font-size:14px;color:var(--d-brand-d);text-decoration:none}
+:root[data-theme='dark'] .card-link{color:var(--d-brand)}
+.card-link:hover{text-decoration:underline}
+.card-link.center{justify-content:center;width:100%;margin-top:6px;border-top:1px solid var(--d-line);padding-top:4px}
+.grid-2{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:24px;align-items:stretch}
+.grid-2.g-rev{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+
+/* 5.3 Badge / track */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:999px;font:700 12.5px var(--font-body);font-variant-numeric:tabular-nums;white-space:nowrap}
+.badge.up{background:#DCFCE7;color:#15803D}
+.badge.down{background:#FEE2E2;color:#B42318}
+.badge.neutral{background:var(--d-soft);color:var(--d-muted)}
+:root[data-theme='dark'] .badge.up{background:rgba(34,197,94,.16);color:#6EE7A0}
+:root[data-theme='dark'] .badge.down{background:rgba(248,113,113,.16);color:#FF9B93}
+.track{position:relative;height:8px;border-radius:999px;background:var(--d-line);overflow:hidden}
+.track.tall{height:30px;border-radius:10px}
+.fill{height:100%;width:var(--w,0);border-radius:inherit;background:var(--d-brand);transition:width .6s cubic-bezier(.4,0,.2,1)}
+.fill.z-inner,.z-inner .fill{background:var(--zc-inner)}
+.fill.z-middle,.z-middle .fill{background:var(--zc-middle)}
+.fill.z-outer,.z-outer .fill{background:var(--zc-outer)}
+.z-jam .fill{background:var(--zc-jam)}
+
+/* 5.4 KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+.kpi{padding:20px;display:flex;flex-direction:column;gap:6px}
+.kpi-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.kpi-ico{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;color:var(--zc,#0B63B0);background:color-mix(in srgb,var(--zc,#0B63B0) 12%,transparent)}
+.kpi.z-inner{--zc:var(--zc-inner)}.kpi.z-middle{--zc:var(--zc-middle)}.kpi.z-outer{--zc:var(--zc-outer)}.kpi.z-jam{--zc:var(--zc-jam)}
+.kpi-v{font:700 32px/1.1 var(--font-head);font-variant-numeric:tabular-nums;color:var(--d-text)}
+.kpi-u{font:600 14px var(--font-body);color:var(--d-muted)}
+.kpi-l{font:600 16px/1.35 var(--font-head);margin:2px 0 0}
+.kpi-s{margin:0;font-size:13.5px;color:var(--d-muted)}
+.kpi-bar{margin-top:10px}
+.kpi-bar-h{display:flex;justify-content:space-between;font-size:12.5px;color:var(--d-muted);margin-bottom:6px;font-variant-numeric:tabular-nums}
+.kpi-f{display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px dashed var(--d-line);font-size:13px;color:var(--d-muted);font-variant-numeric:tabular-nums}
+.kpi-f b{color:var(--d-text)}
+
+/* 5.5 Segmented control */
+.seg{display:inline-flex;gap:2px;padding:3px;border-radius:12px;background:var(--d-soft);border:1px solid var(--d-line)}
+.seg-wide{display:flex;width:100%;margin-bottom:14px}
+.seg-wide .seg-btn{flex:1}
+.seg-btn{min-height:38px;padding:0 16px;border:0;border-radius:9px;background:transparent;color:var(--d-text);font:600 14px var(--font-body);cursor:pointer}
+.seg-btn:hover{background:var(--d-line)}
+.seg-btn[aria-pressed="true"]{background:var(--d-brand-d);color:#fff;box-shadow:0 2px 6px rgba(10,74,133,.3)}
+:root[data-theme='dark'] .seg-btn[aria-pressed="true"]{background:#1F6FEB}
+
+/* 5.6 Analytics bars */
+.bars{list-style:none;margin:0 0 4px;padding:0;display:flex;flex-direction:column;gap:12px}
+.bar-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;font-size:14px}
+.bar-y{font-weight:700;display:inline-flex;align-items:center;gap:8px}
+.tag{padding:1px 8px;border-radius:999px;font-size:12px;font-weight:700;background:#FEF3C7;color:#7A4A00}
+:root[data-theme='dark'] .tag{background:rgba(251,191,36,.16);color:#FCD34D}
+.bar-r{display:inline-flex;align-items:center;gap:10px}
+.bar-v{min-width:48px;text-align:right;font-variant-numeric:tabular-nums}
+.mini-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,130px),1fr));gap:12px;margin-top:18px;padding-top:18px;border-top:1px solid var(--d-line)}
+.mt{display:flex;flex-direction:column;align-items:center;gap:2px;padding:14px 8px;border-radius:14px;text-align:center;border:1px solid transparent;background:var(--tint);color:var(--tc)}
+.mt b{font:700 22px/1.2 var(--font-head);color:var(--d-text);font-variant-numeric:tabular-nums}
+.mt small{font-size:12.5px;color:var(--d-muted)}
+.mt-ico{display:grid;place-items:center;margin-bottom:4px}
+.mt-blue{--tint:#E8F1FB;--tc:#0A4A85}.mt-green{--tint:#E4F6EC;--tc:#136F37}.mt-purple{--tint:#F1EBFE;--tc:#6D28D9}.mt-amber{--tint:#FEF3DC;--tc:#9A5B00}
+:root[data-theme='dark'] .mt-blue{--tint:rgba(90,169,240,.12);--tc:#8CC4FF}
+:root[data-theme='dark'] .mt-green{--tint:rgba(34,197,94,.12);--tc:#6EE7A0}
+:root[data-theme='dark'] .mt-purple{--tint:rgba(167,139,250,.14);--tc:#C4B5FD}
+:root[data-theme='dark'] .mt-amber{--tint:rgba(251,191,36,.12);--tc:#FCD34D}
+
+/* 5.7 Insights */
+.live-chip{display:inline-flex;align-items:center;gap:6px;font:700 13px var(--font-body);color:#15803D}
+.live-chip i{width:8px;height:8px;border-radius:50%;background:#16A34A;box-shadow:0 0 0 3px rgba(22,163,74,.2)}
+:root[data-theme='dark'] .live-chip{color:#6EE7A0}
+.ins-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.ins-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--d-line)}
+.ins-item:first-child{padding-top:0}
+.ins-dot{flex:0 0 auto;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font:700 14px var(--font-head);background:var(--tint);color:var(--tc)}
+.ins-1{--tint:#E8F1FB;--tc:#0A4A85}.ins-2{--tint:#E4F6EC;--tc:#136F37}.ins-3{--tint:#F1EBFE;--tc:#6D28D9}.ins-4{--tint:#FEF3DC;--tc:#9A5B00}.ins-5{--tint:#FDECEC;--tc:#B42318}
+:root[data-theme='dark'] :is(.ins-1,.ins-2,.ins-3,.ins-4,.ins-5){--tint:rgba(255,255,255,.08);--tc:#E6EDF7}
+.ins-text{font-size:14.5px;line-height:1.65;color:var(--d-text)}
+
+/* 5.8 Quick actions */
+.qa-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.qa{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;min-height:118px;padding:16px;border-radius:14px;color:#fff;text-decoration:none;background:linear-gradient(135deg,var(--qa1),var(--qa2));transition:transform .15s ease,box-shadow .15s ease}
+.qa::after{content:'';position:absolute;right:-24px;top:-24px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.14)}
+.qa:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(15,42,73,.22)}
+.qa:focus-visible{outline-color:var(--d-focus)}
+.qa-ico{position:absolute;left:16px;top:16px}
+.qa-t{font:700 15.5px/1.3 var(--font-head)}
+.qa-s{font-size:13px;color:#fff;opacity:1}
+.qa-blue{--qa1:#0B63B0;--qa2:#0A4A85}.qa-green{--qa1:#07845B;--qa2:#046548}.qa-orange{--qa1:#C2410C;--qa2:#A63508}.qa-purple{--qa1:#7C3AED;--qa2:#6D28D9}
+
+/* 5.9 Top roads */
+.top-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.top-row{display:flex;align-items:center;gap:14px;padding:12px;border-radius:14px;background:var(--d-soft);border:1px solid var(--d-line)}
+.top-av{position:relative;flex:0 0 auto;width:58px;height:58px;border-radius:14px;display:grid;place-items:center;color:#fff;font:700 12.5px/1.2 var(--font-head);text-align:center;background:var(--zc-inner)}
+.top-av.z-inner{background:var(--zf-inner)}.top-av.z-middle{background:var(--zf-middle)}.top-av.z-outer{background:var(--zf-outer)}
+.rank{position:absolute;right:-7px;top:-7px;width:22px;height:22px;border-radius:50%;background:#fff;color:#14233A;border:2px solid var(--d-line);font:700 12px/18px var(--font-head);text-align:center;font-style:normal}
+.top-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.top-n{font:700 15.5px/1.35 var(--font-head)}
+.top-info small{font-size:13px;color:var(--d-muted);line-height:1.4}
+.top-m{display:flex;align-items:center;gap:6px}
+.zdot{width:8px;height:8px;border-radius:50%;flex:0 0 auto;background:var(--zc-inner)}
+.zdot.z-middle{background:var(--zc-middle)}.zdot.z-outer{background:var(--zc-outer)}
+.top-v{text-align:right;flex:0 0 auto}
+.top-v b{display:block;font:700 20px/1.2 var(--font-head);font-variant-numeric:tabular-nums}
+.top-v small{font-size:12.5px;color:var(--d-muted)}
+
+/* 5.10 Pending */
+.pill-red{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;background:#FEE2E2;color:#B42318;font:700 13px var(--font-body)}
+.pill-red i{width:8px;height:8px;border-radius:50%;background:#DC2626}
+:root[data-theme='dark'] .pill-red{background:rgba(248,113,113,.16);color:#FF9B93}
+.pd-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:16px}
+.pd{position:relative;display:flex;flex-direction:column;gap:8px;padding:18px;border-radius:16px;border:1px solid var(--bd);background:linear-gradient(135deg,var(--bg1),var(--bg2))}
+.pd-ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:#fff;background:var(--ac)}
+.pd-n{position:absolute;right:16px;top:16px;min-width:34px;height:34px;padding:0 8px;border-radius:999px;display:grid;place-items:center;color:#fff;background:var(--ac);font:700 15px var(--font-head)}
+.pd-t{font:700 17px/1.3 var(--font-head);margin:6px 0 0;color:#14233A}
+.pd-d{margin:0;font-size:14px;color:#3A4A5E;flex:1}
+.pd-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;border-radius:12px;color:#fff;background:var(--ac);font:700 14px var(--font-body);text-decoration:none}
+.pd-btn:hover{filter:brightness(1.08)}
+.pd-orange{--ac:#C2410C;--bg1:#FFF4E8;--bg2:#FDE7D2;--bd:#F8D3B0}
+.pd-blue{--ac:#0B63B0;--bg1:#EDF5FD;--bg2:#DCEBFA;--bd:#BFD9F3}
+.pd-red{--ac:#DC2626;--bg1:#FEF0F0;--bg2:#FDDEDE;--bd:#F8C4C4}
+
+/* ───────────── 6) Legacy components → รูปแบบเดียวกับการ์ดใหม่ ───────────── */
+.app-shell :is(.intro-box,.method-card,.tomtom-card,.route-card,.data-card,.compare-card,.zone-district-card,.line-card,.scenario-card,.source-note,.control-panel,.rt-wrap,.rt-legend-bottom,.about-card,.zone-acc,.zone-district-header){
+  border:1px solid var(--d-line);border-radius:var(--d-radius);box-shadow:var(--d-shadow);background:var(--d-card)}
+.app-shell :is(.scenario-item,.zd-item,.tomtom-stat,.method-pill,.zd-badge,.zd-count,.chip){border-radius:12px}
+.app-shell .intro-box{border-left:4px solid var(--d-brand);padding:20px 22px}
+.app-shell .method-card{padding:20px 22px}
+.app-shell :is(.section-heading,.section-title,.compare-title,.line-title,.scenario-title,.method-title){font-family:var(--font-head);color:var(--d-text);border:0;padding-bottom:0}
+.app-shell :is(.section-heading,.section-title){font-size:21px;margin-bottom:10px}
+.app-shell .section-eyebrow{color:var(--d-brand-d);font-weight:700}
+:root[data-theme='dark'] .app-shell .section-eyebrow{color:var(--d-brand)}
+.app-shell .tomtom-value,.app-shell .tomtom-city{color:var(--d-brand-d)}
+:root[data-theme='dark'] .app-shell :is(.tomtom-value,.tomtom-city,.method-title){color:#8CC4FF}
+.app-shell .data-card::before{height:5px;border-radius:var(--d-radius) var(--d-radius) 0 0}
+.app-shell :is(.compare-table,.rt-table,.modern-table){border-collapse:separate;border-spacing:0}
+.app-shell :is(.compare-table th,.compare-table td,.rt-table thead th,.rt-table tbody td,.modern-table td,.modern-table th){border:0;border-bottom:1px solid var(--d-line)}
+.app-shell :is(.compare-table th,.rt-table thead th){background:#EAF1F9;color:var(--d-brand-9)}
+.app-shell .modern-table th{background:var(--d-brand-d);color:#fff}
+.app-shell .rt-table thead th.th-group.am{background:var(--d-brand-d)}
+.app-shell .rt-table tbody tr:nth-child(even){background:var(--d-soft)}
+:root[data-theme='dark'] .app-shell :is(.compare-table th,.rt-table thead th){background:#1A2A44;color:#E6EDF7}
+.app-shell :is(.control-btn,.control-input,.control-select,.rt-toggle-btn,.dir-toggle,.dir-btn){border-radius:10px;min-height:44px}
+.app-shell .control-btn.primary,.app-shell .dir-btn.active{background:var(--d-brand-d);border-color:var(--d-brand-d);color:#fff}
+.app-shell .footer{margin:8px var(--pad-x) 0;padding:20px 24px;border:1px solid var(--d-line);border-radius:var(--d-radius);background:var(--d-card);box-shadow:var(--d-shadow)}
+.app-shell .footer strong{color:var(--d-brand-d)}
+:root[data-theme='dark'] .app-shell .footer strong{color:#8CC4FF}
+.app-shell .to-top{border-radius:50%}
+
+/* ───────────── 7) Responsive — การแสดงผลแยกตามอุปกรณ์ ─────────────
+   เกณฑ์มาตรฐานเดียวทั้งระบบ (ตรงกับ styles.css / standards-patch.css / README)
+     PC            ≥ 1200 px        เมนูด้านข้างแบบเต็ม (ย่อได้) · KPI 4 คอลัมน์ · การ์ด 2 คอลัมน์
+     Tablet   768 – 1199 px         เมนูด้านข้างแบบแถบไอคอน (rail 76 px) · KPI 2 คอลัมน์ · การ์ด 1 คอลัมน์
+     Mobile        ≤ 767 px         เมนูแบบ drawer (เปิดจากปุ่มเมนู) · KPI 2→1 คอลัมน์ · ซ่อนช่องค้นหาด้านบน
+   ย่อยสำหรับมือถือจอเล็ก: ≤ 520 px (KPI 1 คอลัมน์) · ≤ 420 px (ไทล์ในแบนเนอร์ 1 คอลัมน์)
+   JS ตั้ง <html data-device="pc|tablet|mobile"> ให้ตรงกับเกณฑ์นี้ (ใช้ตรวจสอบ/ทดสอบ) */
+
+/* ===== PC ≥ 1200 ===== */
+@media (min-width:1200px){
+  :root{--pad-x:32px}
+  .kpi-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .tb-search{width:300px}
+}
+
+/* ===== Tablet 768–1199 ===== */
+@media (min-width:768px) and (max-width:1199px){
+  :root{--pad-x:24px}
+  .app-shell,.app-shell.sb-collapsed{--sb-w:76px}
+  .sb-close{display:none}
+  .grid-2,.grid-2.g-rev{grid-template-columns:minmax(0,1fr)}
+  .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .hb-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .qa-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tb-search{width:min(260px,30vw)}
+  .tb-sub{display:none}
+}
+
+/* ===== Mobile ≤ 767 ===== */
+@media (max-width:767px){
+  :root{--pad-x:14px;--tb-h:64px}
+  .app-shell,.app-shell.sb-collapsed{grid-template-columns:minmax(0,1fr);--sb-w:min(300px,86vw)}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sb-w);height:100dvh;transform:translateX(-100%);transition:transform .25s ease;box-shadow:0 0 40px rgba(0,0,0,.35)}
+  .app-shell.sb-open .sidebar{transform:none}
+  .menu-btn{display:grid}
+  .sb-collapsed .sb-brand-text,.sb-collapsed .sb-foot-text{display:block}
+  .app-shell.sb-collapsed .sb-label{position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto}
+  .sb-collapsed .sb-head{flex-direction:row;justify-content:space-between;padding:18px 16px 14px}
+  .sb-collapsed .tab-bar.is-side .tab-btn{justify-content:flex-start;padding:10px 14px}
+  .sb-collapsed .sb-foot{justify-content:flex-start}
+  .sb-collapsed .sb-close svg{transform:none}
+  .grid-2,.grid-2.g-rev{grid-template-columns:minmax(0,1fr)}
+  .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tb-sub,.tb-search{display:none}
+  .tb-h{font-size:18px}
+  .app-shell .a4-body{padding-top:16px;gap:18px}
+  .hero-banner{padding:20px 16px;border-radius:16px}
+  .hb-tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .hb-tile{padding:12px}
+  .hb-tile-v{font-size:26px}
+  .card{padding:16px}
+  .qa-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .qa{min-height:108px;padding:12px}
+  .app-shell .lang-btn{min-width:40px;padding:0 8px}
+  .app-shell .tb-avatar{display:none}
+}
+@media (max-width:520px){
+  .kpi-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:420px){
+  .hb-tiles{grid-template-columns:1fr}
+  .tb-actions{gap:6px}
+}
+
+/* อุปกรณ์สัมผัส (Tablet/Mobile): พื้นที่แตะอย่างน้อย 44 × 44 px */
+@media (pointer:coarse){
+  .seg-btn,.tab-btn,.menu-btn,.sb-close,.qa{min-height:44px}
+}
+
+/* ───────────── 8) Motion ───────────── */
+@media (prefers-reduced-motion:reduce){
+  .app-shell,.sidebar,.fill,.vbar-fill,.qa{transition:none}
+}
+
+/* ───────────── 9) Print (รายงานทางการ A4 คงเดิม · ซ่อนเปลือกแดชบอร์ด) ───────────── */
+@media print{
+  .app-shell{display:block;background:#fff}
+  .sidebar,.topbar,.sb-backdrop,#dash-home{display:none}
+  .print-only{display:block}
+  .app-shell .a4-canvas{max-width:none}
+  .app-shell .a4-body{padding:0}
+  .app-shell :is(.intro-box,.method-card,.tomtom-card,.route-card,.data-card,.compare-card,.zone-district-card,.line-card,.scenario-card,.source-note,.control-panel,.rt-wrap,.about-card,.footer){box-shadow:none;border-radius:2px}
+  .app-shell :is(.compare-table th,.rt-table thead th){background:#E7EBF3;color:#1F3864}
+  .app-shell .footer{margin:0}
+}
+
+/* tabpanel เป็น container (ไม่ใช่ control) — ไม่แสดงกรอบ focus เมื่อเบราว์เซอร์โฟกัสตาม hash */
+.app-shell .tab-panel:focus,.app-shell .tab-panel:focus-visible{outline:0}
+
+/* ลิงก์แบบปุ่ม/การ์ด: ตัวอักษรขาวคงที่ แม้โหมดมืดจะกำหนดสีลิงก์เป็นฟ้าอ่อน */
+.app-shell a.pd-btn,.app-shell a.qa,.app-shell a.tb-avatar,
+:root[data-theme='dark'] .app-shell a.pd-btn,:root[data-theme='dark'] .app-shell a.qa,:root[data-theme='dark'] .app-shell a.tb-avatar{color:#fff}
+
+/* หัวข้อในหน้าภาพรวมชิดซ้าย (กฎเดิมของ h2/h3 จัดกึ่งกลาง) */
+.app-shell .dash-home :is(h2,h3,h4){text-align:left}
+
+
+/* ───────────── 10) ธีมพื้นขาว (โหมดสว่าง) — โหมดมืดยังใช้ sidebar/banner สีน้ำเงินเดิม ───────────── */
+:root:not([data-theme='dark']) .sidebar{background:#fff;color:var(--d-text);border-right:1px solid var(--d-line)}
+:root:not([data-theme='dark']) .sb-logo{background:var(--d-brand-d);color:#fff}
+:root:not([data-theme='dark']) .sb-title{color:var(--d-text)}
+:root:not([data-theme='dark']) .sb-sub,:root:not([data-theme='dark']) .sb-mail{color:var(--d-muted)}
+:root:not([data-theme='dark']) .sb-close{color:var(--d-text)}
+:root:not([data-theme='dark']) .sb-close:hover{background:var(--d-soft)}
+:root:not([data-theme='dark']) .app-shell .tab-bar.is-side .tab-btn{color:var(--d-text)}
+:root:not([data-theme='dark']) .app-shell .tab-bar.is-side .tab-btn:hover{background:var(--d-soft)}
+:root:not([data-theme='dark']) .app-shell .tab-bar.is-side .tab-btn[aria-selected="true"]{background:var(--d-active);color:#fff;box-shadow:0 6px 14px rgba(31,111,235,.28)}
+:root:not([data-theme='dark']) .app-shell .tab-bar.is-side .tab-btn:focus-visible{outline-color:var(--d-focus)}
+:root:not([data-theme='dark']) .sb-foot{background:var(--d-soft);border-top:1px solid var(--d-line)}
+:root:not([data-theme='dark']) .sb-avatar{background:var(--d-brand-d);color:#fff}
+
+:root:not([data-theme='dark']) .hero-banner{background:#fff;color:var(--d-text);border:1px solid var(--d-line);border-top:4px solid var(--d-brand);box-shadow:var(--d-shadow)}
+:root:not([data-theme='dark']) .hero-banner::after{background:rgba(11,99,176,.05)}
+:root:not([data-theme='dark']) .app-shell .hero-banner .hb-title{color:var(--d-brand-9)}
+:root:not([data-theme='dark']) .hb-sub{color:var(--d-muted)}
+:root:not([data-theme='dark']) .hb-chip{background:var(--d-soft);border-color:var(--d-line);color:var(--d-brand-9)}
+:root:not([data-theme='dark']) .hb-btn{background:#fff;border-color:var(--d-line);color:var(--d-brand-9)}
+:root:not([data-theme='dark']) .hb-btn:hover{background:var(--d-soft);border-color:var(--d-brand)}
+:root:not([data-theme='dark']) .hb-btn:focus-visible{outline-color:var(--d-focus)}
+:root:not([data-theme='dark']) .hb-tile{background:var(--d-soft);border-color:var(--d-line)}
+:root:not([data-theme='dark']) .hb-tile-h{color:var(--d-muted)}
+:root:not([data-theme='dark']) .hb-ico{background:#fff;color:var(--d-brand);border:1px solid var(--d-line)}
+:root:not([data-theme='dark']) .hb-tile-v{color:var(--d-brand-9)}
+:root:not([data-theme='dark']) .hb-unit{color:var(--d-muted)}
+:root:not([data-theme='dark']) .hb-tile-s{color:var(--d-muted)}
+
+/* ตารางว่าง (ไม่พบข้อมูล) — แทน inline style เดิม */
+.rt-empty { padding: 24px; text-align: center; color: var(--d-muted, #64748b); }
+
+/* กราฟแท่งแนวตั้ง: แนวโน้มอัตราเร็วเฉลี่ยรายปี */
+.bars.vbars{flex-direction:row;align-items:flex-end;gap:6px;overflow-x:auto;padding:4px 2px 8px}
+.vbar-col{flex:1 1 0;min-width:44px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.vbar-v{font-size:13px;font-variant-numeric:tabular-nums}
+.vbar-track{position:relative;width:100%;max-width:56px;height:220px;display:flex;align-items:flex-end;border-radius:10px 10px 4px 4px;background:var(--d-line);overflow:hidden}
+.vbar-fill{width:100%;height:var(--h,0);border-radius:10px 10px 0 0;background:var(--d-brand);transition:height .6s cubic-bezier(.4,0,.2,1)}
+.vbar-fill.z-inner{background:var(--zc-inner)}
+.vbar-fill.z-middle{background:var(--zc-middle)}
+.vbar-fill.z-outer{background:var(--zc-outer)}
+.vbar-y{font-weight:700;font-size:13px}
+.vbar-d{font-size:11px;min-height:20px}
+@media (max-width:560px){.vbar-track{height:170px}.vbar-col{min-width:40px}}
+
+</style>
+<style>/* assets/urban.css */
+/* ════════════════════════════════════════════════════════════════════
+   urban.css — ส่วนเฉพาะของ Bangkok Urban Transport Dashboard
+   ใช้ร่วมกับ dashboard-shell.css (เปลือก Admin) + typography.css + gov-bkk-theme.css
+   โหลดหลัง dashboard-shell.css · ก่อน gov-bkk-theme.css · © Prapawadee_W.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Base (travel-time ได้จาก styles.css; หน้านี้ไม่มี จึงกำหนดเอง) ── */
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;line-height:1.55}
+h1,h2,h3,h4,p,ul,ol,figure{margin:0}
+button{font:inherit;color:inherit}
+.skip-link{position:absolute;left:-9999px;top:8px;z-index:100;background:#fff;color:#005c33;padding:10px 16px;border-radius:8px;font-weight:700}
+.skip-link:focus{left:8px}
+.tab-panel[hidden]{display:none}
+.tab-panel{display:flex;flex-direction:column;animation:fadeUp .3s ease-out}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.tab-panel{animation:none}html{scroll-behavior:auto}}
+
+/* ── หัวข้อส่วน (.sec) ── */
+.sec{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+  font:700 19px/1.3 var(--font-head);color:var(--d-text);padding-left:12px;border-left:4px solid var(--d-brand)}
+.sec-badge{font:600 13px var(--font-body);color:#005c33;background:#E6F9F3;border:1px solid #bfe8d8;padding:3px 10px;border-radius:999px}
+:root[data-theme='dark'] .sec-badge{color:#9be0c2;background:rgba(111,170,138,.14);border-color:rgba(111,170,138,.35)}
+
+/* ── Layout grids ── */
+.g2,.g21{display:grid;gap:24px;align-items:stretch}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g21{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.card-title{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.card-title small,.card-note{display:block;font:400 14px var(--font-body);color:var(--d-muted);margin-top:2px;flex-basis:100%}
+.chart-box{position:relative;height:340px}
+.chart-box.h300{height:300px}.chart-box.h280{height:280px}.chart-box.h270{height:270px}
+
+/* ── Source tags / legend ── */
+.src-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.src{display:inline-flex;align-items:center;font:500 13.5px var(--font-body);color:var(--d-muted);border:1px solid var(--d-line);padding:3px 10px;border-radius:999px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px}
+.leg{display:flex;align-items:center;gap:6px;font-size:14.5px;color:var(--d-muted)}
+.leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+#donutLegend{justify-content:center}
+.dot-sm{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;flex-shrink:0}
+
+/* ── Note (COVID / หมายเหตุ) — ใช้รูปแบบเดียวกับ .update-note ของ travel-time ── */
+.covid-note{background:var(--d-card);border:1px solid var(--d-line);border-left:4px solid var(--gb-amber,#e8a447);
+  border-radius:var(--d-radius-sm);padding:12px 16px;font-size:15px;line-height:1.7;color:var(--d-text)}
+.covid-note strong{color:var(--d-text)}
+.notes{font-size:15.5px;line-height:2;color:var(--d-text)}
+.notes b.n{color:var(--d-brand);margin-right:4px}
+.notes .warn{color:#B42318}
+:root[data-theme='dark'] .notes .warn{color:#FF9B93}
+
+/* ── Year tabs ── */
+.yr-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.yr-btn{min-height:40px;padding:0 16px;border:1px solid var(--d-line);background:var(--d-card);color:var(--d-text);
+  font:600 14.5px var(--font-body);border-radius:var(--d-radius-sm);cursor:pointer;transition:background .15s,border-color .15s}
+.yr-btn:hover{background:var(--d-soft);border-color:var(--d-brand)}
+.yr-btn.active{background:var(--d-active);border-color:var(--d-active);color:#fff}
+.yr-btn:focus-visible{outline:3px solid var(--d-focus);outline-offset:2px}
+
+/* ── Table ── */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--d-radius-sm)}
+.tbl{width:100%;border-collapse:collapse;font-size:14.5px}
+.tbl th{font:600 13.5px var(--font-body);color:var(--d-muted);text-align:left;padding:10px 8px;border-bottom:2px solid var(--d-line);white-space:nowrap}
+.tbl td{padding:9px 8px;border-bottom:1px solid var(--d-line);color:var(--d-text);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tbody tr:hover td{background:var(--d-soft)}
+.tbl td:first-child,.tbl th:first-child{white-space:nowrap}
+#ridershipTable th:first-child,#ridershipTable td:first-child{position:sticky;left:0;background:var(--d-card);z-index:1}
+#ridershipTable tbody tr:hover td:first-child{background:var(--d-soft)}
+.tbl-note{margin-top:14px;font-size:14px;line-height:1.9;color:var(--d-muted)}
+
+/* ── Mode bar + progress ── */
+.mode-bar{display:flex;height:44px;border-radius:var(--d-radius-sm);overflow:hidden;margin:8px 0 14px;gap:2px}
+.mode-seg{display:flex;align-items:center;justify-content:center;font:700 14.5px var(--font-body);color:#fff;overflow:hidden;flex-shrink:0}
+.pbar{height:6px;background:var(--d-line);border-radius:99px;overflow:hidden;margin-top:6px}
+.pbar-fill{height:100%;border-radius:99px;transition:width .8s cubic-bezier(.16,1,.3,1)}
+.mode-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.rd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+
+/* ── KPI: สีเส้นรถไฟแสดงที่ไอคอน/แถบ (ตัวอักษรใช้สีมาตรฐานเพื่อ contrast) ── */
+.kpi-grid.kpi5{grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
+.kpi .kpi-ico{--zc:var(--lc,#007744)}
+.kpi-bar2{height:4px;border-radius:99px;background:var(--lc,#007744);opacity:.85;margin-top:8px}
+.kpi-s b{color:var(--d-text)}
+
+/* ── Footer ── */
+.page-foot{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;
+  margin:8px var(--pad-x) 0;padding:20px 0 8px;border-top:1px solid var(--d-line);font-size:14px;line-height:1.8;color:var(--d-muted)}
+.page-foot strong{color:var(--d-brand)}
+.page-foot .r{text-align:right}
+
+/* ── Responsive (เกณฑ์เดียวกับ dashboard-shell.css: Mobile ≤767 · Tablet 768–1199 · PC ≥1200) ── */
+@media (max-width:1199px){
+  .kpi-grid.kpi5{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .g21{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:1100px){.g2{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:767px){
+  .g2,.g21{gap:16px}
+  .kpi-grid.kpi5{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .kpi-grid.kpi5 .kpi:last-child:nth-child(odd){grid-column:1/-1}
+  .mode-cards{grid-template-columns:minmax(0,1fr)}
+  .rd-grid{grid-template-columns:minmax(0,1fr)}
+  .chart-box{height:280px}.chart-box.h300{height:260px}.chart-box.h280{height:250px}.chart-box.h270{height:240px}
+  .sec{font-size:17px}
+  .yr-btn{min-height:44px}
+  .page-foot{margin:8px var(--pad-x) 0}.page-foot .r{text-align:left}
+}
+@media print{
+  .tab-panel[hidden]{display:flex}
+  .tab-panel{break-inside:auto}
+  .card{break-inside:avoid}
+  .page-foot{margin:12px 0 0}
+}
+@media (max-width:767px){.kpi-grid.kpi5 .kpi-u{display:block}}
+
+/* สีข้อความสถานะ (ผ่าน contrast ทั้งสองโหมด) */
+:root{--ok:#15803D;--bad:#B42318}
+:root[data-theme='dark']{--ok:#6EE7A0;--bad:#FF9B93}
+.page-foot .r{text-align:right}
+@media (max-width:1199px){.page-foot{flex-direction:column}.page-foot .r{text-align:left}}
+.page-foot .r{margin-left:auto}
+
+</style>
+<style>/* assets/gov-bkk-theme.css */
+/* ════════════════════════════════════════════════════════════════════
+   gov-bkk-theme.css — ธีมสี/ระยะห่างแบบ GOV.BKK วางทับโครง Admin Dashboard เดิม
+   • โหลดหลังสุด (หลัง typography.css) ทุกหน้า — ลบไฟล์นี้ = กลับเป็นธีมน้ำเงินเดิม
+   • คงโครงเดิม: sidebar 248/76 · top bar 72 · hero banner · KPI cards · dark mode · TH/EN · print
+   • ฟอนต์ไม่แตะ (typography.css: หัวข้อ Anuphan / เนื้อหา Sarabun)
+   • ที่มาของค่าสี: gov.bangkok.go.th (วัด 13 พ.ย. 2569) — ดู DESIGN_TOKENS.md
+   © Prapawadee_W.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ───────────── 1) Tokens: สีแบรนด์ + สเกลระยะห่าง ───────────── */
+:root{
+  /* สีแบรนด์ GOV.BKK */
+  --gb-green:#007744; --gb-green-deep:#005c33; --gb-green-mint:#6faa8a; --gb-mint-bg:#E6F9F3;
+  --gb-amber:#e8a447; --gb-cream:#fff3d9;
+
+  /* map เข้าตัวแปรของเปลือก dashboard เดิม */
+  --d-brand:var(--gb-green); --d-brand-d:var(--gb-green-deep); --d-brand-9:#00472A;
+  --d-active:var(--gb-green); --d-focus:var(--gb-green);
+  --d-bg:#FFFFFF; --d-soft:#FFFFFF; --d-card:#FFFFFF; --d-line:#E5E7EB; --d-text:#1E293B; --d-muted:#566677;
+  --d-radius:12px; --d-radius-sm:8px;
+  --d-shadow:0 1px 2px rgba(15,23,42,.04),0 4px 12px rgba(15,23,42,.05);
+
+  /* map เข้าตัวแปรของ CSS ชั้นเก่า (styles / formal-theme / standards-patch) */
+  --primary-color:var(--gb-green-deep); --secondary-color:var(--gb-green); --accent-color:var(--gb-amber);
+  --focus-color:var(--gb-green);
+  --f-navy:var(--gb-green-deep); --f-navy-dark:#00472A; --f-head-bg:var(--gb-mint-bg); --f-head-text:var(--gb-green-deep);
+  --f-gold:var(--gb-amber);
+
+  /* พื้นหลังโหมดสว่าง = ขาวทั้งหมด (ใช้เส้นขอบแยกชั้นแทนสีพื้น) */
+  --bg:#FFFFFF; --bg-canvas:#FFFFFF; --bg-light:#FFFFFF; --surface:#FFFFFF; --surface-2:#FFFFFF;
+
+  /* สเกลระยะห่าง 4·8·12·16·24·32·48 */
+  --sp-card:16px;        /* padding การ์ด */
+  --sp-gap-tight:12px;   /* ไทล์/การ์ดเล็ก */
+  --sp-gap:16px;         /* การ์ดมาตรฐาน */
+  --sp-gap-section:24px; /* ระหว่างส่วนที่เป็นการ์ด */
+}
+:root[data-theme='dark']{
+  --d-bg:#0A1410; --d-soft:#0A1410; --d-card:#112019; --d-line:#223A2E; --d-text:#E6EDF7; --d-muted:#A9B8B0;
+  --d-brand:#6faa8a; --d-focus:#8FD1AE; --d-active:#007744;
+  --d-shadow:0 1px 2px rgba(0,0,0,.4),0 8px 20px rgba(0,0,0,.35);
+  --f-head-bg:#173026; --f-head-text:#CFEBDD;
+  --focus-color:#8FD1AE;
+}
+
+/* ───────────── 2) ชิ้นส่วนที่ผูกสีน้ำเงินไว้ตรง ๆ ───────────── */
+:root[data-theme='dark'] .sidebar{background:linear-gradient(180deg,#0E2A1F 0%,#0A1D15 100%)}   /* ให้เมนู active (เขียว) เด่นกว่าพื้น */
+:root:not([data-theme='dark']) .sb-logo{background:var(--gb-green-deep)}
+.tb-search:focus-within{border-color:var(--d-brand);box-shadow:0 0 0 3px rgba(0,119,68,.18)}
+:root[data-theme='dark'] .app-shell .lang-btn.active,
+:root[data-theme='dark'] .seg-btn[aria-pressed="true"]{background:var(--gb-green)}
+.tt-gcard__n,.tt-ig__n,.tt-lg--a,.tt-vcol__trk i{background:var(--gb-green-deep)}
+.tt-seg button[aria-pressed="true"]{background:var(--gb-green-deep)}
+.tt-dl{color:var(--gb-green-deep)}
+.a4-body>section>.section-eyebrow::before{background:var(--gb-green-deep)}   /* ป้ายเลขหัวข้อหน้า TomTom */
+:root[data-theme='dark'] .a4-body>section>.section-eyebrow::before{background:var(--gb-amber);color:#1b1306}
+
+/* hero banner: โหมดสว่างขาว + เส้นบนเขียว (โครงเดิม), โหมดมืดไล่เฉดเขียว */
+.hero-banner{border-radius:16px;padding:24px}
+:root:not([data-theme='dark']) .hero-banner{border-top-color:var(--gb-green)}
+:root:not([data-theme='dark']) .hero-banner::after{background:rgba(0,119,68,.06)}
+:root[data-theme='dark'] .hero-banner{background:linear-gradient(135deg,#0B5A38 0%,#073D26 100%);box-shadow:0 12px 28px rgba(0,0,0,.35)}
+
+/* แถบประกาศอัปเดต: พื้นขาว + ขอบซ้ายอำพัน */
+.update-note{background:#fff;border:1px solid var(--d-line);border-left:4px solid var(--gb-amber)}
+:root[data-theme='dark'] .update-note{background:#2A2210}
+
+/* ───────────── 3) จังหวะระยะห่าง (ค่าเดิม → ค่าใหม่) ───────────── */
+.hb-tiles{gap:var(--sp-gap-tight)}                                /* 16 → 12 */
+.hb-tile{padding:var(--sp-card);border-radius:var(--d-radius)}    /* 16/18 · 14 → 16 · 12 */
+.cards-grid{gap:var(--sp-gap)}                                    /* 20 → 16 */
+.data-card{padding:var(--sp-card);border-radius:var(--d-radius)}  /* 22 · 16 → 16 · 12 */
+.bottom-grid{gap:var(--sp-gap-section)}                           /* 28 → 24 */
+.tab-panel{gap:var(--sp-gap-section)}                             /* 24 คงเดิม */
+.update-note{margin:12px 0 var(--sp-gap-section);padding:12px 16px}   /* 12/18 · 10/14 → 12/24 · 12/16 */
+.source-note{padding:16px}                                        /* 14/18 → 16 */
+
+/* ───────────── 4) แยกตามอุปกรณ์ (เกณฑ์เดียวกับ dashboard-shell.css) ─────────────
+   PC ≥1200 · Tablet 768–1199 · Mobile ≤767 — ค่าด้านบนเป็นฐาน PC/Tablet, ส่วนนี้ปรับเฉพาะที่ต่างกัน */
+@media (min-width:1200px){
+  :root{--pad-x:24px}                       /* PC: 32 → 24 */
+}
+@media (min-width:768px) and (max-width:1199px){
+  :root{--pad-x:24px}                       /* Tablet: 24 (คงเดิม) */
+  .hb-btn,.lang-btn,.seg-btn,.tab-btn,.sb-nav a,.sb-nav button{min-height:44px}   /* พื้นที่แตะ */
+}
+@media (max-width:767px){
+  :root{--pad-x:16px}                       /* Mobile: 14 → 16 (เข้าสเกล) */
+  .hero-banner{padding:16px}                /* 20/16 → 16 */
+  .hb-tiles{gap:8px}                        /* 10 → 8 */
+  .hb-tile{padding:12px}                    /* 12 (คงเดิม) */
+  .data-card{padding:16px}
+  .cards-grid,.bottom-grid{gap:16px}
+  .app-shell .a4-body{gap:16px}             /* 18 → 16 */
+  .update-note{margin:12px 0 16px;padding:12px}
+  .hb-btn,.lang-btn,.seg-btn,.tab-btn,.sb-nav a,.sb-nav button{min-height:44px}
+}
+
+/* ───────────── 5) หัวข้อ = Anuphan (ตามเดิมใน typography.css) ───────────── */
+h1,h2,h3,h4,.hb-title,.tb-h,.sb-title,.card-title,.section-title,.section-heading{font-family:var(--font-head)}
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EKS1DH205E"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-EKS1DH205E');
+</script>
+</head>
+<body>
+<a href="#main" class="skip-link">ข้ามไปยังเนื้อหาหลัก</a>
+
+<div class="app-shell" id="appShell">
+
+<!-- ════════════════ Sidebar ════════════════ -->
+<aside class="sidebar" id="sidebar" aria-label="เมนูหลัก">
+  <div class="sb-head">
+    <div class="sb-brand">
+      <span class="sb-logo" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M9 21l2-4M15 21l-2-4"/></svg></span>
+      <div class="sb-brand-text">
+        <div class="sb-title">BMA Transport</div>
+        <div class="sb-sub">Public Transport Ridership</div>
+      </div>
+    </div>
+    <button id="sbToggle" class="sb-close" type="button" aria-expanded="true" aria-controls="sidebar" aria-label="ย่อเมนู">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <nav class="sb-nav" aria-label="เมนูหน้าต่างเนื้อหา"><div id="sideTabs" class="sb-list"></div></nav>
+  <div class="sb-foot">
+    <span class="sb-avatar" aria-hidden="true">PW</span>
+    <div class="sb-foot-text">
+      <div class="sb-user">© Prapawadee_W.</div>
+      <div class="sb-mail">กลุ่มงานสถิติและวิจัย สจส.</div>
+    </div>
+  </div>
+</aside>
+<div class="sb-backdrop" id="sbBackdrop" hidden></div>
+
+<div class="app-main">
+
+<!-- ════════════════ Top bar ════════════════ -->
+<header class="topbar" role="banner">
+  <button id="menuBtn" class="menu-btn" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="เปิดเมนู">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <div class="tb-title">
+    <h1 class="tb-h" id="tbTitle">ภาพรวม</h1>
+    <p class="tb-sub">สถิติผู้โดยสารระบบขนส่งสาธารณะ กรุงเทพมหานคร ปี 2556–2568</p>
+  </div>
+  <div class="tb-actions">
+    <button id="themeToggle" class="util-btn" type="button" aria-label="สลับโหมดมืด/สว่าง" title="สลับโหมด" aria-pressed="false">
+      <svg class="theme-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 010 18z" fill="currentColor"/></svg>
+    </button>
+    <div class="lang-toggle" role="group" aria-label="Language switcher" data-no-i18n>
+      <button class="lang-btn active" data-lang="th" type="button" aria-pressed="true">ไทย</button>
+      <button class="lang-btn" data-lang="en" type="button" aria-pressed="false">EN</button>
+    </div>
+    <span class="tb-avatar" title="© Prapawadee_W." aria-label="ผู้จัดทำ">PW</span>
+  </div>
+</header>
+
+<div class="a4-canvas">
+<main id="main" class="a4-body" tabindex="-1">
+
+<!-- ══════════════════════════════════════
+     PANEL 1 : OVERVIEW
+══════════════════════════════════════ -->
+<section class="tab-panel" id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" tabindex="0" hidden>
+<div id="dash-home" class="dash-home" aria-live="polite"></div>
+
+  <div class="covid-note">
+    <strong>ปี 2563–2564: เหตุการณ์ COVID-19</strong> — การแพร่ระบาดของโรคติดเชื้อไวรัสโคโรนา 2019 (COVID-19) ส่งผลให้ผู้โดยสารลดลงในทุกระบบขนส่งสาธารณะ
+    โดยเฉพาะ <strong>ปี 2564</strong> ที่มีมาตรการล็อกดาวน์ ส่งผลให้ตัวเลขต่ำกว่าปกติ ไม่ควรนำมาเปรียบเทียบกับปีอื่น &nbsp;|&nbsp;
+    <strong>ปี 2568:</strong> ข้อมูลเรือโดยสาร รวม 5 ประเภท (40.72 ล้านเที่ยว)
+  </div>
+
+  <div class="g21">
+    <div class="card">
+      <div class="card-title">จำนวนผู้โดยสารรายปี เปรียบเทียบทุกระบบ ปี 2556–2568 (ล้านเที่ยวคน)</div>
+      <div class="chart-box h340">
+        <canvas id="overviewChart"></canvas>
+      </div>
+      <div class="src-row">
+        <span class="src">ขสมก.</span>
+        <span class="src">กทม. / รฟม. / รฟท.</span>
+        <span class="src">กรมเจ้าท่า — กทม.</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">สัดส่วนผู้โดยสาร ปี 2568</div>
+      <div class="chart-box h270">
+        <canvas id="donutChart"></canvas>
+      </div>
+      <div class="legend" id="donutLegend"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">สัดส่วนผู้ใช้ระบบขนส่งสาธารณะ และ รถส่วนบุคคล — ปี 2560–2567 <small>(ที่มา: สนข. จากแบบจำลอง BTDM ปีฐาน 2565)</small></div>
+    <div class="yr-tabs" id="modeYrTabs">
+      <button class="yr-btn active" onclick="showModeYear(this,7)">2567</button>
+      <button class="yr-btn" onclick="showModeYear(this,6)">2566</button>
+      <button class="yr-btn" onclick="showModeYear(this,5)">2565</button>
+      <button class="yr-btn" onclick="showModeYear(this,4)">2564</button>
+      <button class="yr-btn" onclick="showModeYear(this,3)">2563</button>
+      <button class="yr-btn" onclick="showModeYear(this,2)">2562</button>
+      <button class="yr-btn" onclick="showModeYear(this,1)">2561</button>
+      <button class="yr-btn" onclick="showModeYear(this,0)">2560</button>
+    </div>
+    <div id="modeDisplay"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PANEL 2 : RIDERSHIP BY LINE
+══════════════════════════════════════ -->
+<section class="tab-panel" id="panel-ridership" role="tabpanel" aria-labelledby="tab-ridership" tabindex="0" hidden>
+
+  <h2 class="sec">ผู้โดยสาร — รายปี 2556–2568 (ล้านเที่ยวคน) <span class="sec-badge">ข้อมูลทางการ</span></h2>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">รถไฟฟ้า BTS, MRT, ARL, SRT — แนวโน้มรายปี</div>
+      <div class="chart-box h300"><canvas id="railChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">รถโดยสาร ขสมก. & เรือโดยสาร — แนวโน้มรายปี</div>
+      <div class="chart-box h300"><canvas id="busChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">ตารางผู้โดยสารรายสาย รายปี (ล้านเที่ยวคน)</div>
+    <div class="tbl-wrap">
+      <table class="tbl" id="ridershipTable"></table>
+    </div>
+    <div class="tbl-note">
+      หมายเหตุ: "—" = ยังไม่เปิดให้บริการ · N/A = ไม่มีข้อมูล<br>
+      BRT ปี 2567 มีข้อมูลเฉพาะ 2 เดือน (ปรับเปลี่ยนระบบ) ไม่ควรเทียบรายปี · เรือ 2568 (5 ประเภท)
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PANEL 3 : MODAL SHARE
+══════════════════════════════════════ -->
+<section class="tab-panel" id="panel-modal" role="tabpanel" aria-labelledby="tab-modal" tabindex="0" hidden>
+
+  <h2 class="sec">สัดส่วนรูปแบบการเดินทาง กรุงเทพฯ และปริมณฑล <span class="sec-badge">ที่มา: สนข. จากแบบจำลอง BTDM ปีฐาน 2565</span></h2>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">สัดส่วนผู้ใช้ระบบขนส่งสาธารณะ (%) ปี 2560–2567</div>
+      <div class="chart-box h280"><canvas id="modalTrendChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">ปริมาณการเดินทางสาธารณะ (ล้านคน-เที่ยว/ปี)</div>
+      <div class="chart-box h280"><canvas id="modalVolumeChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">รายละเอียดปี 2566 (ล้านคน-เที่ยว/ปี)<small>ที่มา: สนข. ข้อมูล ณ 29 พ.ค. 2568</small></div>
+      <div id="detail2566"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">รายละเอียดปี 2567 (ล้านคน-เที่ยว/ปี)<small>ที่มา: สนข. ข้อมูล ณ 20 ม.ค. 2569</small></div>
+      <div id="detail2567"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">หมายเหตุ Methodology</div>
+    <div class="notes">
+      <strong class="n">(1)</strong> ข้อมูลปีปฏิทิน 1 ม.ค. – 31 ธ.ค.<br>
+      <strong class="n">(2)</strong> สนข. ใช้แบบจำลอง BTDM (Bangkok Travel Demand Model) ปีฐาน 2565 จากโครงการสำรวจการเดินทางในเขตกรุงเทพฯ และปริมณฑล<br>
+      <strong class="n">(3)</strong> Trip Rate ปี 2566 = 1.49 เที่ยว/คน/วัน · ปี 2567: รถไฟฟ้า 1.15 / ขนส่งอื่น 1.38<br>
+      <strong class="warn">ข้อสังเกต:</strong> สัดส่วนปี 2567 (11.7%) ต่ำกว่าปี 2566 เนื่องจากปรับ methodology การคำนวณ ไม่ใช่ผู้โดยสารลดลงจริง
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PANEL 4 : ANNUAL DETAIL
+══════════════════════════════════════ -->
+<section class="tab-panel" id="panel-annual" role="tabpanel" aria-labelledby="tab-annual" tabindex="0" hidden>
+  <h2 class="sec">วิเคราะห์รายปี — เลือกปีเพื่อดูรายละเอียด <span class="sec-badge">ข้อมูล สจส.</span></h2>
+  <div class="yr-tabs" id="annualYrTabs"></div>
+  <div id="annualDetail"></div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PANEL 5 : SOURCES
+══════════════════════════════════════ -->
+<section class="tab-panel" id="panel-sources" role="tabpanel" aria-labelledby="tab-sources" tabindex="0" hidden>
+
+  <h2 class="sec">แหล่งข้อมูลและข้อจำกัด</h2>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">ไฟล์ข้อมูลที่ใช้</div>
+      <table class="tbl">
+        <thead><tr><th>ไฟล์</th><th>Sheet</th><th>ที่มา</th></tr></thead>
+        <tbody>
+          <tr><td>สถิติผู้โดยสารระบบขนส่งสาธารณะ</td><td>Chart และข้อมูลรายเดือน 11 sheets</td><td>สจส.</td></tr>
+          <tr><td>เรือโดยสาร กทม. 2568</td><td>—</td><td>กทม. / กรมเจ้าท่า</td></tr>
+          <tr><td>สัดส่วนการเดินทาง</td><td>Data, 2566, 2567</td><td>สนข. (BTDM)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">แหล่งข้อมูลรายระบบ</div>
+      <table class="tbl">
+        <thead><tr><th>ระบบ</th><th>หน่วยงาน</th><th>ปีที่มีข้อมูล</th></tr></thead>
+        <tbody>
+          <tr><td><span class="dot-sm" style="background:#f97316"></span>ขสมก.</td><td>ขสมก. / กรมการขนส่งทางบก</td><td>2556–2568</td></tr>
+          <tr><td><span class="dot-sm" style="background:#fb923c"></span>BRT</td><td>กทม.</td><td>2556–2568 (2567 เฉพาะ 2 เดือน)</td></tr>
+          <tr><td><span class="dot-sm" style="background:#22c55e"></span>BTS สีเขียว</td><td>กทม. / กรมการขนส่งทางราง</td><td>2556–2568</td></tr>
+          <tr><td><span class="dot-sm" style="background:#eab308"></span>BTS สีทอง</td><td>กทม.</td><td>2564–2568 </td></tr>
+          <tr><td><span class="dot-sm" style="background:#3b82f6"></span>MRT สีน้ำเงิน</td><td>รฟม. / กรมการขนส่งทางราง</td><td>2556–2568</td></tr>
+          <tr><td><span class="dot-sm" style="background:#a855f7"></span>MRT สีม่วง</td><td>รฟม.</td><td>2559–2568</td></tr>
+          <tr><td><span class="dot-sm" style="background:#facc15"></span>MRT สีเหลือง</td><td>รฟม.</td><td>2567–2568</td></tr>
+          <tr><td><span class="dot-sm" style="background:#ec4899"></span>MRT สีชมพู</td><td>รฟม.</td><td>2567–2568</td></tr>
+          <tr><td><span class="dot-sm" style="background:#06b6d4"></span>ARL</td><td>รฟท. / กรมการขนส่งทางราง</td><td>2556–2568</td></tr>
+          <tr><td><span class="dot-sm" style="background:#ef4444"></span>SRT สีแดง</td><td>รฟฟท. / กรมการขนส่งทางราง</td><td>2564–2568</td></tr>
+          <tr><td><span class="dot-sm" style="background:#0ea5e9"></span>เรือโดยสาร กทม.</td><td>กทม. / กรมเจ้าท่า</td><td>2560–2568 </td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">ข้อจำกัดของข้อมูล</div>
+    <div class="notes">
+      <strong class="n">1.</strong> หน่วยต่างกัน: ไฟล์ผู้โดยสาร = <strong>เที่ยวคน</strong> · ไฟล์สัดส่วน = <strong>ล้านคน-เที่ยว/ปี</strong> (ปรับด้วย trip rate)<br>
+      <strong class="n">2.</strong> BRT ปี 2567 มีข้อมูลเฉพาะ 2 เดือน เนื่องจากปรับเปลี่ยนระบบการให้บริการ ม.ค.–ต.ค. 2567 จึงไม่ควรเทียบรายปี<br>
+      <strong class="n">3.</strong> MRT เหลือง/ชมพู เริ่มปี 2567 (เปิดให้บริการปี 2566 ปลายปี)<br>
+      <strong class="n">4.</strong> เรือโดยสาร ปี 2560–2568: รวม 5 ประเภท · ปี 2556–2559: เฉพาะเรือข้ามฟาก<br>
+      <strong class="n">5.</strong> ปี 2563–2564: ผลกระทบ COVID-19 ทำให้ตัวเลขต่ำกว่าปกติ ไม่ควรเปรียบเทียบกับปีอื่น<br>
+      <strong class="n">6.</strong> ไม่รวม: รถตู้โดยสาร รถไฟระหว่างเมือง สองแถว มอเตอร์ไซค์รับจ้าง
+    </div>
+  </div>
+</section>
+
+
+</main>
+
+<footer class="page-foot">
+  <div>
+    ข้อมูล: สถิติผู้โดยสารระบบขนส่งสาธารณะ สจส. และสัดส่วนการเดินทาง สนข. (BTDM)<br>
+    อัปเดตล่าสุด: ปี 2568
+  </div>
+  <div class="r">
+    <strong>© Prapawadee_W.</strong><br>
+    กลุ่มงานสถิติและวิจัย · กองนโยบายและแผนงาน · สำนักการจราจรและขนส่ง · กทม.
+  </div>
+</footer>
+
+</div><!-- /a4-canvas -->
+</div><!-- /app-main -->
+</div><!-- /app-shell -->
+
+<script>
+// ══════════════════════════════════════
+// DATA — อัปเดตข้อมูลให้ตรงตาม Google Sheets (หน่วย: ล้านเที่ยวคน)
+// ══════════════════════════════════════
+const YEARS = [2556,2557,2558,2559,2560,2561,2562,2563,2564,2565,2566,2567,2568];
+
+// ล้านเที่ยวคน/ปี — อ้างอิงจากชีต "Report"
+const DATA = {
+  bmta:    [326.28, 305.67, 313.70, 299.77, 293.65, 382.18, 346.67, 240.81, 157.19, 217.06, 233.84, 214.60, 181.26],
+  brt:     [5.57,   6.49,   6.89,   7.05,   5.33,   4.56,   4.65,   3.31,   1.89,   2.47,   3.48,   0.48,   2.66],
+  btsG:    [214.96, 229.30, 241.11, 248.64, 252.73, 252.69, 272.02, 182.19, 108.17, 194.38, 264.68, 266.18, 255.82],
+  btsGold: [0,      0,      0,      0,      0,      0,      0,      0,      0.68,   1.35,   2.46,   2.78,   2.71],
+  mrtB:    [86.44,  92.44,  95.02,  100.37, 107.54, 113.71, 123.62, 95.60,  53.53,  99.00,  143.38, 157.15, 151.87],
+  mrtP:    [null,   null,   null,   3.07,   11.63,  17.64,  19.73,  16.84,  9.84,   16.15,  21.51,  24.72,  24.41],
+  mrtY:    [null,   null,   null,   null,   null,   null,   null,   null,   null,   null,   7.47,   14.30,  16.22],
+  mrtPk:   [null,   null,   null,   null,   null,   null,   null,   null,   null,   null,   3.35,   20.19,  21.46],
+  arl:     [15.38,  17.00,  19.37,  21.18,  22.64,  23.57,  25.86,  14.93,  7.95,   15.83,  22.56,  24.19,  24.50],
+  srtN:    [0,      0,      0,      0,      0,      0,      0,      0,      0.93,   4.46,   6.64,   9.24,   10.40],
+  srtW:    [0,      0,      0,      0,      0,      0,      0,      0,      0.07,   0.34,   0.50,   0.70,   0.81],
+};
+
+// เรือโดยสาร — ปรับให้ตรงกับชีต (เรือยนต์ข้ามฟากแม่น้ำเจ้าพระยา)
+const FERRY = [44.55, 41.51, 41.23, 37.88, 37.67, 36.35, 33.93, 16.85, 12.90, 17.56, 25.83, 27.60, 23.60];
+
+// Modal share (สนข. BTDM) ปี 2560-2567
+const MODAL_YEARS  = ['2560','2561','2562','2563','2564','2565','2566','2567'];
+const MODAL_PT     = [20.55, 17.90, 19.42, 15.62,  8.27,  9.79, 14.46, 11.71];
+const MODAL_PV     = [79.45, 82.10, 80.58, 84.38, 91.73, 90.21, 85.54, 88.29];
+const MODAL_PT_VOL = [2215.71,1959.65,2160.26,1496.03,705.19,968.28,1226.40,1068.43];
+
+// รายละเอียดปี 2566 (สนข.)
+const D2566 = [
+  {n:'BTS สายสีเขียว',     v:184.88, s:'กทม.'},
+  {n:'MRT สายสีน้ำเงิน',   v:142.36, s:'รฟม.'},
+  {n:'MRT สายสีม่วง',      v:21.32,  s:'รฟม.'},
+  {n:'ARL',                 v:45.21,  s:'รฟท.'},
+  {n:'SRT สายสีแดง',       v:7.84,   s:'รฟฟท.'},
+  {n:'รถไฟ',                v:17.80,  s:'รฟท.'},
+  {n:'BTS สายสีทอง',       v:2.46,   s:'กทม.'},
+  {n:'MRT สายสีเหลือง',    v:9.03,   s:'รฟม.'},
+  {n:'MRT สายสีชมพู',      v:3.38,   s:'รฟม.'},
+  {n:'BRT',                 v:2.05,   s:'กทม.'},
+  {n:'รถประจำทาง',          v:1233.54,s:'ขสมก./กรมขนส่ง'},
+  {n:'รถตู้',               v:113.85, s:'สนข.'},
+  {n:'เรือ',                v:43.61,  s:'กรมเจ้าท่า'},
+];
+
+// รายละเอียดปี 2567 (สนข.)
+const D2567 = [
+  {n:'BTS สายสีเขียว',     v:266.17, s:'กทม./กรมการขนส่งทางราง'},
+  {n:'MRT สายสีน้ำเงิน',   v:157.15, s:'รฟม.'},
+  {n:'MRT สายสีม่วง',      v:24.72,  s:'รฟม.'},
+  {n:'ARL',                 v:24.19,  s:'รฟท.'},
+  {n:'SRT สายสีแดง',       v:11.39,  s:'รฟฟท.'},
+  {n:'รถไฟ',                v:5.92,   s:'รฟท.'},
+  {n:'BTS สายสีทอง',       v:2.77,   s:'กทม.'},
+  {n:'MRT สายสีเหลือง',    v:14.30,  s:'รฟม.'},
+  {n:'MRT สายสีชมพู',      v:20.19,  s:'รฟม.'},
+  {n:'BRT',                 v:3.72,   s:'กทม.'},
+  {n:'รถประจำทาง',          v:662.84, s:'ขสมก./กรมขนส่ง'},
+  {n:'รถตู้',               v:127.64, s:'สนข.'},
+  {n:'เรือ',                v:49.26,  s:'กรมเจ้าท่า'},
+];
+
+// สีระบบ
+const C = {
+  bmta:'#f97316', brt:'#fb923c', btsG:'#22c55e', btsGold:'#eab308',
+  mrtB:'#3b82f6', mrtP:'#a855f7', mrtY:'#ca8a04', mrtPk:'#ec4899',
+  arl:'#06b6d4',  srtN:'#ef4444', srtW:'#fca5a5', ferry:'#0ea5e9',
+};
+const LBL = {
+  bmta:'ขสมก.', brt:'BRT', btsG:'BTS สีเขียว', btsGold:'BTS สีทอง',
+  mrtB:'MRT น้ำเงิน', mrtP:'MRT ม่วง', mrtY:'MRT เหลือง', mrtPk:'MRT ชมพู',
+  arl:'ARL', srtN:'SRT เหนือ', srtW:'SRT ตะวันตก', ferry:'เรือข้ามฟาก',
+};
+
+// Chart.js defaults
+Chart.defaults.font.family = "'Sarabun', sans-serif";
+
+// ── THEME (อ่านสีจาก CSS variables เพื่อให้ตรงกับ light/dark) ──
+const TH = {grid:'#E5E7EB', tick:'#566677', surface:'#FFFFFF'};
+function readTheme(){
+  const cs = getComputedStyle(document.documentElement);
+  TH.grid    = cs.getPropertyValue('--d-line').trim()  || TH.grid;
+  TH.tick    = cs.getPropertyValue('--d-muted').trim() || TH.tick;
+  TH.surface = cs.getPropertyValue('--d-card').trim()  || TH.surface;
+  Chart.defaults.color = TH.tick;
+}
+function themeCharts(){
+  readTheme();
+  Object.values(Chart.instances).forEach(ch => {
+    Object.values((ch.config.options || {}).scales || {}).forEach(sc => {
+      sc.grid = sc.grid || {}; sc.grid.color = TH.grid;
+      sc.ticks = sc.ticks || {}; sc.ticks.color = TH.tick;
+      if (sc.title) sc.title.color = TH.tick;
+    });
+    if (ch.config.type === 'doughnut') ch.config.data.datasets.forEach(d => { d.borderColor = TH.surface; });
+    ch.update('none');
+  });
+}
+readTheme();
+
+// ══════════════════════════════════════
+// COVID-19 ANNOTATION PLUGIN
+// ══════════════════════════════════════
+const covidPlugin = {
+  id: 'covidLabel',
+  afterDraw(chart) {
+    const ci = YEARS.indexOf(2564);
+    const meta0 = chart.getDatasetMeta(0);
+    if (!meta0 || !meta0.data[ci]) return;
+
+    // คำนวณ stack top ปี 2564
+    const total64 = [DATA.bmta,DATA.btsG,DATA.mrtB,DATA.mrtP,DATA.arl,
+                     DATA.btsGold,DATA.srtN,FERRY]
+      .reduce((s,a) => s + (a[ci] || 0), 0);
+    const topPx   = chart.scales.y.getPixelForValue(total64);
+    const barX    = meta0.data[ci].x;
+    const labelY  = topPx - 40;
+    const ctx2    = chart.ctx;
+
+    // --- กล่อง ---
+    const lines = ['COVID-19'];
+    ctx2.save();
+    ctx2.font = 'bold 11px "Sarabun", sans-serif';
+    const bw   = ctx2.measureText(lines[0]).width + 16;
+    const bh   = 20;
+    const bx   = barX - bw / 2;
+    const by   = labelY - bh;
+
+    ctx2.shadowColor = 'rgba(0,0,0,0.12)'; ctx2.shadowBlur = 5; ctx2.shadowOffsetY = 2;
+    ctx2.fillStyle = '#dc2626';
+    ctx2.beginPath();
+    ctx2.roundRect(bx, by, bw, bh, 4);
+    ctx2.fill();
+    ctx2.shadowBlur = 0; ctx2.shadowOffsetY = 0;
+
+    ctx2.fillStyle = '#fff';
+    ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+    ctx2.fillText(lines[0], barX, by + bh / 2);
+
+    // --- เส้นประ + หัวลูกศร ---
+    const arrowTip = topPx - 5;
+    ctx2.beginPath();
+    ctx2.moveTo(barX, by + bh);
+    ctx2.lineTo(barX, arrowTip - 6);
+    ctx2.strokeStyle = '#dc2626'; ctx2.lineWidth = 1.5;
+    ctx2.setLineDash([4, 3]); ctx2.stroke(); ctx2.setLineDash([]);
+
+    ctx2.beginPath();
+    ctx2.moveTo(barX, arrowTip);
+    ctx2.lineTo(barX - 4, arrowTip - 7);
+    ctx2.lineTo(barX + 4, arrowTip - 7);
+    ctx2.closePath();
+    ctx2.fillStyle = '#dc2626'; ctx2.fill();
+
+    ctx2.restore();
+  }
+};
+
+// ══════════════════════════════════════
+// OVERVIEW STACKED BAR
+// ══════════════════════════════════════
+const overviewCtx = document.getElementById('overviewChart').getContext('2d');
+new Chart(overviewCtx, {
+  type: 'bar',
+  plugins: [covidPlugin],
+  data: {
+    labels: YEARS.map(y => 'ปี ' + y),
+    datasets: [
+      {label:LBL.bmta,    data:DATA.bmta,    backgroundColor:C.bmta   +'cc', stack:'s'},
+      {label:LBL.btsG,    data:DATA.btsG,    backgroundColor:C.btsG   +'cc', stack:'s'},
+      {label:LBL.mrtB,    data:DATA.mrtB,    backgroundColor:C.mrtB   +'cc', stack:'s'},
+      {label:LBL.mrtP,    data:DATA.mrtP,    backgroundColor:C.mrtP   +'cc', stack:'s'},
+      {label:LBL.arl,     data:DATA.arl,     backgroundColor:C.arl    +'cc', stack:'s'},
+      {label:LBL.btsGold, data:DATA.btsGold, backgroundColor:C.btsGold+'cc', stack:'s'},
+      {label:LBL.srtN,    data:DATA.srtN,    backgroundColor:C.srtN   +'cc', stack:'s'},
+      {label:LBL.ferry,   data:FERRY,        backgroundColor:C.ferry  +'99', stack:'s'},
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    layout:{padding:{top:52}},
+    plugins:{
+      legend:{position:'bottom', labels:{font:{size:11}, boxWidth:11, padding:10}},
+      tooltip:{callbacks:{label:ctx=>{
+        if(!ctx.parsed.y) return null;
+        let s = ctx.dataset.label+': '+ctx.parsed.y.toFixed(1)+um();
+        if (YEARS[ctx.dataIndex]===2564) s += '  COVID-19';
+        return s;
+      }}}
+    },
+    scales:{
+      x:{stacked:true, ticks:{font:{size:10},maxRotation:45}, grid:{color:TH.grid}},
+      y:{stacked:true, title:{display:true,text:'ล้านเที่ยวคน/ปี',font:{size:11}},
+         grid:{color:TH.grid}, ticks:{font:{size:10}}}
+    }
+  }
+});
+
+// ══════════════════════════════════════
+// DONUT 2568
+// ══════════════════════════════════════
+// อัปเดตข้อมูลให้ตรงกับตารางในปี 2568
+const DONUT_DATA = [
+  {l:'ขสมก.',        v:181.26, c:C.bmta},
+  {l:'BTS สีเขียว',  v:255.82, c:C.btsG},
+  {l:'MRT น้ำเงิน',  v:151.87, c:C.mrtB},
+  {l:'MRT ม่วง',     v:24.41,  c:C.mrtP},
+  {l:'MRT เหลือง',   v:16.22,  c:C.mrtY},
+  {l:'MRT ชมพู',     v:21.46,  c:C.mrtPk},
+  {l:'ARL',          v:24.50,  c:C.arl},
+  {l:'SRT (รวม)',    v:11.21,  c:C.srtN},
+  {l:'BRT',          v:2.66,   c:C.brt},
+  {l:'BTS สีทอง',   v:2.71,   c:C.btsGold},
+  {l:'เรือข้ามฟาก',  v:23.60,  c:C.ferry},
+];
+const total68 = DONUT_DATA.reduce((s,d)=>s+d.v, 0);
+
+new Chart(document.getElementById('donutChart').getContext('2d'), {
+  type:'doughnut',
+  data:{
+    labels: DONUT_DATA.map(d=>d.l),
+    datasets:[{
+      data: DONUT_DATA.map(d=>d.v),
+      backgroundColor: DONUT_DATA.map(d=>d.c),
+      borderWidth:2, borderColor:TH.surface, hoverOffset:6
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false, cutout:'62%',
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>
+        ctx.label+': '+ctx.parsed.toFixed(1)+um()+' ('+
+        (ctx.parsed/total68*100).toFixed(1)+'%)'
+      }}
+    }
+  }
+});
+
+// Legend
+const dlEl = document.getElementById('donutLegend');
+DONUT_DATA.forEach(d=>{
+  dlEl.innerHTML += `<div class="leg"><div class="leg-dot" style="background:${d.c}"></div>${d.l}: ${(d.v/total68*100).toFixed(1)}%</div>`;
+});
+
+// ══════════════════════════════════════
+// MODE YEAR DISPLAY
+// ══════════════════════════════════════
+function showModeYear(btn, idx) {
+  document.querySelectorAll('#modeYrTabs .yr-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const yr  = MODAL_YEARS[idx];
+  const pt  = MODAL_PT[idx];
+  const pv  = MODAL_PV[idx];
+  const vol = MODAL_PT_VOL[idx];
+  const covid = idx===3||idx===4;
+  document.getElementById('modeDisplay').innerHTML = `
+    ${covid?`<div class="covid-note" style="margin-bottom:16px">ปี ${yr} ได้รับผลกระทบจาก COVID-19 — ตัวเลขต่ำกว่าปกติอย่างมีนัยสำคัญ</div>`:''}
+    <div class="mode-bar" style="margin-top:8px">
+      <div class="mode-seg" style="width:${pt}%;background:#22c55e;min-width:44px">${pt.toFixed(1)}%</div>
+      <div class="mode-seg" style="width:${pv}%;background:#ef4444">${pv.toFixed(1)}%</div>
+    </div>
+    <div class="legend" style="margin-bottom:18px">
+      <div class="leg"><div class="leg-dot" style="background:#22c55e"></div>ขนส่งสาธารณะ ${pt.toFixed(1)}%</div>
+      <div class="leg"><div class="leg-dot" style="background:#ef4444"></div>รถส่วนบุคคล ${pv.toFixed(1)}%</div>
+    </div>
+    <div class="mode-cards">
+      <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:18px">
+        <div style="font-size:16px;color:var(--ok);margin-bottom:8px;font-weight:600">ขนส่งสาธารณะ</div>
+        <div style="font-family:var(--font-body);font-size:28px;font-weight:700;color:var(--ok)">${pt.toFixed(2)}<span style="font-size:20px">%</span></div>
+        <div style="font-size:14px;color:var(--d-muted);margin-top:6px">${vol.toFixed(1)} ล้านคน-เที่ยว/ปี</div>
+      </div>
+      <div style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:18px">
+        <div style="font-size:16px;color:var(--bad);margin-bottom:8px;font-weight:600">รถส่วนบุคคล</div>
+        <div style="font-family:var(--font-body);font-size:28px;font-weight:700;color:var(--bad)">${pv.toFixed(2)}<span style="font-size:20px">%</span></div>
+      </div>
+      <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.18);border-radius:10px;padding:18px">
+        <div style="font-size:16px;color:var(--d-brand);margin-bottom:8px;font-weight:600">ปีที่แสดงข้อมูล</div>
+        <div style="font-family:var(--font-body);font-size:26px;font-weight:700;color:var(--d-brand)">พ.ศ. ${yr}</div>
+        <div style="font-size:14px;color:var(--d-muted);margin-top:6px">สนข. แบบจำลอง BTDM</div>
+      </div>
+    </div>`;
+}
+showModeYear(document.querySelector('#modeYrTabs .yr-btn'), 7);
+
+// ══════════════════════════════════════
+// RAIL LINE CHART
+// ══════════════════════════════════════
+new Chart(document.getElementById('railChart').getContext('2d'), {
+  type:'line',
+  data:{
+    labels: YEARS.map(y=>'ปี '+y),
+    datasets:[
+      {label:'BTS สีเขียว', data:DATA.btsG,  borderColor:C.btsG,  borderWidth:2.5, pointRadius:3, tension:0.3, fill:false},
+      {label:'MRT น้ำเงิน', data:DATA.mrtB,  borderColor:C.mrtB,  borderWidth:2.5, pointRadius:3, tension:0.3, fill:false},
+      {label:'MRT ม่วง',    data:DATA.mrtP,  borderColor:C.mrtP,  borderWidth:2,   pointRadius:3, tension:0.3, borderDash:[4,3]},
+      {label:'ARL',          data:DATA.arl,   borderColor:C.arl,   borderWidth:2,   pointRadius:3, tension:0.3, borderDash:[3,3]},
+      {label:'SRT (รวม)',   data:DATA.srtN.map((v,i)=>(v||0)+(DATA.srtW[i]||0)||null),
+        borderColor:C.srtN, borderWidth:1.5, pointRadius:3, tension:0.3, borderDash:[2,4]},
+      {label:'MRT เหลือง',  data:DATA.mrtY,  borderColor:C.mrtY,  borderWidth:1.5, pointRadius:3, tension:0.3, borderDash:[2,4]},
+      {label:'MRT ชมพู',    data:DATA.mrtPk, borderColor:C.mrtPk, borderWidth:1.5, pointRadius:3, tension:0.3, borderDash:[2,4]},
+      {label:'BTS สีทอง',  data:DATA.btsGold.map(v=>v||null),
+        borderColor:C.btsGold, borderWidth:1.5, pointRadius:3, tension:0.3, borderDash:[2,4]},
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10,padding:8}},
+      tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+(ctx.parsed.y!=null?ctx.parsed.y.toFixed(1)+um():'N/A')}}},
+    scales:{
+      x:{ticks:{maxRotation:45,font:{size:9}}, grid:{color:TH.grid}},
+      y:{title:{display:true,text:'ล้านเที่ยวคน/ปี',font:{size:10}}, grid:{color:TH.grid}, ticks:{font:{size:10}}}
+    }
+  }
+});
+
+// ══════════════════════════════════════
+// BUS + FERRY CHART
+// ══════════════════════════════════════
+new Chart(document.getElementById('busChart').getContext('2d'), {
+  type:'line',
+  data:{
+    labels: YEARS.map(y=>'ปี '+y),
+    datasets:[
+      {label:'ขสมก.', data:DATA.bmta, borderColor:C.bmta, backgroundColor:C.bmta+'15',
+       borderWidth:2.5, pointRadius:3, tension:0.3, fill:true},
+      {label:'เรือโดยสาร', data:FERRY, borderColor:C.ferry, borderWidth:2, pointRadius:3, tension:0.3, borderDash:[4,3]},
+      {label:'BRT',         data:DATA.brt,  borderColor:C.brt,  borderWidth:1.5, pointRadius:3, tension:0.3, borderDash:[2,4]},
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10,padding:8}},
+      tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+(ctx.parsed.y!=null?ctx.parsed.y.toFixed(1)+um():'N/A')}}},
+    scales:{
+      x:{ticks:{maxRotation:45,font:{size:9}}, grid:{color:TH.grid}},
+      y:{title:{display:true,text:'ล้านเที่ยวคน/ปี',font:{size:10}}, grid:{color:TH.grid}, ticks:{font:{size:10}}}
+    }
+  }
+});
+
+// ══════════════════════════════════════
+// RIDERSHIP TABLE
+// ══════════════════════════════════════
+const TBL_ROWS = [
+  {key:'bmta',    label:'ขสมก. (รถประจำทาง)',        color:C.bmta,    start:0},
+  {key:'brt',     label:'BRT',                        color:C.brt,     start:0},
+  {key:'btsG',    label:'BTS สายสีเขียว',             color:C.btsG,    start:0},
+  {key:'btsGold', label:'BTS สายสีทอง',               color:C.btsGold, start:8},
+  {key:'mrtB',    label:'MRT สายสีน้ำเงิน',           color:C.mrtB,    start:0},
+  {key:'mrtP',    label:'MRT สายสีม่วง',              color:C.mrtP,    start:3},
+  {key:'mrtY',    label:'MRT สายสีเหลือง',            color:C.mrtY,    start:11},
+  {key:'mrtPk',   label:'MRT สายสีชมพู',              color:C.mrtPk,   start:11},
+  {key:'arl',     label:'Airport Rail Link',           color:C.arl,     start:0},
+  {key:'srtN',    label:'SRT สายเหนือ (Dark Red)',    color:C.srtN,    start:8},
+  {key:'srtW',    label:'SRT สายตะวันตก (Light Red)', color:C.srtW,    start:8},
+];
+const tbl = document.getElementById('ridershipTable');
+let thead = '<thead><tr><th>ระบบ</th>';
+YEARS.forEach(y => thead += `<th style="text-align:right">ปี ${y}</th>`);
+thead += '</tr></thead>';
+tbl.innerHTML = thead;
+const tbody = document.createElement('tbody');
+TBL_ROWS.forEach(row => {
+  const tr = document.createElement('tr');
+  let cells = `<td><span class="dot-sm" style="background:${row.color}"></span>${row.label}</td>`;
+  YEARS.forEach((y,i) => {
+    const v = DATA[row.key][i];
+    let txt;
+    if (i < row.start) txt = `<span style="color:var(--d-muted)">—</span>`;
+    else if (v===null||v===undefined) txt = `<span style="color:var(--d-muted)">N/A</span>`;
+    else if (v===0) txt = `<span style="color:var(--d-muted)">—</span>`;
+    else {
+      const isNew = y===2568;
+      txt = `<span style="font-family:var(--font-body);color:${isNew?'var(--d-brand)':row.color};font-weight:${isNew?700:400}">${v.toFixed(2)}</span>`;
+    }
+    const bg = y===2564 ? 'background:rgba(239,68,68,0.05)' : '';
+    cells += `<td style="text-align:right;${bg}">${txt}</td>`;
+  });
+  tr.innerHTML = cells;
+  tbody.appendChild(tr);
+});
+tbl.appendChild(tbody);
+
+// ══════════════════════════════════════
+// MODAL TREND CHART
+// ══════════════════════════════════════
+new Chart(document.getElementById('modalTrendChart').getContext('2d'), {
+  type:'line',
+  data:{
+    labels: MODAL_YEARS.map(y=>'ปี '+y),
+    datasets:[
+      {label:'ขนส่งสาธารณะ (%)', data:MODAL_PT,
+       borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,0.08)',
+       borderWidth:2.5, pointRadius:5, tension:0.3, fill:true},
+      {label:'รถส่วนบุคคล (%)', data:MODAL_PV,
+       borderColor:'#ef4444', backgroundColor:'rgba(239,68,68,0.05)',
+       borderWidth:2, pointRadius:5, tension:0.3, fill:true, hidden:true},
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:10}}},
+    scales:{
+      x:{ticks:{font:{size:11}}, grid:{color:TH.grid}},
+      y:{min:0, max:25, title:{display:true,text:'%',font:{size:11}},
+         grid:{color:TH.grid}, ticks:{font:{size:10}}}
+    }
+  }
+});
+
+// ══════════════════════════════════════
+// MODAL VOLUME CHART
+// ══════════════════════════════════════
+new Chart(document.getElementById('modalVolumeChart').getContext('2d'), {
+  type:'bar',
+  data:{
+    labels: MODAL_YEARS.map(y=>'ปี '+y),
+    datasets:[{
+      label:'ปริมาณการเดินทางสาธารณะ',
+      data: MODAL_PT_VOL,
+      backgroundColor: MODAL_YEARS.map((_,i)=>i===3||i===4?'rgba(239,68,68,0.5)':'rgba(34,197,94,0.55)'),
+      borderColor: MODAL_YEARS.map((_,i)=>i===3||i===4?'#ef4444':'#22c55e'),
+      borderWidth:1.5, borderRadius:4,
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>ctx.parsed.y.toFixed(1)+' ล้านคน-เที่ยว/ปี'}}},
+    scales:{
+      x:{ticks:{font:{size:11}}, grid:{color:TH.grid}},
+      y:{title:{display:true,text:'ล้านคน-เที่ยว/ปี',font:{size:11}},
+         grid:{color:TH.grid}, ticks:{font:{size:10}}}
+    }
+  }
+});
+
+// ══════════════════════════════════════
+// DETAIL PANELS 2566 / 2567
+// ══════════════════════════════════════
+function renderDetail(elId, data) {
+  const el = document.getElementById(elId);
+  const total = data.reduce((s,d)=>s+d.v, 0);
+  const maxV  = Math.max(...data.map(d=>d.v));
+  el.innerHTML = data.map(d=>`
+    <div style="margin-bottom:11px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">
+        <span style="font-size:14px;color:var(--d-text)">${d.n}</span>
+        <span style="font-family:var(--font-body);font-size:14px;color:var(--d-brand);font-weight:600">${d.v.toFixed(2)}</span>
+      </div>
+      <div class="pbar">
+        <div class="pbar-fill" style="width:${(d.v/maxV*100).toFixed(1)}%;background:${d.v>200?'#22c55e':d.v>50?'#3b82f6':'#a855f7'}"></div>
+      </div>
+      <div style="font-family:var(--font-body);font-size:14px;color:var(--d-muted);margin-top:2px">
+        ${(d.v/total*100).toFixed(1)}% ของรวม · ${d.s}
+      </div>
+    </div>`).join('')+
+  `<div style="border-top:2px solid var(--d-line);padding-top:10px;margin-top:6px;
+    display:flex;justify-content:space-between;align-items:baseline">
+    <span style="font-size:16px;font-weight:700;color:var(--d-text)">รวมทั้งสิ้น</span>
+    <span style="font-family:var(--font-body);font-size:18px;font-weight:700;color:var(--ok)">${total.toFixed(2)} ล้านคน-เที่ยว/ปี</span>
+  </div>`;
+}
+renderDetail('detail2566', D2566);
+renderDetail('detail2567', D2567);
+
+// ══════════════════════════════════════
+// ANNUAL DETAIL PANEL
+// ══════════════════════════════════════
+const annualTabs = document.getElementById('annualYrTabs');
+[...YEARS].reverse().forEach(y => {
+  const i = YEARS.indexOf(y);
+  const btn = document.createElement('button');
+  btn.className = 'yr-btn' + (y===2568?' active':'');
+  btn.textContent = 'ปี ' + y;
+  btn.onclick = () => {
+    document.querySelectorAll('#annualYrTabs .yr-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderAnnual(i);
+  };
+  annualTabs.appendChild(btn);
+});
+
+function renderAnnual(idx) {
+  const y = YEARS[idx];
+  const isCovid  = y===2564;
+  const isPreCov = y===2563;
+  const is2568   = y===2568;
+
+  // ปรับการตรวจสอบให้แสดงผลตามข้อมูลที่มี
+  const rows = [
+    ['ขสมก. (รถประจำทาง)',    DATA.bmta[idx],     C.bmta],
+    ['BRT',                    DATA.brt[idx],      C.brt],
+    ['BTS สายสีเขียว',        DATA.btsG[idx],     C.btsG],
+    ['BTS สายสีทอง',          DATA.btsGold[idx],  C.btsGold],
+    ['MRT สายสีน้ำเงิน',      DATA.mrtB[idx],     C.mrtB],
+    ['MRT สายสีม่วง',         DATA.mrtP[idx],     C.mrtP],
+    ['MRT สายสีเหลือง',       DATA.mrtY[idx],     C.mrtY],
+    ['MRT สายสีชมพู',         DATA.mrtPk[idx],    C.mrtPk],
+    ['Airport Rail Link',      DATA.arl[idx],      C.arl],
+    ['SRT สายสีแดง (รวม)',   (DATA.srtN[idx]||0)+(DATA.srtW[idx]||0), C.srtN],
+    ['เรือข้ามฟาก',            FERRY[idx],         C.ferry],
+  ].filter(r => r[1] !== null && r[1] !== undefined && r[1] > 0);
+
+  const total = rows.reduce((s,r)=>s+(r[1]||0),0);
+  const maxV  = Math.max(...rows.map(r=>r[1]));
+
+  document.getElementById('annualDetail').innerHTML = `
+    <div class="card">
+      <div class="card-title">
+        ปี พ.ศ. ${y} — ผู้โดยสารรายระบบ (ล้านเที่ยวคน/ปี)
+        ${isCovid  ?'<span style="background:#dc2626;color:#fff;font-size:14px;padding:3px 10px;border-radius:4px;margin-left:8px;font-family:var(--font-body)">COVID-19</span>':''}
+        ${isPreCov ?'<span style="background:#f59e0b;color:#fff;font-size:14px;padding:3px 10px;border-radius:4px;margin-left:8px;font-family:var(--font-body)">ได้รับผลกระทบ COVID-19 ปลายปี</span>':''}
+        ${is2568   ?'<span style="background:var(--d-brand);color:#fff;font-size:14px;padding:3px 10px;border-radius:4px;margin-left:8px;font-family:var(--font-body)">● ข้อมูลล่าสุด</span>':''}
+      </div>
+      <div class="rd-grid">
+        ${rows.map(r=>`
+          <div style="background:var(--d-soft);border:1px solid var(--d-line);border-left:4px solid ${r[2]};
+            border-radius:10px;padding:14px">
+            <div style="font-size:14px;color:var(--d-muted);margin-bottom:6px;font-weight:600">${r[0]}</div>
+            <div style="font-family:var(--font-body);font-size:26px;font-weight:700;color:${r[2]}">${r[1].toFixed(2)}</div>
+            <div style="font-size:14px;color:var(--d-muted);margin-top:3px">ล้านเที่ยวคน · ${(r[1]/total*100).toFixed(1)}%</div>
+            <div class="pbar" style="margin-top:8px">
+              <div class="pbar-fill" style="width:${(r[1]/maxV*100).toFixed(0)}%;background:${r[2]}"></div>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div style="margin-top:18px;padding-top:14px;border-top:2px solid var(--d-line);
+        display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:16px;color:var(--d-muted)">รวมทุกระบบ (ข้อมูลที่มี)</span>
+        <span style="font-family:var(--font-body);font-size:20px;font-weight:700;color:var(--ok)">${total.toFixed(2)} ล้านเที่ยวคน/ปี</span>
+      </div>
+      ${isCovid?`<div class="covid-note" style="margin-top:16px;margin-bottom:0">
+        <strong>เหตุการณ์ COVID-19</strong> — การระบาดของโรคติดเชื้อไวรัสโคโรนา 2019
+        มาตรการล็อกดาวน์ส่งผลให้ตัวเลขต่ำกว่าปกติ ไม่ควรนำมาเปรียบเทียบกับปีอื่น</div>`:''}
+    </div>`;
+}
+
+renderAnnual(YEARS.indexOf(2568));
+</script>
+<script>/* assets/shell.js */
+/* ════════════════════════════════════════════════════════════════════
+   shell.js — เปลือกแดชบอร์ด (sidebar · top bar · tabs · dark mode) + ส่วนหัว/KPI ที่คำนวณจากข้อมูล
+   พฤติกรรมเหมือน dashboard-shell.js ของ BMA-travel-time-dashboard-TH
+   (เกณฑ์อุปกรณ์เดียวกัน · ใช้ localStorage คีย์เดียวกัน: bma-theme, bma_sb)
+   ต้องโหลดหลังสคริปต์ข้อมูลใน index.html (ใช้ DATA, FERRY, YEARS, MODAL_*, C, themeCharts)
+   © Prapawadee_W.
+   ════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } }
+  };
+
+  /* ───────── Icons (stroke, 24×24 — แบบเดียวกับ ico() ใน travel-time) ───────── */
+  const ICON = {
+    overview: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
+    ridership: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+    modal: '<path d="M21 12A9 9 0 1112 3v9z"/><path d="M15 3.5A9 9 0 0120.5 9H15z"/>',
+    annual: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+    sources: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
+    train: '<rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M9 21l2-4M15 21l-2-4"/>',
+    bus: '<rect x="4" y="3" width="16" height="14" rx="2"/><path d="M4 11h16M7 21v-4M17 21v-4"/>',
+    plane: '<path d="M21 15l-8-4V5a1.5 1.5 0 00-3 0v6l-8 4v2l8-2v4l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-4l8 2z"/>',
+    total: '<path d="M3 17l5-6 4 4 4-8 5 6"/>',
+    share: '<path d="M21 12A9 9 0 1112 3v9z"/>'
+  };
+  const ico = (n, s) => '<svg class="ico" viewBox="0 0 24 24" width="' + (s || 22) + '" height="' + (s || 22) + '" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICON[n] + '</svg>';
+
+  /* ───────── Tabs (WAI-ARIA Tabs) ───────── */
+  const TABS = [
+    { id: 'overview', label: 'ภาพรวม' },
+    { id: 'ridership', label: 'ผู้โดยสารรายสาย' },
+    { id: 'modal', label: 'สัดส่วนรูปแบบการเดินทาง' },
+    { id: 'annual', label: 'วิเคราะห์รายปี' },
+    { id: 'sources', label: 'แหล่งข้อมูลและข้อจำกัด' }
+  ];
+  function setupTabs() {
+    const host = $('#sideTabs');
+    if (!host) return;
+    const list = document.createElement('div');
+    list.className = 'tab-bar is-side';
+    list.setAttribute('role', 'tablist');
+    list.setAttribute('aria-orientation', 'vertical');
+    list.setAttribute('aria-label', 'เลือกหน้าต่างเนื้อหา');
+    const tabs = TABS.map((t) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'tab-btn'; b.id = 'tab-' + t.id;
+      b.setAttribute('role', 'tab'); b.setAttribute('aria-controls', 'panel-' + t.id);
+      b.setAttribute('aria-selected', 'false'); b.tabIndex = -1; b.dataset.panel = t.id;
+      b.innerHTML = ico(t.id, 20) + '<span class="sb-label">' + t.label + '</span>';
+      list.appendChild(b);
+      return b;
+    });
+    host.appendChild(list);
+
+    function activate(id, opts) {
+      opts = opts || {};
+      let idx = TABS.findIndex((t) => t.id === id);
+      if (idx < 0) idx = 0;
+      tabs.forEach((t, i) => {
+        const on = i === idx;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        const p = $('#panel-' + TABS[i].id);
+        if (p) p.hidden = !on;
+      });
+      if (opts.focus) tabs[idx].focus();
+      if (opts.hash !== false) { try { history.replaceState(null, '', '#panel-' + TABS[idx].id); } catch (e) { /* file:// */ } }
+      const h = $('#tbTitle'); if (h) h.textContent = TABS[idx].label;
+      document.dispatchEvent(new CustomEvent('panel:show', { detail: { id: TABS[idx].id } }));
+      // Chart.js ในแผงที่เพิ่งแสดงต้องวัดขนาดใหม่
+      if (window.Chart) setTimeout(() => Object.values(Chart.instances).forEach((c) => c.resize()), 30);
+    }
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => activate(t.dataset.panel));
+      t.addEventListener('keydown', (e) => {
+        const k = e.key; let n = -1;
+        if (k === 'ArrowDown' || k === 'ArrowRight') n = (i + 1) % tabs.length;
+        else if (k === 'ArrowUp' || k === 'ArrowLeft') n = (i - 1 + tabs.length) % tabs.length;
+        else if (k === 'Home') n = 0; else if (k === 'End') n = tabs.length - 1;
+        if (n >= 0) { e.preventDefault(); activate(tabs[n].dataset.panel, { focus: true }); }
+      });
+    });
+    const fromHash = () => (location.hash.match(/^#panel-(\w+)/) || [])[1];
+    window.addEventListener('hashchange', () => { const h = fromHash(); if (h) activate(h, { hash: false }); });
+    activate(fromHash() || 'overview', { hash: false });
+  }
+
+  /* ───────── Sidebar / drawer (เหมือน setupShell ของ travel-time) ───────── */
+  function setupShell() {
+    const shell = $('#appShell'), sb = $('#sidebar'), tgl = $('#sbToggle'), menu = $('#menuBtn'), back = $('#sbBackdrop');
+    if (!shell || !sb) return;
+    // Mobile ≤767 · Tablet 768–1199 · PC ≥1200 (ต้องตรงกับ dashboard-shell.css)
+    const mq = window.matchMedia('(max-width: 767px)');
+    const mqTab = window.matchMedia('(min-width: 768px) and (max-width: 1199px)');
+    const device = () => mq.matches ? 'mobile' : (mqTab.matches ? 'tablet' : 'pc');
+    function sync() {
+      const dev = device();
+      document.documentElement.setAttribute('data-device', dev);
+      if (dev === 'tablet') shell.classList.add('sb-collapsed');
+      else if (dev === 'pc') shell.classList.toggle('sb-collapsed', store.get('bma_sb') === '1');
+      const mobile = mq.matches, open = shell.classList.contains('sb-open'), collapsed = shell.classList.contains('sb-collapsed');
+      if (menu) menu.setAttribute('aria-expanded', String(mobile && open));
+      if (tgl) {
+        tgl.setAttribute('aria-expanded', String(mobile ? open : !collapsed));
+        tgl.setAttribute('aria-label', mobile ? 'ปิดเมนู' : (collapsed ? 'ขยายเมนู' : 'ย่อเมนู'));
+      }
+      if (back) back.hidden = !(mobile && open);
+      $$('.tab-btn', sb).forEach((b) => { if (collapsed && !mobile) b.title = b.textContent.trim(); else b.removeAttribute('title'); });
+      if (mobile && !open) sb.setAttribute('inert', ''); else sb.removeAttribute('inert');
+      if (window.Chart) setTimeout(() => Object.values(Chart.instances).forEach((c) => c.resize()), 230);
+    }
+    const closeMobile = () => { shell.classList.remove('sb-open'); sync(); };
+    if (store.get('bma_sb') === '1') shell.classList.add('sb-collapsed');
+    if (tgl) tgl.addEventListener('click', () => {
+      if (mq.matches) { closeMobile(); if (menu) menu.focus(); return; }
+      shell.classList.toggle('sb-collapsed');
+      store.set('bma_sb', shell.classList.contains('sb-collapsed') ? '1' : '0'); sync();
+    });
+    if (menu) menu.addEventListener('click', () => { shell.classList.add('sb-open'); sync(); const a = $('.tab-btn[aria-selected="true"]', sb) || $('.tab-btn', sb); if (a) a.focus(); });
+    if (back) back.addEventListener('click', closeMobile);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && shell.classList.contains('sb-open')) { closeMobile(); if (menu) menu.focus(); } });
+    document.addEventListener('click', (e) => { if (mq.matches && e.target.closest('.tab-btn')) closeMobile(); });
+    [mq, mqTab].forEach((m) => (m.addEventListener ? m.addEventListener('change', sync) : m.addListener(sync)));
+    sync();
+  }
+
+  /* ───────── Dark mode (คีย์ bma-theme เดียวกับ travel-time) ───────── */
+  function setupTheme() {
+    const btn = $('#themeToggle');
+    const apply = (dark) => {
+      if (dark) document.documentElement.setAttribute('data-theme', 'dark'); else document.documentElement.removeAttribute('data-theme');
+      if (btn) btn.setAttribute('aria-pressed', String(dark));
+      if (window.themeCharts) window.themeCharts();
+    };
+    if (btn) btn.addEventListener('click', () => {
+      const dark = document.documentElement.getAttribute('data-theme') !== 'dark';
+      store.set('bma-theme', dark ? 'dark' : 'light'); apply(dark);
+    });
+    apply(document.documentElement.getAttribute('data-theme') === 'dark');
+  }
+
+  /* ───────── Hero + KPI (คำนวณจาก DATA ไม่ใช้ตัวเลขที่พิมพ์ไว้) ───────── */
+  const sum = (keys, i) => keys.reduce((s, k) => s + (DATA[k][i] || 0), 0);
+  const f1 = (v) => v.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const pct = (cur, prev) => (prev ? (cur - prev) / prev * 100 : null);
+  function badge(p) {
+    if (p === null || !isFinite(p)) return '<span class="badge neutral">—</span>';
+    const up = p >= 0;
+    return '<span class="badge ' + (up ? 'up' : 'down') + '">' + (up ? '▲ +' : '▼ −') + Math.abs(p).toFixed(1) + '%</span>';
+  }
+  const RAIL = ['btsG', 'btsGold', 'mrtB', 'mrtP', 'mrtY', 'mrtPk', 'arl', 'srtN', 'srtW'];
+  const ALL = Object.keys(DATA);
+
+  function renderHome() {
+    const host = $('#dash-home');
+    if (!host) return;
+    const li = YEARS.length - 1, pi = li - 1, yr = YEARS[li], pyr = YEARS[pi];
+    const total = (i) => sum(ALL, i) + (FERRY[i] || 0);
+    const tCur = total(li), tPrev = total(pi);
+    const rCur = sum(RAIL, li), rPrev = sum(RAIL, pi);
+    const mi = MODAL_PT.length - 1;
+
+    const tile = (icon, label, val, unit, sub) =>
+      '<li class="hb-tile"><div class="hb-tile-h"><span class="hb-ico">' + ico(icon, 18) + '</span>' + label + '</div>' +
+      '<div class="hb-tile-v">' + val + ' <span class="hb-unit">' + unit + '</span></div><div class="hb-tile-s">' + sub + '</div></li>';
+    const sgn = (p) => (p >= 0 ? '+' : '−') + Math.abs(p).toFixed(1) + '%';
+    const hero =
+      '<section class="hero-banner" aria-labelledby="heroTitle"><div class="hb-top"><div>' +
+      '<div class="hb-line"><h2 class="hb-title" id="heroTitle">สถิติผู้โดยสารระบบขนส่งสาธารณะ กรุงเทพมหานคร</h2>' +
+      '<span class="hb-chip">ปี 2556–' + yr + '</span></div>' +
+      '<p class="hb-sub">ข้อมูล ณ 16 เมษายน 2569 · หน่วย: ล้านเที่ยวคน/ปี · ที่มา: สจส. กทม. รฟม. รฟท. กรมเจ้าท่า</p></div></div>' +
+      '<ul class="hb-tiles">' +
+      tile('total', 'ผู้โดยสารรวมทุกระบบ ' + yr, f1(tCur), 'ล้านเที่ยวคน', sgn(pct(tCur, tPrev)) + ' จากปี ' + pyr + ' (' + f1(tPrev) + ')') +
+      tile('train', 'ระบบราง (BTS · MRT · ARL · SRT)', f1(rCur), 'ล้านเที่ยวคน', sgn(pct(rCur, rPrev)) + ' จากปี ' + pyr + ' (' + f1(rPrev) + ')') +
+      tile('bus', 'รถโดยสาร ขสมก.', f1(DATA.bmta[li]), 'ล้านเที่ยวคน', sgn(pct(DATA.bmta[li], DATA.bmta[pi])) + ' จากปี ' + pyr + ' (' + f1(DATA.bmta[pi]) + ')') +
+      tile('share', 'สัดส่วนผู้ใช้ขนส่งสาธารณะ ปี ' + MODAL_YEARS[mi], MODAL_PT[mi].toFixed(2), '%', 'ปี ' + MODAL_YEARS[mi - 1] + ' = ' + MODAL_PT[mi - 1].toFixed(2) + '% (ปรับ methodology) · สนข.') +
+      '</ul></section>';
+
+    const k = (name, color, icon, cur, prev) =>
+      '<article class="kpi" style="--lc:' + color + '"><div class="kpi-top"><span class="kpi-ico">' + ico(icon, 24) + '</span>' + badge(pct(cur, prev)) + '</div>' +
+      '<div><span class="kpi-v">' + f1(cur) + '</span> <span class="kpi-u">ล้านเที่ยวคน</span></div>' +
+      '<h3 class="kpi-l">' + name + '</h3><p class="kpi-s">ปี ' + pyr + ': <b>' + f1(prev) + '</b> ล้านเที่ยวคน</p><div class="kpi-bar2" aria-hidden="true"></div></article>';
+    const srt = (i) => DATA.srtN[i] + DATA.srtW[i];
+    const kpis =
+      '<section aria-label="ตัวชี้วัดสำคัญ ปี ' + yr + '"><h2 class="sec">ตัวชี้วัดสำคัญ ปี ' + yr + ' (ล่าสุด)<span class="sec-badge">ข้อมูล สจส.</span></h2>' +
+      '<div class="kpi-grid kpi5" style="margin-top:16px">' +
+      k('BTS สายสีเขียว', C.btsG, 'train', DATA.btsG[li], DATA.btsG[pi]) +
+      k('MRT สายสีน้ำเงิน', C.mrtB, 'train', DATA.mrtB[li], DATA.mrtB[pi]) +
+      k('รถโดยสาร ขสมก.', C.bmta, 'bus', DATA.bmta[li], DATA.bmta[pi]) +
+      k('SRT สายสีแดง (รวม)', C.srtN, 'train', srt(li), srt(pi)) +
+      k('Airport Rail Link', C.arl, 'plane', DATA.arl[li], DATA.arl[pi]) +
+      '</div></section>';
+    host.innerHTML = hero + kpis;
+  }
+
+  function init() {
+    setupTabs();
+    setupShell();
+    setupTheme();
+    try { renderHome(); } catch (e) { console.error('[urban shell]', e); }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+
+</script>
+<script>/* assets/i18n.js */
+/* ════════════════════════════════════════════════════════════════════
+   i18n.js — สลับภาษา ไทย / English (ปุ่ม ไทย | EN ที่ top bar)
+   • ข้อความต้นฉบับเป็นภาษาไทย → แปลด้วยพจนานุกรม (GLOSSARY) + กฎรูปแบบ (ปี พ.ศ., วันที่)
+   • ครอบคลุมข้อความที่ JS สร้างทีหลังด้วย (MutationObserver) · กราฟ (ชื่อชุดข้อมูล/แกน) · aria-label/title
+   • ภาษาเริ่มต้น: ?lang=en|th → localStorage 'bma-dashboard-lang' (คีย์เดียวกับ travel-time) → ไทย
+   • โหมด EN: แปลงปี พ.ศ. → ค.ศ. (พ.ศ. 2569 = ค.ศ. 2026) ทั้งข้อความ กราฟ และปุ่มเลือกปี
+   © Prapawadee_W.
+   ════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+  const KEY = 'bma-dashboard-lang';
+  const THAI = /[฀-๿]/;
+
+  /* ── 1) ข้อความเต็ม (ต้องตรงทั้งข้อความ) ── */
+  const EXACT = {
+    'ภาพรวม': 'Overview', 'ผู้โดยสารรายสาย': 'Ridership by Line', 'สัดส่วนรูปแบบการเดินทาง': 'Travel Mode Share',
+    'วิเคราะห์รายปี': 'Annual Analysis', 'แหล่งข้อมูลและข้อจำกัด': 'Sources & Limitations',
+    'ระบบ': 'System', 'ไฟล์': 'File', 'ที่มา': 'Source', 'หน่วยงาน': 'Agency', 'ปีที่มีข้อมูล': 'Years available',
+    'รถไฟ': 'Intercity train', 'รถตู้': 'Vans', 'รถประจำทาง': 'Buses', 'เรือ': 'Boats', 'เที่ยวคน': 'passenger-trips',
+    'ล.': 'M', 'ไทย': 'ไทย', 'สัดส่วนการเดินทาง': 'Travel mode share', 'ข้อมูลทางการ': 'Official data',
+    'ข้อมูล สจส.': 'TTD data', 'ผู้จัดทำ': 'Author', 'ย่อเมนู': 'Collapse menu', 'ขยายเมนู': 'Expand menu',
+    'ปิดเมนู': 'Close menu', 'เปิดเมนู': 'Open menu', 'เมนูหลัก': 'Main menu', 'เมนูหน้าต่างเนื้อหา': 'Content menu',
+    'เลือกหน้าต่างเนื้อหา': 'Select a content panel', 'สลับโหมด': 'Toggle theme', 'สลับโหมดมืด/สว่าง': 'Toggle dark/light mode',
+    'ข้ามไปยังเนื้อหาหลัก': 'Skip to main content'
+  };
+
+  /* ── 2) พจนานุกรมวลี (แทนที่แบบ substring · ยาวก่อน) ── */
+  const G = [
+    // ประโยค/หมายเหตุยาว
+    ['สถิติผู้โดยสารระบบขนส่งสาธารณะ กรุงเทพมหานคร', 'Bangkok Public Transport Ridership Statistics'],
+    ['กลุ่มงานสถิติและวิจัย · กองนโยบายและแผนงาน · สำนักการจราจรและขนส่ง · กทม.', 'Statistics and Research Group · Policy and Planning Division · Traffic and Transportation Department · BMA'],
+    ['กลุ่มงานสถิติและวิจัย สจส.', 'Statistics & Research Group, TTD'],
+    ['ข้อมูล: สถิติผู้โดยสารระบบขนส่งสาธารณะ สจส. และสัดส่วนการเดินทาง สนข. (BTDM)', 'Data: public transport ridership statistics (TTD) and travel mode share (OTP, BTDM)'],
+    ['อัปเดตล่าสุด:', 'Last updated:'],
+    ['— การแพร่ระบาดของโรคติดเชื้อไวรัสโคโรนา 2019 (COVID-19) ส่งผลให้ผู้โดยสารลดลงในทุกระบบขนส่งสาธารณะ โดยเฉพาะ', '— The COVID-19 pandemic reduced ridership across all public transport systems, especially'],
+    ['ที่มีมาตรการล็อกดาวน์ ส่งผลให้ตัวเลขต่ำกว่าปกติ ไม่ควรนำมาเปรียบเทียบกับปีอื่น |', 'which had lockdown measures; figures are unusually low and should not be compared with other years |'],
+    ['— การระบาดของโรคติดเชื้อไวรัสโคโรนา 2019 มาตรการล็อกดาวน์ส่งผลให้ตัวเลขต่ำกว่าปกติ ไม่ควรนำมาเปรียบเทียบกับปีอื่น', '— The COVID-19 pandemic and lockdown measures left figures below normal; do not compare with other years'],
+    ['ข้อมูลเรือโดยสาร รวม 5 ประเภท (40.72 ล้านเที่ยว)', 'Passenger boat data covers all 5 types (40.72 million trips)'],
+    ['ได้รับผลกระทบจาก COVID-19 — ตัวเลขต่ำกว่าปกติอย่างมีนัยสำคัญ', 'affected by COVID-19 — figures significantly below normal'],
+    ['ผลกระทบ COVID-19 ทำให้ตัวเลขต่ำกว่าปกติ ไม่ควรเปรียบเทียบกับปีอื่น', 'COVID-19 impact: figures below normal, do not compare with other years'],
+    ['ได้รับผลกระทบ COVID-19 ปลายปี', 'COVID-19 impact late in the year'],
+    ['เหตุการณ์ COVID-19', 'COVID-19 event'],
+    ['BRT ปี 2567 มีข้อมูลเฉพาะ 2 เดือน (ปรับเปลี่ยนระบบ) ไม่ควรเทียบรายปี', 'BRT BE 2567 has only 2 months of data (system changeover); do not compare year-on-year'],
+    ['เรือ 2568 (5 ประเภท)', 'Boats 2568 (5 types)'],
+    ['BRT ปี 2567 มีข้อมูลเฉพาะ 2 เดือน เนื่องจากปรับเปลี่ยนระบบการให้บริการ ม.ค.–ต.ค. 2567 จึงไม่ควรเทียบรายปี', 'BRT BE 2567 has only 2 months of data because the service system was changed (Jan–Oct 2567); do not compare year-on-year'],
+    ['(2567 เฉพาะ 2 เดือน)', '(2567: 2 months only)'],
+    ['หมายเหตุ: "—" = ยังไม่เปิดให้บริการ · N/A = ไม่มีข้อมูล', 'Note: "—" = not yet in service · N/A = no data'],
+    ['หน่วยต่างกัน: ไฟล์ผู้โดยสาร =', 'Different units: ridership file ='],
+    ['· ไฟล์สัดส่วน =', '· mode-share file ='],
+    ['(ปรับด้วย trip rate)', '(adjusted by trip rate)'],
+    ['MRT เหลือง/ชมพู เริ่มปี 2567 (เปิดให้บริการปี 2566 ปลายปี)', 'MRT Yellow/Pink lines start in BE 2567 (opened late in BE 2566)'],
+    ['เรือโดยสาร ปี 2560–2568: รวม 5 ประเภท · ปี 2556–2559: เฉพาะเรือข้ามฟาก', 'Passenger boats BE 2560–2568: all 5 types · BE 2556–2559: cross-river ferries only'],
+    ['ปี 2563–2564: ผลกระทบ COVID-19 ทำให้ตัวเลขต่ำกว่าปกติ ไม่ควรเปรียบเทียบกับปีอื่น', 'BE 2563–2564: COVID-19 impact left figures below normal; do not compare with other years'],
+    ['ไม่รวม: รถตู้โดยสาร รถไฟระหว่างเมือง สองแถว มอเตอร์ไซค์รับจ้าง', 'Excludes: passenger vans, intercity trains, songthaews, motorcycle taxis'],
+    ['ข้อมูลปีปฏิทิน 1 ม.ค. – 31 ธ.ค.', 'Calendar-year data, 1 Jan – 31 Dec'],
+    ['สนข. ใช้แบบจำลอง BTDM (Bangkok Travel Demand Model) ปีฐาน 2565 จากโครงการสำรวจการเดินทางในเขตกรุงเทพฯ และปริมณฑล', 'OTP uses the BTDM (Bangkok Travel Demand Model), base year 2565, from the travel survey project in Bangkok and vicinity'],
+    ['Trip Rate ปี 2566 = 1.49 เที่ยว/คน/วัน · ปี 2567: รถไฟฟ้า 1.15 / ขนส่งอื่น 1.38', 'Trip rate BE 2566 = 1.49 trips/person/day · BE 2567: rail 1.15 / other modes 1.38'],
+    ['สัดส่วนปี 2567 (11.7%) ต่ำกว่าปี 2566 เนื่องจากปรับ methodology การคำนวณ ไม่ใช่ผู้โดยสารลดลงจริง', 'The BE 2567 share (11.7%) is lower than BE 2566 because the calculation methodology was adjusted, not because ridership actually fell'],
+    ['Chart และข้อมูลรายเดือน 11 sheets', 'Chart and monthly data, 11 sheets'],
+    ['สถิติผู้โดยสารระบบขนส่งสาธารณะ', 'Public transport ridership statistics'],
+    // หัวข้อ/การ์ด
+    ['จำนวนผู้โดยสารรายปี เปรียบเทียบทุกระบบ', 'Annual ridership, all systems compared'],
+    ['สัดส่วนผู้ใช้ระบบขนส่งสาธารณะ และ รถส่วนบุคคล', 'Public transport vs private vehicle share'],
+    ['สัดส่วนผู้ใช้ระบบขนส่งสาธารณะ', 'Public transport share'],
+    ['สัดส่วนผู้ใช้ขนส่งสาธารณะ', 'Public transport share'],
+    ['สัดส่วนรูปแบบการเดินทาง กรุงเทพฯ และปริมณฑล', 'Travel Mode Share — Bangkok and vicinity'],
+    ['สัดส่วนผู้โดยสาร', 'Ridership share'],
+    ['รถไฟฟ้า BTS, MRT, ARL, SRT — แนวโน้มรายปี', 'BTS, MRT, ARL, SRT rail — annual trend'],
+    ['รถโดยสาร ขสมก. & เรือโดยสาร — แนวโน้มรายปี', 'BMTA buses & passenger boats — annual trend'],
+    ['ตารางผู้โดยสารรายสาย รายปี', 'Ridership by line — annual table'],
+    ['ผู้โดยสาร — รายปี', 'Ridership — annual'],
+    ['วิเคราะห์รายปี — เลือกปีเพื่อดูรายละเอียด', 'Annual analysis — select a year for details'],
+    ['ผู้โดยสารรายระบบ', 'Ridership by system'],
+    ['ปริมาณการเดินทางสาธารณะ', 'Public transport travel volume'],
+    ['รายละเอียดปี 2566', 'Details for BE 2566'],
+    ['รายละเอียดปี 2567', 'Details for BE 2567'],
+    ['หมายเหตุ Methodology', 'Methodology notes'],
+    ['ข้อจำกัดของข้อมูล', 'Data limitations'],
+    ['ไฟล์ข้อมูลที่ใช้', 'Data files used'],
+    ['แหล่งข้อมูลรายระบบ', 'Sources by system'],
+    ['ตัวชี้วัดสำคัญ', 'Key indicators'], ['(ล่าสุด)', '(latest)'],
+    ['ผู้โดยสารรวมทุกระบบ', 'Total ridership, all systems'],
+    ['ระบบราง (BTS · MRT · ARL · SRT)', 'Rail systems (BTS · MRT · ARL · SRT)'],
+    ['รถโดยสาร ขสมก.', 'BMTA buses'],
+    ['รวมทุกระบบ (ข้อมูลที่มี)', 'Total, all systems (available data)'],
+    ['รวมทั้งสิ้น', 'Grand total'],
+    ['ปีที่แสดงข้อมูล', 'Year shown'], ['● ข้อมูลล่าสุด', '● Latest data'],
+    ['ข้อสังเกต:', 'Note:'],
+    ['ปรับ methodology', 'methodology adjusted'],
+    ['(ปรับ methodology)', '(methodology adjusted)'],
+    ['จากแบบจำลอง BTDM ปีฐาน 2565', 'from the BTDM model, base year 2565'],
+    ['แบบจำลอง BTDM', 'BTDM model'],
+    ['ข้อมูล ณ', 'Data as of'], ['หน่วย:', 'Unit:'], ['ที่มา:', 'Source:'],
+    // หน่วย
+    ['ล้านเที่ยวคน/ปี', 'million trips/yr'], ['ล้านคน-เที่ยว/ปี', 'million person-trips/yr'],
+    ['ล้านเที่ยวคน', 'million trips'], ['ล้านคน-เที่ยว', 'million person-trips'], ['ล้านเที่ยว', 'million trips'],
+    ['ของรวม', 'of total'],
+    // ระบบ/สาย
+    ['MRT สายสีน้ำเงิน', 'MRT Blue Line'], ['MRT สายสีม่วง', 'MRT Purple Line'], ['MRT สายสีเหลือง', 'MRT Yellow Line'], ['MRT สายสีชมพู', 'MRT Pink Line'],
+    ['BTS สายสีเขียว', 'BTS Green Line'], ['BTS สายสีทอง', 'BTS Gold Line'], ['SRT สายสีแดง', 'SRT Red Line'],
+    ['SRT สายเหนือ (Dark Red)', 'SRT Northern Line (Dark Red)'], ['SRT สายตะวันตก (Light Red)', 'SRT Western Line (Light Red)'],
+    ['MRT น้ำเงิน', 'MRT Blue'], ['MRT ม่วง', 'MRT Purple'], ['MRT เหลือง', 'MRT Yellow'], ['MRT ชมพู', 'MRT Pink'],
+    ['BTS สีเขียว', 'BTS Green'], ['BTS สีทอง', 'BTS Gold'], ['MRT สีน้ำเงิน', 'MRT Blue'], ['MRT สีม่วง', 'MRT Purple'],
+    ['MRT สีเหลือง', 'MRT Yellow'], ['MRT สีชมพู', 'MRT Pink'], ['SRT สีแดง', 'SRT Red'], ['SRT เหนือ', 'SRT North'],
+    ['SRT (รวม)', 'SRT (total)'], ['(รวม)', '(total)'],
+    ['ขสมก. (รถประจำทาง)', 'BMTA (buses)'], ['ขสมก. / กรมการขนส่งทางบก', 'BMTA / Dept. of Land Transport'],
+    ['ขสมก./กรมขนส่ง', 'BMTA/DLT'], ['กทม./กรมการขนส่งทางราง', 'BMA/Dept. of Rail Transport'],
+    ['กรมการขนส่งทางราง', 'Dept. of Rail Transport'], ['กรมการขนส่งทางบก', 'Dept. of Land Transport'], ['กรมเจ้าท่า', 'Marine Dept.'],
+    ['เรือโดยสาร กทม.', 'BMA passenger boats'], ['เรือโดยสาร', 'Passenger boats'], ['เรือข้ามฟาก', 'Cross-river ferry'],
+    ['รถส่วนบุคคล', 'Private vehicles'], ['ขนส่งสาธารณะ', 'Public transport'],
+    ['รฟฟท.', 'SRTET'], ['รฟท.', 'SRT'], ['รฟม.', 'MRTA'], ['ขสมก.', 'BMTA'], ['สจส.', 'TTD'], ['สนข.', 'OTP'], ['กทม.', 'BMA'],
+    ['กรุงเทพมหานคร', 'Bangkok'], ['กรุงเทพฯ', 'Bangkok'], ['ปริมณฑล', 'vicinity'], ['ปีฐาน', 'base year'],
+    ['รถโดยสาร', 'Bus']
+  ].map(([a, b]) => [a.replace(/\s+/g, ' '), b]).sort((x, y) => y[0].length - x[0].length);
+
+  const MONTH_FULL = { 'มกราคม': 'January', 'กุมภาพันธ์': 'February', 'มีนาคม': 'March', 'เมษายน': 'April', 'พฤษภาคม': 'May', 'มิถุนายน': 'June', 'กรกฎาคม': 'July', 'สิงหาคม': 'August', 'กันยายน': 'September', 'ตุลาคม': 'October', 'พฤศจิกายน': 'November', 'ธันวาคม': 'December' };
+  const MONTH_ABBR = { 'ม.ค.': 'Jan', 'ก.พ.': 'Feb', 'มี.ค.': 'Mar', 'เม.ย.': 'Apr', 'พ.ค.': 'May', 'มิ.ย.': 'Jun', 'ก.ค.': 'Jul', 'ส.ค.': 'Aug', 'ก.ย.': 'Sep', 'ต.ค.': 'Oct', 'พ.ย.': 'Nov', 'ธ.ค.': 'Dec' };
+  const reFull = new RegExp('(\\d{1,2}) (' + Object.keys(MONTH_FULL).join('|') + ') (\\d{4})', 'g');
+  const reAbbr = new RegExp('(\\d{1,2}) (' + Object.keys(MONTH_ABBR).map((s) => s.replace(/\./g, '\\.')).join('|') + ') (\\d{4})', 'g');
+  const reMonthOnly = new RegExp('(' + Object.keys(MONTH_ABBR).map((s) => s.replace(/\./g, '\\.')).join('|') + ')', 'g');
+
+  // พ.ศ. → ค.ศ. (ลบ 543) · ไม่แตะตัวเลขข้อมูลที่มีทศนิยม/คอมมา
+  const toCE = (t) => t.replace(/\bBE (25\d{2})/g, '$1')
+    .replace(/(^|[^\d.,])(25\d{2})(?!\d|[.,]\d)/g, (m, p, y) => p + String(+y - 543));
+
+  function trText(raw) {
+    const m = raw.match(/^(\s*)([\s\S]*?)(\s*)$/);
+    let core = m[2].replace(/\s+/g, ' ');
+    if (!core || !THAI.test(core)) return raw;
+    let out;
+    if (Object.prototype.hasOwnProperty.call(EXACT, core)) out = EXACT[core];
+    else {
+      out = core;
+      for (const [th, en] of G) if (out.indexOf(th) >= 0) out = out.split(th).join(en);
+      out = out.replace(reFull, (_, d, mo, y) => d + ' ' + MONTH_FULL[mo] + ' ' + y)
+        .replace(reAbbr, (_, d, mo, y) => d + ' ' + MONTH_ABBR[mo] + ' ' + y)
+        .replace(reMonthOnly, (x) => MONTH_ABBR[x])
+        .replace(/จากปี (\d{4})/g, 'vs BE $1')
+        .replace(/ปี พ\.ศ\. (\d{4})/g, 'BE $1').replace(/พ\.ศ\. (\d{4})/g, 'BE $1').replace(/ปี (\d{4})/g, 'BE $1')
+        .replace(/ปี(\d{4})/g, 'BE $1').replace(/ปี/g, 'year');
+      out = toCE(out);
+    }
+    return m[1] + out + m[3];
+  }
+  const state = { lang: 'th' };
+  const orig = new WeakMap();   // text node → ไทยเดิม
+  const wrote = new WeakMap();  // text node → อังกฤษที่เขียนล่าสุด
+  const attrOrig = new WeakMap(); // element → {attr: ไทยเดิม}
+  const ATTRS = ['aria-label', 'title', 'placeholder'];
+  const skip = (n) => { const e = n.nodeType === 1 ? n : n.parentElement; return !e || e.closest('[data-no-i18n],script,style'); };
+
+  function doText(n) {
+    if (skip(n)) return;
+    const v = n.nodeValue;
+    if (wrote.has(n) && wrote.get(n) === v) return;       // เรากำหนดเอง
+    if (!THAI.test(v)) {   // ปุ่มเลือกปี (ตัวเลขล้วน)
+      if (n.parentElement && ((/^\s*25\d{2}\s*$/.test(v) && n.parentElement.closest('.yr-btn')) || (/^[\sA-Za-z,]*25\d{2}(?:\s*[–,-]\s*25\d{2})*\s*$/.test(v) && n.parentElement.closest('td')))) { orig.set(n, v); const t = toCE(v); wrote.set(n, t); n.nodeValue = t; }
+      return;
+    }
+    orig.set(n, v);
+    const t = trText(v);
+    wrote.set(n, t);
+    if (t !== v) n.nodeValue = t;
+  }
+  function doAttrs(e) {
+    if (skip(e)) return;
+    for (const a of ATTRS) {
+      const v = e.getAttribute(a);
+      if (!v) continue;
+      let o = attrOrig.get(e);
+      if (o && o[a] !== undefined && e.getAttribute(a) === (o['_' + a])) continue;
+      if (!THAI.test(v)) continue;
+      if (!o) { o = {}; attrOrig.set(e, o); }
+      o[a] = v; const t = trText(v); o['_' + a] = t;
+      e.setAttribute(a, t);
+    }
+  }
+  function walk(root) {
+    if (root.nodeType === 3) { doText(root); return; }
+    if (root.nodeType !== 1) return;
+    if (skip(root)) return;
+    doAttrs(root);
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+    let n;
+    while ((n = w.nextNode())) { if (n.nodeType === 3) doText(n); else doAttrs(n); }
+  }
+  function restore(root) {
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+    let n;
+    while ((n = w.nextNode())) {
+      if (n.nodeType === 3) { if (orig.has(n) && wrote.get(n) === n.nodeValue) { n.nodeValue = orig.get(n); wrote.delete(n); } }
+      else { const o = attrOrig.get(n); if (o) { ATTRS.forEach((a) => { if (o[a] !== undefined && n.getAttribute(a) === o['_' + a]) n.setAttribute(a, o[a]); }); attrOrig.delete(n); } }
+    }
+  }
+
+  /* ── กราฟ: ชื่อชุดข้อมูล · ป้ายแกน · ชื่อแกน ── */
+  function labelTr(s) {
+    if (typeof s !== 'string') return s;
+    if (/^ปี \d{4}$/.test(s)) return toCE(s.slice(3));       // แกน x: แสดงเฉพาะเลขปี (ค.ศ.)
+    return trText(s);
+  }
+  function langCharts() {
+    if (!window.Chart) return;
+    Object.values(Chart.instances).forEach((ch) => {
+      const cfg = ch.config, d = cfg.data;
+      if (!d._th) d._th = { labels: (d.labels || []).slice(), ds: d.datasets.map((x) => x.label) };
+      const en = state.lang === 'en';
+      if (d.labels) d.labels = d._th.labels.map((s) => en ? labelTr(s) : s);
+      d.datasets.forEach((x, i) => { x.label = en ? labelTr(d._th.ds[i]) : d._th.ds[i]; });
+      Object.values((cfg.options || {}).scales || {}).forEach((sc) => {
+        if (sc.title && sc.title.text) { if (sc.title._th === undefined) sc.title._th = sc.title.text; sc.title.text = en ? trText(sc.title._th) : sc.title._th; }
+      });
+      ch.update('none');
+    });
+  }
+  window.um = () => (state.lang === 'en' ? ' M' : ' ล.');   // หน่วยย่อใน tooltip
+
+  /* ── เปลี่ยนภาษา ── */
+  function setLang(lang, persist) {
+    state.lang = lang === 'en' ? 'en' : 'th';
+    document.documentElement.lang = state.lang;
+    document.title = state.lang === 'en' ? 'Bangkok Public Transport — Dashboard' : 'ระบบขนส่งสาธารณะกรุงเทพมหานคร — Dashboard';
+    if (state.lang === 'en') walk(document.body); else restore(document.body);
+    langCharts();
+    document.querySelectorAll('.lang-btn').forEach((b) => {
+      const on = b.dataset.lang === state.lang;
+      b.classList.toggle('active', on); b.setAttribute('aria-pressed', String(on));
+    });
+    if (persist) { try { localStorage.setItem(KEY, state.lang); } catch (e) { /* ignore */ } }
+    document.dispatchEvent(new CustomEvent('i18n:change', { detail: { lang: state.lang } }));
+  }
+  function initial() {
+    const q = new URLSearchParams(location.search).get('lang');
+    if (q === 'en' || q === 'th') return q;
+    try { const s = localStorage.getItem(KEY); if (s === 'en' || s === 'th') return s; } catch (e) { /* ignore */ }
+    return 'th';
+  }
+
+  function init() {
+    document.querySelectorAll('.lang-btn').forEach((b) => b.addEventListener('click', () => setLang(b.dataset.lang, true)));
+    new MutationObserver((muts) => {
+      if (state.lang !== 'en') return;
+      for (const m of muts) {
+        if (m.type === 'childList') m.addedNodes.forEach(walk);
+        else if (m.type === 'characterData') doText(m.target);
+        else if (m.type === 'attributes') doAttrs(m.target);
+      }
+    }).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTRS });
+    setLang(initial(), false);
+  }
+  window.BMA_I18N = { setLang, tr: trText, get lang() { return state.lang; } };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+
+</script>
+</body>
+</html>
