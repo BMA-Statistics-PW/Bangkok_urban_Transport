@@ -1,0 +1,33 @@
+/* ════════════════════════════════════════════════════════════════════
+   typography.css — มาตรฐานตัวอักษร (โหลดหลังสุด ทุกหน้า)
+   • หัวข้อ (header)      → Anuphan
+   • รายละเอียด/ตัวเลข/ตาราง/ปุ่ม → Sarabun
+   • ตัวเลขทั้งหมดเป็นเลขอารบิก (ไม่ใช้เลขไทย) · ตัวเลขกว้างเท่ากัน (tabular)
+   • พิมพ์รายงาน: TH Sarabun New ตามมาตรฐานเอกสารราชการ
+   © Prapawadee_W.
+   ════════════════════════════════════════════════════════════════════ */
+:root{
+  --font-head:'Anuphan','Sarabun',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-body:'Sarabun',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-sans:var(--font-body);
+  --font-mono:var(--font-body);   /* เดิมเป็น monospace → ใช้ Sarabun + tabular-nums แทน */
+  --font-serif:var(--font-head);  /* ตัวแปรเดิมของหัวข้อ → Anuphan */
+}
+html{font-variant-numeric:lining-nums tabular-nums}
+body,button,input,select,textarea,table,th,td,caption,.chip,.badge{font-family:var(--font-body)}
+
+/* ── หัวข้อ = Anuphan ── */
+h1,h2,h3,h4,
+.tb-h,.sb-title,.hb-title,.card-title,.kpi-l,.qa-t,.pd-t,
+.hero-title,.section-heading,.section-title,.compare-title,.line-title,.scenario-title,.method-title,
+.zone-district-header h2,.zd-title,.zone-summary-title,.scenario-zone,.about-name,.tomtom-city{
+  font-family:var(--font-head)}
+
+/* ── รายละเอียด/ตัวเลข = Sarabun ── */
+.kpi-v,.hb-tile-v,.hb-unit,.mt b,.top-v b,.top-n,.pd-n,.ins-dot,.rank,.sb-avatar,.tb-avatar,
+.tomtom-value,.tt-kpi__value,.rt-table .rd-name,.card-value,.kpi-speed,.scenario-kpi strong{
+  font-family:var(--font-body);font-variant-numeric:lining-nums tabular-nums}
+
+@media print{
+  :root{--font-head:'TH Sarabun New','THSarabunNew','Sarabun',sans-serif;--font-body:'TH Sarabun New','THSarabunNew','Sarabun',sans-serif}
+}

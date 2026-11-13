@@ -1,0 +1,100 @@
+/* ════════════════════════════════════════════════════════════════════
+   gov-bkk-theme.css — ธีมสี/ระยะห่างแบบ GOV.BKK วางทับโครง Admin Dashboard เดิม
+   • โหลดหลังสุด (หลัง typography.css) ทุกหน้า — ลบไฟล์นี้ = กลับเป็นธีมน้ำเงินเดิม
+   • คงโครงเดิม: sidebar 248/76 · top bar 72 · hero banner · KPI cards · dark mode · TH/EN · print
+   • ฟอนต์ไม่แตะ (typography.css: หัวข้อ Anuphan / เนื้อหา Sarabun)
+   • ที่มาของค่าสี: gov.bangkok.go.th (วัด 13 พ.ย. 2569) — ดู DESIGN_TOKENS.md
+   © Prapawadee_W.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ───────────── 1) Tokens: สีแบรนด์ + สเกลระยะห่าง ───────────── */
+:root{
+  /* สีแบรนด์ GOV.BKK */
+  --gb-green:#007744; --gb-green-deep:#005c33; --gb-green-mint:#6faa8a; --gb-mint-bg:#E6F9F3;
+  --gb-amber:#e8a447; --gb-cream:#fff3d9;
+
+  /* map เข้าตัวแปรของเปลือก dashboard เดิม */
+  --d-brand:var(--gb-green); --d-brand-d:var(--gb-green-deep); --d-brand-9:#00472A;
+  --d-active:var(--gb-green); --d-focus:var(--gb-green);
+  --d-bg:#FFFFFF; --d-soft:#FFFFFF; --d-card:#FFFFFF; --d-line:#E5E7EB; --d-text:#1E293B; --d-muted:#566677;
+  --d-radius:12px; --d-radius-sm:8px;
+  --d-shadow:0 1px 2px rgba(15,23,42,.04),0 4px 12px rgba(15,23,42,.05);
+
+  /* map เข้าตัวแปรของ CSS ชั้นเก่า (styles / formal-theme / standards-patch) */
+  --primary-color:var(--gb-green-deep); --secondary-color:var(--gb-green); --accent-color:var(--gb-amber);
+  --focus-color:var(--gb-green);
+  --f-navy:var(--gb-green-deep); --f-navy-dark:#00472A; --f-head-bg:var(--gb-mint-bg); --f-head-text:var(--gb-green-deep);
+  --f-gold:var(--gb-amber);
+
+  /* พื้นหลังโหมดสว่าง = ขาวทั้งหมด (ใช้เส้นขอบแยกชั้นแทนสีพื้น) */
+  --bg:#FFFFFF; --bg-canvas:#FFFFFF; --bg-light:#FFFFFF; --surface:#FFFFFF; --surface-2:#FFFFFF;
+
+  /* สเกลระยะห่าง 4·8·12·16·24·32·48 */
+  --sp-card:16px;        /* padding การ์ด */
+  --sp-gap-tight:12px;   /* ไทล์/การ์ดเล็ก */
+  --sp-gap:16px;         /* การ์ดมาตรฐาน */
+  --sp-gap-section:24px; /* ระหว่างส่วนที่เป็นการ์ด */
+}
+:root[data-theme='dark']{
+  --d-bg:#0A1410; --d-soft:#0A1410; --d-card:#112019; --d-line:#223A2E; --d-text:#E6EDF7; --d-muted:#A9B8B0;
+  --d-brand:#6faa8a; --d-focus:#8FD1AE; --d-active:#007744;
+  --d-shadow:0 1px 2px rgba(0,0,0,.4),0 8px 20px rgba(0,0,0,.35);
+  --f-head-bg:#173026; --f-head-text:#CFEBDD;
+  --focus-color:#8FD1AE;
+}
+
+/* ───────────── 2) ชิ้นส่วนที่ผูกสีน้ำเงินไว้ตรง ๆ ───────────── */
+:root[data-theme='dark'] .sidebar{background:linear-gradient(180deg,#0E2A1F 0%,#0A1D15 100%)}   /* ให้เมนู active (เขียว) เด่นกว่าพื้น */
+:root:not([data-theme='dark']) .sb-logo{background:var(--gb-green-deep)}
+.tb-search:focus-within{border-color:var(--d-brand);box-shadow:0 0 0 3px rgba(0,119,68,.18)}
+:root[data-theme='dark'] .app-shell .lang-btn.active,
+:root[data-theme='dark'] .seg-btn[aria-pressed="true"]{background:var(--gb-green)}
+.tt-gcard__n,.tt-ig__n,.tt-lg--a,.tt-vcol__trk i{background:var(--gb-green-deep)}
+.tt-seg button[aria-pressed="true"]{background:var(--gb-green-deep)}
+.tt-dl{color:var(--gb-green-deep)}
+.a4-body>section>.section-eyebrow::before{background:var(--gb-green-deep)}   /* ป้ายเลขหัวข้อหน้า TomTom */
+:root[data-theme='dark'] .a4-body>section>.section-eyebrow::before{background:var(--gb-amber);color:#1b1306}
+
+/* hero banner: โหมดสว่างขาว + เส้นบนเขียว (โครงเดิม), โหมดมืดไล่เฉดเขียว */
+.hero-banner{border-radius:16px;padding:24px}
+:root:not([data-theme='dark']) .hero-banner{border-top-color:var(--gb-green)}
+:root:not([data-theme='dark']) .hero-banner::after{background:rgba(0,119,68,.06)}
+:root[data-theme='dark'] .hero-banner{background:linear-gradient(135deg,#0B5A38 0%,#073D26 100%);box-shadow:0 12px 28px rgba(0,0,0,.35)}
+
+/* แถบประกาศอัปเดต: พื้นขาว + ขอบซ้ายอำพัน */
+.update-note{background:#fff;border:1px solid var(--d-line);border-left:4px solid var(--gb-amber)}
+:root[data-theme='dark'] .update-note{background:#2A2210}
+
+/* ───────────── 3) จังหวะระยะห่าง (ค่าเดิม → ค่าใหม่) ───────────── */
+.hb-tiles{gap:var(--sp-gap-tight)}                                /* 16 → 12 */
+.hb-tile{padding:var(--sp-card);border-radius:var(--d-radius)}    /* 16/18 · 14 → 16 · 12 */
+.cards-grid{gap:var(--sp-gap)}                                    /* 20 → 16 */
+.data-card{padding:var(--sp-card);border-radius:var(--d-radius)}  /* 22 · 16 → 16 · 12 */
+.bottom-grid{gap:var(--sp-gap-section)}                           /* 28 → 24 */
+.tab-panel{gap:var(--sp-gap-section)}                             /* 24 คงเดิม */
+.update-note{margin:12px 0 var(--sp-gap-section);padding:12px 16px}   /* 12/18 · 10/14 → 12/24 · 12/16 */
+.source-note{padding:16px}                                        /* 14/18 → 16 */
+
+/* ───────────── 4) แยกตามอุปกรณ์ (เกณฑ์เดียวกับ dashboard-shell.css) ─────────────
+   PC ≥1200 · Tablet 768–1199 · Mobile ≤767 — ค่าด้านบนเป็นฐาน PC/Tablet, ส่วนนี้ปรับเฉพาะที่ต่างกัน */
+@media (min-width:1200px){
+  :root{--pad-x:24px}                       /* PC: 32 → 24 */
+}
+@media (min-width:768px) and (max-width:1199px){
+  :root{--pad-x:24px}                       /* Tablet: 24 (คงเดิม) */
+  .hb-btn,.lang-btn,.seg-btn,.tab-btn,.sb-nav a,.sb-nav button{min-height:44px}   /* พื้นที่แตะ */
+}
+@media (max-width:767px){
+  :root{--pad-x:16px}                       /* Mobile: 14 → 16 (เข้าสเกล) */
+  .hero-banner{padding:16px}                /* 20/16 → 16 */
+  .hb-tiles{gap:8px}                        /* 10 → 8 */
+  .hb-tile{padding:12px}                    /* 12 (คงเดิม) */
+  .data-card{padding:16px}
+  .cards-grid,.bottom-grid{gap:16px}
+  .app-shell .a4-body{gap:16px}             /* 18 → 16 */
+  .update-note{margin:12px 0 16px;padding:12px}
+  .hb-btn,.lang-btn,.seg-btn,.tab-btn,.sb-nav a,.sb-nav button{min-height:44px}
+}
+
+/* ───────────── 5) หัวข้อ = Anuphan (ตามเดิมใน typography.css) ───────────── */
+h1,h2,h3,h4,.hb-title,.tb-h,.sb-title,.card-title,.section-title,.section-heading{font-family:var(--font-head)}

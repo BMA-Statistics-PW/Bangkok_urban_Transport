@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#007744">
+<title>ระบบขนส่งสาธารณะกรุงเทพมหานคร — Dashboard</title>
+<meta name="description" content="สถิติผู้โดยสารระบบขนส่งสาธารณะกรุงเทพมหานคร ปี 2556–2568 · กลุ่มงานสถิติและวิจัย กองนโยบายและแผนงาน สำนักการจราจรและขนส่ง กทม.">
+<script>/* ตั้งธีมก่อนวาดหน้า (คีย์เดียวกับ BMA-travel-time-dashboard-TH) */
+(function(){try{if(localStorage.getItem('bma-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/typography.css?v=1">
+<link rel="stylesheet" href="assets/dashboard-shell.css?v=1">
+<link rel="stylesheet" href="assets/urban.css?v=1">
+<link rel="stylesheet" href="assets/gov-bkk-theme.css?v=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EKS1DH205E"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-EKS1DH205E');
+</script>
+</head>
+<body>
+<a href="#main" class="skip-link">ข้ามไปยังเนื้อหาหลัก</a>
+
+<div class="app-shell" id="appShell">
+
+<!-- ════════════════ Sidebar ════════════════ -->
+<aside class="sidebar" id="sidebar" aria-label="เมนูหลัก">
+  <div class="sb-head">
+    <div class="sb-brand">
+      <span class="sb-logo" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M9 21l2-4M15 21l-2-4"/></svg></span>
+      <div class="sb-brand-text">
+        <div class="sb-title">BMA Transport</div>
+        <div class="sb-sub">Public Transport Ridership</div>
+      </div>
+    </div>
+    <button id="sbToggle" class="sb-close" type="button" aria-expanded="true" aria-controls="sidebar" aria-label="ย่อเมนู">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <nav class="sb-nav" aria-label="เมนูหน้าต่างเนื้อหา"><div id="sideTabs" class="sb-list"></div></nav>
+  <div class="sb-foot">
+    <span class="sb-avatar" aria-hidden="true">PW</span>
+    <div class="sb-foot-text">
+      <div class="sb-user">© Prapawadee_W.</div>
+      <div class="sb-mail">กลุ่มงานสถิติและวิจัย สจส.</div>
+    </div>
+  </div>
+</aside>
+<div class="sb-backdrop" id="sbBackdrop" hidden></div>
+
+<div class="app-main">
+
+<!-- ════════════════ Top bar ════════════════ -->
+<header class="topbar" role="banner">
+  <button id="menuBtn" class="menu-btn" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="เปิดเมนู">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <div class="tb-title">
+    <h1 class="tb-h" id="tbTitle">ภาพรวม</h1>
+    <p class="tb-sub">สถิติผู้โดยสารระบบขนส่งสาธารณะ กรุงเทพมหานคร ปี 2556–2568</p>
+  </div>
+  <div class="tb-actions">
+    <button id="themeToggle" class="util-btn" type="button" aria-label="สลับโหมดมืด/สว่าง" title="สลับโหมด" aria-pressed="false">
+      <svg class="theme-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 010 18z" fill="currentColor"/></svg>
+    </button>
+    <div class="lang-toggle" role="group" aria-label="Language switcher" data-no-i18n>
+      <button class="lang-btn active" data-lang="th" type="button" aria-pressed="true">ไทย</button>
+      <button class="lang-btn" data-lang="en" type="button" aria-pressed="false">EN</button>
+    </div>
+    <span class="tb-avatar" title="© Prapawadee_W." aria-label="ผู้จัดทำ">PW</span>
+  </div>
+</header>
+
+<div class="a4-canvas">
+<main id="main" class="a4-body" tabindex="-1">
+
+<!-- ══════════════════════════════════════
+     PANEL 1 : OVERVIEW
+══════════════════════════════════════ -->
+<section class="tab-panel" id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" tabindex="0" hidden>
+<div id="dash-home" class="dash-home" aria-live="polite"></div>
+
+  <div class="covid-note">
+    <strong>ปี 2563–2564: เหตุการณ์ COVID-19</strong> — การแพร่ระบาดของโรคติดเชื้อไวรัสโคโรนา 2019 (COVID-19) ส่งผลให้ผู้โดยสารลดลงในทุกระบบขนส่งสาธารณะ
+    โดยเฉพาะ <strong>ปี 2564</strong> ที่มีมาตรการล็อกดาวน์ ส่งผลให้ตัวเลขต่ำกว่าปกติ ไม่ควรนำมาเปรียบเทียบกับปีอื่น &nbsp;|&nbsp;
+    <strong>ปี 2568:</strong> ข้อมูลเรือโดยสาร รวม 5 ประเภท (40.72 ล้านเที่ยว)
+  </div>
+
+  <div class="g21">
+    <div class="card">
+      <div class="card-title">จำนวนผู้โดยสารรายปี เปรียบเทียบทุกระบบ ปี 2556–2568 (ล้านเที่ยวคน)</div>
+      <div class="chart-box h340">
+        <canvas id="overviewChart"></canvas>
+      </div>
+      <div class="src-row">
+        <span class="src">ขสมก.</span>
+        <span class="src">กทม. / รฟม. / รฟท.</span>
+        <span class="src">กรมเจ้าท่า — กทม.</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">สัดส่วนผู้โดยสาร ปี 2568</div>
+      <div class="chart-box h270">
+        <canvas id="donutChart"></canvas>
+      </div>
+      <div class="legend" id="donutLegend"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">สัดส่วนผู้ใช้ระบบขนส่งสาธารณะ และ รถส่วนบุคคล — ปี 2560–2567 <small>(ที่มา: สนข. จากแบบจำลอง BTDM ปีฐาน 2565)</small></div>
+    <div class="yr-tabs" id="modeYrTabs">
+      <button class="yr-btn active" onclick="showModeYear(this,7)">2567</button>
+      <button class="yr-btn" onclick="showModeYear(this,6)">2566</button>
+      <button class="yr-btn" onclick="showModeYear(this,5)">2565</button>
+      <button class="yr-btn" onclick="showModeYear(this,4)">2564</button>
+      <button class="yr-btn" onclick="showModeYear(this,3)">2563</button>
+      <button class="yr-btn" onclick="showModeYear(this,2)">2562</button>
+      <button class="yr-btn" onclick="showModeYear(this,1)">2561</button>
+      <button class="yr-btn" onclick="showModeYear(this,0)">2560</button>
+    </div>
+    <div id="modeDisplay"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PANEL 2 : RIDERSHIP BY LINE
+══════════════════════════════════════ -->
+<section class="tab-panel" id="panel-ridership" role="tabpanel" aria-labelledby="tab-ridership" tabindex="0" hidden>
+
+  <h2 class="sec">ผู้โดยสาร — รายปี 2556–2568 (ล้านเที่ยวคน) <span class="sec-badge">ข้อมูลทางการ</span></h2>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">รถไฟฟ้า BTS, MRT, ARL, SRT — แนวโน้มรายปี</div>
+      <div class="chart-box h300"><canvas id="railChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">รถโดยสาร ขสมก. & เรือโดยสาร — แนวโน้มรายปี</div>
+      <div class="chart-box h300"><canvas id="busChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">ตารางผู้โดยสารรายสาย รายปี (ล้านเที่ยวคน)</div>
+    <div class="tbl-wrap">
+      <table class="tbl" id="ridershipTable"></table>
+    </div>
+    <div class="tbl-note">
+      หมายเหตุ: "—" = ยังไม่เปิดให้บริการ · N/A = ไม่มีข้อมูล<br>
+      BRT ปี 2567 มีข้อมูลเฉพาะ 2 เดือน (ปรับเปลี่ยนระบบ) ไม่ควรเทียบรายปี · เรือ 2568 (5 ประเภท)
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PANEL 3 : MODAL SHARE
+══════════════════════════════════════ -->
+<section class="tab-panel" id="panel-modal" role="tabpanel" aria-labelledby="tab-modal" tabindex="0" hidden>
+
+  <h2 class="sec">สัดส่วนรูปแบบการเดินทาง กรุงเทพฯ และปริมณฑล <span class="sec-badge">ที่มา: สนข. จากแบบจำลอง BTDM ปีฐาน 2565</span></h2>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">สัดส่วนผู้ใช้ระบบขนส่งสาธารณะ (%) ปี 2560–2567</div>
+      <div class="chart-box h280"><canvas id="modalTrendChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">ปริมาณการเดินทางสาธารณะ (ล้านคน-เที่ยว/ปี)</div>
+      <div class="chart-box h280"><canvas id="modalVolumeChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">รายละเอียดปี 2566 (ล้านคน-เที่ยว/ปี)<small>ที่มา: สนข. ข้อมูล ณ 29 พ.ค. 2568</small></div>
+      <div id="detail2566"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">รายละเอียดปี 2567 (ล้านคน-เที่ยว/ปี)<small>ที่มา: สนข. ข้อมูล ณ 20 ม.ค. 2569</small></div>
+      <div id="detail2567"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">หมายเหตุ Methodology</div>
+    <div class="notes">
+      <strong class="n">(1)</strong> ข้อมูลปีปฏิทิน 1 ม.ค. – 31 ธ.ค.<br>
+      <strong class="n">(2)</strong> สนข. ใช้แบบจำลอง BTDM (Bangkok Travel Demand Model) ปีฐาน 2565 จากโครงการสำรวจการเดินทางในเขตกรุงเทพฯ และปริมณฑล<br>
+      <strong class="n">(3)</strong> Trip Rate ปี 2566 = 1.49 เที่ยว/คน/วัน · ปี 2567: รถไฟฟ้า 1.15 / ขนส่งอื่น 1.38<br>
+      <strong class="warn">ข้อสังเกต:</strong> สัดส่วนปี 2567 (11.7%) ต่ำกว่าปี 2566 เนื่องจากปรับ methodology การคำนวณ ไม่ใช่ผู้โดยสารลดลงจริง
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PANEL 4 : ANNUAL DETAIL
+══════════════════════════════════════ -->
+<section class="tab-panel" id="panel-annual" role="tabpanel" aria-labelledby="tab-annual" tabindex="0" hidden>
+  <h2 class="sec">วิเคราะห์รายปี — เลือกปีเพื่อดูรายละเอียด <span class="sec-badge">ข้อมูล สจส.</span></h2>
+  <div class="yr-tabs" id="annualYrTabs"></div>
+  <div id="annualDetail"></div>
+</section>
+
+<!-- ══════════════════════════════════════
+     PANEL 5 : SOURCES
+══════════════════════════════════════ -->
+<section class="tab-panel" id="panel-sources" role="tabpanel" aria-labelledby="tab-sources" tabindex="0" hidden>
+
+  <h2 class="sec">แหล่งข้อมูลและข้อจำกัด</h2>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">ไฟล์ข้อมูลที่ใช้</div>
+      <table class="tbl">
+        <thead><tr><th>ไฟล์</th><th>Sheet</th><th>ที่มา</th></tr></thead>
+        <tbody>
+          <tr><td>สถิติผู้โดยสารระบบขนส่งสาธารณะ</td><td>Chart และข้อมูลรายเดือน 11 sheets</td><td>สจส.</td></tr>
+          <tr><td>เรือโดยสาร กทม. 2568</td><td>—</td><td>กทม. / กรมเจ้าท่า</td></tr>
+          <tr><td>สัดส่วนการเดินทาง</td><td>Data, 2566, 2567</td><td>สนข. (BTDM)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">แหล่งข้อมูลรายระบบ</div>
+      <table class="tbl">
+        <thead><tr><th>ระบบ</th><th>หน่วยงาน</th><th>ปีที่มีข้อมูล</th></tr></thead>
+        <tbody>
+          <tr><td><span class="dot-sm" style="background:#f97316"></span>ขสมก.</td><td>ขสมก. / กรมการขนส่งทางบก</td><td>2556–2568</td></tr>
+          <tr><td><span class="dot-sm" style="background:#fb923c"></span>BRT</td><td>กทม.</td><td>2556–2568 (2567 เฉพาะ 2 เดือน)</td></tr>
+          <tr><td><span class="dot-sm" style="background:#22c55e"></span>BTS สีเขียว</td><td>กทม. / กรมการขนส่งทางราง</td><td>2556–2568</td></tr>
+          <tr><td><span class="dot-sm" style="background:#eab308"></span>BTS สีทอง</td><td>กทม.</td><td>2564–2568 </td></tr>
+          <tr><td><span class="dot-sm" style="background:#3b82f6"></span>MRT สีน้ำเงิน</td><td>รฟม. / กรมการขนส่งทางราง</td><td>2556–2568</td></tr>
+          <tr><td><span class="dot-sm" style="background:#a855f7"></span>MRT สีม่วง</td><td>รฟม.</td><td>2559–2568</td></tr>
+          <tr><td><span class="dot-sm" style="background:#facc15"></span>MRT สีเหลือง</td><td>รฟม.</td><td>2567–2568</td></tr>
+          <tr><td><span class="dot-sm" style="background:#ec4899"></span>MRT สีชมพู</td><td>รฟม.</td><td>2567–2568</td></tr>
+          <tr><td><span class="dot-sm" style="background:#06b6d4"></span>ARL</td><td>รฟท. / กรมการขนส่งทางราง</td><td>2556–2568</td></tr>
+          <tr><td><span class="dot-sm" style="background:#ef4444"></span>SRT สีแดง</td><td>รฟฟท. / กรมการขนส่งทางราง</td><td>2564–2568</td></tr>
+          <tr><td><span class="dot-sm" style="background:#0ea5e9"></span>เรือโดยสาร กทม.</td><td>กทม. / กรมเจ้าท่า</td><td>2560–2568 </td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">ข้อจำกัดของข้อมูล</div>
+    <div class="notes">
+      <strong class="n">1.</strong> หน่วยต่างกัน: ไฟล์ผู้โดยสาร = <strong>เที่ยวคน</strong> · ไฟล์สัดส่วน = <strong>ล้านคน-เที่ยว/ปี</strong> (ปรับด้วย trip rate)<br>
+      <strong class="n">2.</strong> BRT ปี 2567 มีข้อมูลเฉพาะ 2 เดือน เนื่องจากปรับเปลี่ยนระบบการให้บริการ ม.ค.–ต.ค. 2567 จึงไม่ควรเทียบรายปี<br>
+      <strong class="n">3.</strong> MRT เหลือง/ชมพู เริ่มปี 2567 (เปิดให้บริการปี 2566 ปลายปี)<br>
+      <strong class="n">4.</strong> เรือโดยสาร ปี 2560–2568: รวม 5 ประเภท · ปี 2556–2559: เฉพาะเรือข้ามฟาก<br>
+      <strong class="n">5.</strong> ปี 2563–2564: ผลกระทบ COVID-19 ทำให้ตัวเลขต่ำกว่าปกติ ไม่ควรเปรียบเทียบกับปีอื่น<br>
+      <strong class="n">6.</strong> ไม่รวม: รถตู้โดยสาร รถไฟระหว่างเมือง สองแถว มอเตอร์ไซค์รับจ้าง
+    </div>
+  </div>
+</section>
+
+
+</main>
+
+<footer class="page-foot">
+  <div>
+    ข้อมูล: สถิติผู้โดยสารระบบขนส่งสาธารณะ สจส. และสัดส่วนการเดินทาง สนข. (BTDM)<br>
+    อัปเดตล่าสุด: ปี 2568
+  </div>
+  <div class="r">
+    <strong>© Prapawadee_W.</strong><br>
+    กลุ่มงานสถิติและวิจัย · กองนโยบายและแผนงาน · สำนักการจราจรและขนส่ง · กทม.
+  </div>
+</footer>
+
+</div><!-- /a4-canvas -->
+</div><!-- /app-main -->
+</div><!-- /app-shell -->
+
+<script>
+// ══════════════════════════════════════
+// DATA — อัปเดตข้อมูลให้ตรงตาม Google Sheets (หน่วย: ล้านเที่ยวคน)
+// ══════════════════════════════════════
+const YEARS = [2556,2557,2558,2559,2560,2561,2562,2563,2564,2565,2566,2567,2568];
+
+// ล้านเที่ยวคน/ปี — อ้างอิงจากชีต "Report"
+const DATA = {
+  bmta:    [326.28, 305.67, 313.70, 299.77, 293.65, 382.18, 346.67, 240.81, 157.19, 217.06, 233.84, 214.60, 181.26],
+  brt:     [5.57,   6.49,   6.89,   7.05,   5.33,   4.56,   4.65,   3.31,   1.89,   2.47,   3.48,   0.48,   2.66],
+  btsG:    [214.96, 229.30, 241.11, 248.64, 252.73, 252.69, 272.02, 182.19, 108.17, 194.38, 264.68, 266.18, 255.82],
+  btsGold: [0,      0,      0,      0,      0,      0,      0,      0,      0.68,   1.35,   2.46,   2.78,   2.71],
+  mrtB:    [86.44,  92.44,  95.02,  100.37, 107.54, 113.71, 123.62, 95.60,  53.53,  99.00,  143.38, 157.15, 151.87],
+  mrtP:    [null,   null,   null,   3.07,   11.63,  17.64,  19.73,  16.84,  9.84,   16.15,  21.51,  24.72,  24.41],
+  mrtY:    [null,   null,   null,   null,   null,   null,   null,   null,   null,   null,   7.47,   14.30,  16.22],
+  mrtPk:   [null,   null,   null,   null,   null,   null,   null,   null,   null,   null,   3.35,   20.19,  21.46],
+  arl:     [15.38,  17.00,  19.37,  21.18,  22.64,  23.57,  25.86,  14.93,  7.95,   15.83,  22.56,  24.19,  24.50],
+  srtN:    [0,      0,      0,      0,      0,      0,      0,      0,      0.93,   4.46,   6.64,   9.24,   10.40],
+  srtW:    [0,      0,      0,      0,      0,      0,      0,      0,      0.07,   0.34,   0.50,   0.70,   0.81],
+};
+
+// เรือโดยสาร — ปรับให้ตรงกับชีต (เรือยนต์ข้ามฟากแม่น้ำเจ้าพระยา)
+const FERRY = [44.55, 41.51, 41.23, 37.88, 37.67, 36.35, 33.93, 16.85, 12.90, 17.56, 25.83, 27.60, 23.60];
+
+// Modal share (สนข. BTDM) ปี 2560-2567
+const MODAL_YEARS  = ['2560','2561','2562','2563','2564','2565','2566','2567'];
+const MODAL_PT     = [20.55, 17.90, 19.42, 15.62,  8.27,  9.79, 14.46, 11.71];
+const MODAL_PV     = [79.45, 82.10, 80.58, 84.38, 91.73, 90.21, 85.54, 88.29];
+const MODAL_PT_VOL = [2215.71,1959.65,2160.26,1496.03,705.19,968.28,1226.40,1068.43];
+
+// รายละเอียดปี 2566 (สนข.)
+const D2566 = [
+  {n:'BTS สายสีเขียว',     v:184.88, s:'กทม.'},
+  {n:'MRT สายสีน้ำเงิน',   v:142.36, s:'รฟม.'},
+  {n:'MRT สายสีม่วง',      v:21.32,  s:'รฟม.'},
+  {n:'ARL',                 v:45.21,  s:'รฟท.'},
+  {n:'SRT สายสีแดง',       v:7.84,   s:'รฟฟท.'},
+  {n:'รถไฟ',                v:17.80,  s:'รฟท.'},
+  {n:'BTS สายสีทอง',       v:2.46,   s:'กทม.'},
+  {n:'MRT สายสีเหลือง',    v:9.03,   s:'รฟม.'},
+  {n:'MRT สายสีชมพู',      v:3.38,   s:'รฟม.'},
+  {n:'BRT',                 v:2.05,   s:'กทม.'},
+  {n:'รถประจำทาง',          v:1233.54,s:'ขสมก./กรมขนส่ง'},
+  {n:'รถตู้',               v:113.85, s:'สนข.'},
+  {n:'เรือ',                v:43.61,  s:'กรมเจ้าท่า'},
+];
+
+// รายละเอียดปี 2567 (สนข.)
+const D2567 = [
+  {n:'BTS สายสีเขียว',     v:266.17, s:'กทม./กรมการขนส่งทางราง'},
+  {n:'MRT สายสีน้ำเงิน',   v:157.15, s:'รฟม.'},
+  {n:'MRT สายสีม่วง',      v:24.72,  s:'รฟม.'},
+  {n:'ARL',                 v:24.19,  s:'รฟท.'},
+  {n:'SRT สายสีแดง',       v:11.39,  s:'รฟฟท.'},
+  {n:'รถไฟ',                v:5.92,   s:'รฟท.'},
+  {n:'BTS สายสีทอง',       v:2.77,   s:'กทม.'},
+  {n:'MRT สายสีเหลือง',    v:14.30,  s:'รฟม.'},
+  {n:'MRT สายสีชมพู',      v:20.19,  s:'รฟม.'},
+  {n:'BRT',                 v:3.72,   s:'กทม.'},
+  {n:'รถประจำทาง',          v:662.84, s:'ขสมก./กรมขนส่ง'},
+  {n:'รถตู้',               v:127.64, s:'สนข.'},
+  {n:'เรือ',                v:49.26,  s:'กรมเจ้าท่า'},
+];
+
+// สีระบบ
+const C = {
+  bmta:'#f97316', brt:'#fb923c', btsG:'#22c55e', btsGold:'#eab308',
+  mrtB:'#3b82f6', mrtP:'#a855f7', mrtY:'#ca8a04', mrtPk:'#ec4899',
+  arl:'#06b6d4',  srtN:'#ef4444', srtW:'#fca5a5', ferry:'#0ea5e9',
+};
+const LBL = {
+  bmta:'ขสมก.', brt:'BRT', btsG:'BTS สีเขียว', btsGold:'BTS สีทอง',
+  mrtB:'MRT น้ำเงิน', mrtP:'MRT ม่วง', mrtY:'MRT เหลือง', mrtPk:'MRT ชมพู',
+  arl:'ARL', srtN:'SRT เหนือ', srtW:'SRT ตะวันตก', ferry:'เรือข้ามฟาก',
+};
+
+// Chart.js defaults
+Chart.defaults.font.family = "'Sarabun', sans-serif";
+
+// ── THEME (อ่านสีจาก CSS variables เพื่อให้ตรงกับ light/dark) ──
+const TH = {grid:'#E5E7EB', tick:'#566677', surface:'#FFFFFF'};
+function readTheme(){
+  const cs = getComputedStyle(document.documentElement);
+  TH.grid    = cs.getPropertyValue('--d-line').trim()  || TH.grid;
+  TH.tick    = cs.getPropertyValue('--d-muted').trim() || TH.tick;
+  TH.surface = cs.getPropertyValue('--d-card').trim()  || TH.surface;
+  Chart.defaults.color = TH.tick;
+}
+function themeCharts(){
+  readTheme();
+  Object.values(Chart.instances).forEach(ch => {
+    Object.values((ch.config.options || {}).scales || {}).forEach(sc => {
+      sc.grid = sc.grid || {}; sc.grid.color = TH.grid;
+      sc.ticks = sc.ticks || {}; sc.ticks.color = TH.tick;
+      if (sc.title) sc.title.color = TH.tick;
+    });
+    if (ch.config.type === 'doughnut') ch.config.data.datasets.forEach(d => { d.borderColor = TH.surface; });
+    ch.update('none');
+  });
+}
+readTheme();
+
+// ══════════════════════════════════════
+// COVID-19 ANNOTATION PLUGIN
+// ══════════════════════════════════════
+const covidPlugin = {
+  id: 'covidLabel',
+  afterDraw(chart) {
+    const ci = YEARS.indexOf(2564);
+    const meta0 = chart.getDatasetMeta(0);
+    if (!meta0 || !meta0.data[ci]) return;
+
+    // คำนวณ stack top ปี 2564
+    const total64 = [DATA.bmta,DATA.btsG,DATA.mrtB,DATA.mrtP,DATA.arl,
+                     DATA.btsGold,DATA.srtN,FERRY]
+      .reduce((s,a) => s + (a[ci] || 0), 0);
+    const topPx   = chart.scales.y.getPixelForValue(total64);
+    const barX    = meta0.data[ci].x;
+    const labelY  = topPx - 40;
+    const ctx2    = chart.ctx;
+
+    // --- กล่อง ---
+    const lines = ['COVID-19'];
+    ctx2.save();
+    ctx2.font = 'bold 11px "Sarabun", sans-serif';
+    const bw   = ctx2.measureText(lines[0]).width + 16;
+    const bh   = 20;
+    const bx   = barX - bw / 2;
+    const by   = labelY - bh;
+
+    ctx2.shadowColor = 'rgba(0,0,0,0.12)'; ctx2.shadowBlur = 5; ctx2.shadowOffsetY = 2;
+    ctx2.fillStyle = '#dc2626';
+    ctx2.beginPath();
+    ctx2.roundRect(bx, by, bw, bh, 4);
+    ctx2.fill();
+    ctx2.shadowBlur = 0; ctx2.shadowOffsetY = 0;
+
+    ctx2.fillStyle = '#fff';
+    ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+    ctx2.fillText(lines[0], barX, by + bh / 2);
+
+    // --- เส้นประ + หัวลูกศร ---
+    const arrowTip = topPx - 5;
+    ctx2.beginPath();
+    ctx2.moveTo(barX, by + bh);
+    ctx2.lineTo(barX, arrowTip - 6);
+    ctx2.strokeStyle = '#dc2626'; ctx2.lineWidth = 1.5;
+    ctx2.setLineDash([4, 3]); ctx2.stroke(); ctx2.setLineDash([]);
+
+    ctx2.beginPath();
+    ctx2.moveTo(barX, arrowTip);
+    ctx2.lineTo(barX - 4, arrowTip - 7);
+    ctx2.lineTo(barX + 4, arrowTip - 7);
+    ctx2.closePath();
+    ctx2.fillStyle = '#dc2626'; ctx2.fill();
+
+    ctx2.restore();
+  }
+};
+
+// ══════════════════════════════════════
+// OVERVIEW STACKED BAR
+// ══════════════════════════════════════
+const overviewCtx = document.getElementById('overviewChart').getContext('2d');
+new Chart(overviewCtx, {
+  type: 'bar',
+  plugins: [covidPlugin],
+  data: {
+    labels: YEARS.map(y => 'ปี ' + y),
+    datasets: [
+      {label:LBL.bmta,    data:DATA.bmta,    backgroundColor:C.bmta   +'cc', stack:'s'},
+      {label:LBL.btsG,    data:DATA.btsG,    backgroundColor:C.btsG   +'cc', stack:'s'},
+      {label:LBL.mrtB,    data:DATA.mrtB,    backgroundColor:C.mrtB   +'cc', stack:'s'},
+      {label:LBL.mrtP,    data:DATA.mrtP,    backgroundColor:C.mrtP   +'cc', stack:'s'},
+      {label:LBL.arl,     data:DATA.arl,     backgroundColor:C.arl    +'cc', stack:'s'},
+      {label:LBL.btsGold, data:DATA.btsGold, backgroundColor:C.btsGold+'cc', stack:'s'},
+      {label:LBL.srtN,    data:DATA.srtN,    backgroundColor:C.srtN   +'cc', stack:'s'},
+      {label:LBL.ferry,   data:FERRY,        backgroundColor:C.ferry  +'99', stack:'s'},
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    layout:{padding:{top:52}},
+    plugins:{
+      legend:{position:'bottom', labels:{font:{size:11}, boxWidth:11, padding:10}},
+      tooltip:{callbacks:{label:ctx=>{
+        if(!ctx.parsed.y) return null;
+        let s = ctx.dataset.label+': '+ctx.parsed.y.toFixed(1)+um();
+        if (YEARS[ctx.dataIndex]===2564) s += '  COVID-19';
+        return s;
+      }}}
+    },
+    scales:{
+      x:{stacked:true, ticks:{font:{size:10},maxRotation:45}, grid:{color:TH.grid}},
+      y:{stacked:true, title:{display:true,text:'ล้านเที่ยวคน/ปี',font:{size:11}},
+         grid:{color:TH.grid}, ticks:{font:{size:10}}}
+    }
+  }
+});
+
+// ══════════════════════════════════════
+// DONUT 2568
+// ══════════════════════════════════════
+// อัปเดตข้อมูลให้ตรงกับตารางในปี 2568
+const DONUT_DATA = [
+  {l:'ขสมก.',        v:181.26, c:C.bmta},
+  {l:'BTS สีเขียว',  v:255.82, c:C.btsG},
+  {l:'MRT น้ำเงิน',  v:151.87, c:C.mrtB},
+  {l:'MRT ม่วง',     v:24.41,  c:C.mrtP},
+  {l:'MRT เหลือง',   v:16.22,  c:C.mrtY},
+  {l:'MRT ชมพู',     v:21.46,  c:C.mrtPk},
+  {l:'ARL',          v:24.50,  c:C.arl},
+  {l:'SRT (รวม)',    v:11.21,  c:C.srtN},
+  {l:'BRT',          v:2.66,   c:C.brt},
+  {l:'BTS สีทอง',   v:2.71,   c:C.btsGold},
+  {l:'เรือข้ามฟาก',  v:23.60,  c:C.ferry},
+];
+const total68 = DONUT_DATA.reduce((s,d)=>s+d.v, 0);
+
+new Chart(document.getElementById('donutChart').getContext('2d'), {
+  type:'doughnut',
+  data:{
+    labels: DONUT_DATA.map(d=>d.l),
+    datasets:[{
+      data: DONUT_DATA.map(d=>d.v),
+      backgroundColor: DONUT_DATA.map(d=>d.c),
+      borderWidth:2, borderColor:TH.surface, hoverOffset:6
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false, cutout:'62%',
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>
+        ctx.label+': '+ctx.parsed.toFixed(1)+um()+' ('+
+        (ctx.parsed/total68*100).toFixed(1)+'%)'
+      }}
+    }
+  }
+});
+
+// Legend
+const dlEl = document.getElementById('donutLegend');
+DONUT_DATA.forEach(d=>{
+  dlEl.innerHTML += `<div class="leg"><div class="leg-dot" style="background:${d.c}"></div>${d.l}: ${(d.v/total68*100).toFixed(1)}%</div>`;
+});
+
+// ══════════════════════════════════════
+// MODE YEAR DISPLAY
+// ══════════════════════════════════════
+function showModeYear(btn, idx) {
+  document.querySelectorAll('#modeYrTabs .yr-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const yr  = MODAL_YEARS[idx];
+  const pt  = MODAL_PT[idx];
+  const pv  = MODAL_PV[idx];
+  const vol = MODAL_PT_VOL[idx];
+  const covid = idx===3||idx===4;
+  document.getElementById('modeDisplay').innerHTML = `
+    ${covid?`<div class="covid-note" style="margin-bottom:16px">ปี ${yr} ได้รับผลกระทบจาก COVID-19 — ตัวเลขต่ำกว่าปกติอย่างมีนัยสำคัญ</div>`:''}
+    <div class="mode-bar" style="margin-top:8px">
+      <div class="mode-seg" style="width:${pt}%;background:#22c55e;min-width:44px">${pt.toFixed(1)}%</div>
+      <div class="mode-seg" style="width:${pv}%;background:#ef4444">${pv.toFixed(1)}%</div>
+    </div>
+    <div class="legend" style="margin-bottom:18px">
+      <div class="leg"><div class="leg-dot" style="background:#22c55e"></div>ขนส่งสาธารณะ ${pt.toFixed(1)}%</div>
+      <div class="leg"><div class="leg-dot" style="background:#ef4444"></div>รถส่วนบุคคล ${pv.toFixed(1)}%</div>
+    </div>
+    <div class="mode-cards">
+      <div style="background:rgba(34,197,94,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:18px">
+        <div style="font-size:16px;color:var(--ok);margin-bottom:8px;font-weight:600">ขนส่งสาธารณะ</div>
+        <div style="font-family:var(--font-body);font-size:28px;font-weight:700;color:var(--ok)">${pt.toFixed(2)}<span style="font-size:20px">%</span></div>
+        <div style="font-size:14px;color:var(--d-muted);margin-top:6px">${vol.toFixed(1)} ล้านคน-เที่ยว/ปี</div>
+      </div>
+      <div style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:18px">
+        <div style="font-size:16px;color:var(--bad);margin-bottom:8px;font-weight:600">รถส่วนบุคคล</div>
+        <div style="font-family:var(--font-body);font-size:28px;font-weight:700;color:var(--bad)">${pv.toFixed(2)}<span style="font-size:20px">%</span></div>
+      </div>
+      <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.18);border-radius:10px;padding:18px">
+        <div style="font-size:16px;color:var(--d-brand);margin-bottom:8px;font-weight:600">ปีที่แสดงข้อมูล</div>
+        <div style="font-family:var(--font-body);font-size:26px;font-weight:700;color:var(--d-brand)">พ.ศ. ${yr}</div>
+        <div style="font-size:14px;color:var(--d-muted);margin-top:6px">สนข. แบบจำลอง BTDM</div>
+      </div>
+    </div>`;
+}
+showModeYear(document.querySelector('#modeYrTabs .yr-btn'), 7);
+
+// ══════════════════════════════════════
+// RAIL LINE CHART
+// ══════════════════════════════════════
+new Chart(document.getElementById('railChart').getContext('2d'), {
+  type:'line',
+  data:{
+    labels: YEARS.map(y=>'ปี '+y),
+    datasets:[
+      {label:'BTS สีเขียว', data:DATA.btsG,  borderColor:C.btsG,  borderWidth:2.5, pointRadius:3, tension:0.3, fill:false},
+      {label:'MRT น้ำเงิน', data:DATA.mrtB,  borderColor:C.mrtB,  borderWidth:2.5, pointRadius:3, tension:0.3, fill:false},
+      {label:'MRT ม่วง',    data:DATA.mrtP,  borderColor:C.mrtP,  borderWidth:2,   pointRadius:3, tension:0.3, borderDash:[4,3]},
+      {label:'ARL',          data:DATA.arl,   borderColor:C.arl,   borderWidth:2,   pointRadius:3, tension:0.3, borderDash:[3,3]},
+      {label:'SRT (รวม)',   data:DATA.srtN.map((v,i)=>(v||0)+(DATA.srtW[i]||0)||null),
+        borderColor:C.srtN, borderWidth:1.5, pointRadius:3, tension:0.3, borderDash:[2,4]},
+      {label:'MRT เหลือง',  data:DATA.mrtY,  borderColor:C.mrtY,  borderWidth:1.5, pointRadius:3, tension:0.3, borderDash:[2,4]},
+      {label:'MRT ชมพู',    data:DATA.mrtPk, borderColor:C.mrtPk, borderWidth:1.5, pointRadius:3, tension:0.3, borderDash:[2,4]},
+      {label:'BTS สีทอง',  data:DATA.btsGold.map(v=>v||null),
+        borderColor:C.btsGold, borderWidth:1.5, pointRadius:3, tension:0.3, borderDash:[2,4]},
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10,padding:8}},
+      tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+(ctx.parsed.y!=null?ctx.parsed.y.toFixed(1)+um():'N/A')}}},
+    scales:{
+      x:{ticks:{maxRotation:45,font:{size:9}}, grid:{color:TH.grid}},
+      y:{title:{display:true,text:'ล้านเที่ยวคน/ปี',font:{size:10}}, grid:{color:TH.grid}, ticks:{font:{size:10}}}
+    }
+  }
+});
+
+// ══════════════════════════════════════
+// BUS + FERRY CHART
+// ══════════════════════════════════════
+new Chart(document.getElementById('busChart').getContext('2d'), {
+  type:'line',
+  data:{
+    labels: YEARS.map(y=>'ปี '+y),
+    datasets:[
+      {label:'ขสมก.', data:DATA.bmta, borderColor:C.bmta, backgroundColor:C.bmta+'15',
+       borderWidth:2.5, pointRadius:3, tension:0.3, fill:true},
+      {label:'เรือโดยสาร', data:FERRY, borderColor:C.ferry, borderWidth:2, pointRadius:3, tension:0.3, borderDash:[4,3]},
+      {label:'BRT',         data:DATA.brt,  borderColor:C.brt,  borderWidth:1.5, pointRadius:3, tension:0.3, borderDash:[2,4]},
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10,padding:8}},
+      tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+(ctx.parsed.y!=null?ctx.parsed.y.toFixed(1)+um():'N/A')}}},
+    scales:{
+      x:{ticks:{maxRotation:45,font:{size:9}}, grid:{color:TH.grid}},
+      y:{title:{display:true,text:'ล้านเที่ยวคน/ปี',font:{size:10}}, grid:{color:TH.grid}, ticks:{font:{size:10}}}
+    }
+  }
+});
+
+// ══════════════════════════════════════
+// RIDERSHIP TABLE
+// ══════════════════════════════════════
+const TBL_ROWS = [
+  {key:'bmta',    label:'ขสมก. (รถประจำทาง)',        color:C.bmta,    start:0},
+  {key:'brt',     label:'BRT',                        color:C.brt,     start:0},
+  {key:'btsG',    label:'BTS สายสีเขียว',             color:C.btsG,    start:0},
+  {key:'btsGold', label:'BTS สายสีทอง',               color:C.btsGold, start:8},
+  {key:'mrtB',    label:'MRT สายสีน้ำเงิน',           color:C.mrtB,    start:0},
+  {key:'mrtP',    label:'MRT สายสีม่วง',              color:C.mrtP,    start:3},
+  {key:'mrtY',    label:'MRT สายสีเหลือง',            color:C.mrtY,    start:11},
+  {key:'mrtPk',   label:'MRT สายสีชมพู',              color:C.mrtPk,   start:11},
+  {key:'arl',     label:'Airport Rail Link',           color:C.arl,     start:0},
+  {key:'srtN',    label:'SRT สายเหนือ (Dark Red)',    color:C.srtN,    start:8},
+  {key:'srtW',    label:'SRT สายตะวันตก (Light Red)', color:C.srtW,    start:8},
+];
+const tbl = document.getElementById('ridershipTable');
+let thead = '<thead><tr><th>ระบบ</th>';
+YEARS.forEach(y => thead += `<th style="text-align:right">ปี ${y}</th>`);
+thead += '</tr></thead>';
+tbl.innerHTML = thead;
+const tbody = document.createElement('tbody');
+TBL_ROWS.forEach(row => {
+  const tr = document.createElement('tr');
+  let cells = `<td><span class="dot-sm" style="background:${row.color}"></span>${row.label}</td>`;
+  YEARS.forEach((y,i) => {
+    const v = DATA[row.key][i];
+    let txt;
+    if (i < row.start) txt = `<span style="color:var(--d-muted)">—</span>`;
+    else if (v===null||v===undefined) txt = `<span style="color:var(--d-muted)">N/A</span>`;
+    else if (v===0) txt = `<span style="color:var(--d-muted)">—</span>`;
+    else {
+      const isNew = y===2568;
+      txt = `<span style="font-family:var(--font-body);color:${isNew?'var(--d-brand)':row.color};font-weight:${isNew?700:400}">${v.toFixed(2)}</span>`;
+    }
+    const bg = y===2564 ? 'background:rgba(239,68,68,0.05)' : '';
+    cells += `<td style="text-align:right;${bg}">${txt}</td>`;
+  });
+  tr.innerHTML = cells;
+  tbody.appendChild(tr);
+});
+tbl.appendChild(tbody);
+
+// ══════════════════════════════════════
+// MODAL TREND CHART
+// ══════════════════════════════════════
+new Chart(document.getElementById('modalTrendChart').getContext('2d'), {
+  type:'line',
+  data:{
+    labels: MODAL_YEARS.map(y=>'ปี '+y),
+    datasets:[
+      {label:'ขนส่งสาธารณะ (%)', data:MODAL_PT,
+       borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,0.08)',
+       borderWidth:2.5, pointRadius:5, tension:0.3, fill:true},
+      {label:'รถส่วนบุคคล (%)', data:MODAL_PV,
+       borderColor:'#ef4444', backgroundColor:'rgba(239,68,68,0.05)',
+       borderWidth:2, pointRadius:5, tension:0.3, fill:true, hidden:true},
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:10}}},
+    scales:{
+      x:{ticks:{font:{size:11}}, grid:{color:TH.grid}},
+      y:{min:0, max:25, title:{display:true,text:'%',font:{size:11}},
+         grid:{color:TH.grid}, ticks:{font:{size:10}}}
+    }
+  }
+});
+
+// ══════════════════════════════════════
+// MODAL VOLUME CHART
+// ══════════════════════════════════════
+new Chart(document.getElementById('modalVolumeChart').getContext('2d'), {
+  type:'bar',
+  data:{
+    labels: MODAL_YEARS.map(y=>'ปี '+y),
+    datasets:[{
+      label:'ปริมาณการเดินทางสาธารณะ',
+      data: MODAL_PT_VOL,
+      backgroundColor: MODAL_YEARS.map((_,i)=>i===3||i===4?'rgba(239,68,68,0.5)':'rgba(34,197,94,0.55)'),
+      borderColor: MODAL_YEARS.map((_,i)=>i===3||i===4?'#ef4444':'#22c55e'),
+      borderWidth:1.5, borderRadius:4,
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>ctx.parsed.y.toFixed(1)+' ล้านคน-เที่ยว/ปี'}}},
+    scales:{
+      x:{ticks:{font:{size:11}}, grid:{color:TH.grid}},
+      y:{title:{display:true,text:'ล้านคน-เที่ยว/ปี',font:{size:11}},
+         grid:{color:TH.grid}, ticks:{font:{size:10}}}
+    }
+  }
+});
+
+// ══════════════════════════════════════
+// DETAIL PANELS 2566 / 2567
+// ══════════════════════════════════════
+function renderDetail(elId, data) {
+  const el = document.getElementById(elId);
+  const total = data.reduce((s,d)=>s+d.v, 0);
+  const maxV  = Math.max(...data.map(d=>d.v));
+  el.innerHTML = data.map(d=>`
+    <div style="margin-bottom:11px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">
+        <span style="font-size:14px;color:var(--d-text)">${d.n}</span>
+        <span style="font-family:var(--font-body);font-size:14px;color:var(--d-brand);font-weight:600">${d.v.toFixed(2)}</span>
+      </div>
+      <div class="pbar">
+        <div class="pbar-fill" style="width:${(d.v/maxV*100).toFixed(1)}%;background:${d.v>200?'#22c55e':d.v>50?'#3b82f6':'#a855f7'}"></div>
+      </div>
+      <div style="font-family:var(--font-body);font-size:14px;color:var(--d-muted);margin-top:2px">
+        ${(d.v/total*100).toFixed(1)}% ของรวม · ${d.s}
+      </div>
+    </div>`).join('')+
+  `<div style="border-top:2px solid var(--d-line);padding-top:10px;margin-top:6px;
+    display:flex;justify-content:space-between;align-items:baseline">
+    <span style="font-size:16px;font-weight:700;color:var(--d-text)">รวมทั้งสิ้น</span>
+    <span style="font-family:var(--font-body);font-size:18px;font-weight:700;color:var(--ok)">${total.toFixed(2)} ล้านคน-เที่ยว/ปี</span>
+  </div>`;
+}
+renderDetail('detail2566', D2566);
+renderDetail('detail2567', D2567);
+
+// ══════════════════════════════════════
+// ANNUAL DETAIL PANEL
+// ══════════════════════════════════════
+const annualTabs = document.getElementById('annualYrTabs');
+[...YEARS].reverse().forEach(y => {
+  const i = YEARS.indexOf(y);
+  const btn = document.createElement('button');
+  btn.className = 'yr-btn' + (y===2568?' active':'');
+  btn.textContent = 'ปี ' + y;
+  btn.onclick = () => {
+    document.querySelectorAll('#annualYrTabs .yr-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderAnnual(i);
+  };
+  annualTabs.appendChild(btn);
+});
+
+function renderAnnual(idx) {
+  const y = YEARS[idx];
+  const isCovid  = y===2564;
+  const isPreCov = y===2563;
+  const is2568   = y===2568;
+
+  // ปรับการตรวจสอบให้แสดงผลตามข้อมูลที่มี
+  const rows = [
+    ['ขสมก. (รถประจำทาง)',    DATA.bmta[idx],     C.bmta],
+    ['BRT',                    DATA.brt[idx],      C.brt],
+    ['BTS สายสีเขียว',        DATA.btsG[idx],     C.btsG],
+    ['BTS สายสีทอง',          DATA.btsGold[idx],  C.btsGold],
+    ['MRT สายสีน้ำเงิน',      DATA.mrtB[idx],     C.mrtB],
+    ['MRT สายสีม่วง',         DATA.mrtP[idx],     C.mrtP],
+    ['MRT สายสีเหลือง',       DATA.mrtY[idx],     C.mrtY],
+    ['MRT สายสีชมพู',         DATA.mrtPk[idx],    C.mrtPk],
+    ['Airport Rail Link',      DATA.arl[idx],      C.arl],
+    ['SRT สายสีแดง (รวม)',   (DATA.srtN[idx]||0)+(DATA.srtW[idx]||0), C.srtN],
+    ['เรือข้ามฟาก',            FERRY[idx],         C.ferry],
+  ].filter(r => r[1] !== null && r[1] !== undefined && r[1] > 0);
+
+  const total = rows.reduce((s,r)=>s+(r[1]||0),0);
+  const maxV  = Math.max(...rows.map(r=>r[1]));
+
+  document.getElementById('annualDetail').innerHTML = `
+    <div class="card">
+      <div class="card-title">
+        ปี พ.ศ. ${y} — ผู้โดยสารรายระบบ (ล้านเที่ยวคน/ปี)
+        ${isCovid  ?'<span style="background:#dc2626;color:#fff;font-size:14px;padding:3px 10px;border-radius:4px;margin-left:8px;font-family:var(--font-body)">COVID-19</span>':''}
+        ${isPreCov ?'<span style="background:#f59e0b;color:#fff;font-size:14px;padding:3px 10px;border-radius:4px;margin-left:8px;font-family:var(--font-body)">ได้รับผลกระทบ COVID-19 ปลายปี</span>':''}
+        ${is2568   ?'<span style="background:var(--d-brand);color:#fff;font-size:14px;padding:3px 10px;border-radius:4px;margin-left:8px;font-family:var(--font-body)">● ข้อมูลล่าสุด</span>':''}
+      </div>
+      <div class="rd-grid">
+        ${rows.map(r=>`
+          <div style="background:var(--d-soft);border:1px solid var(--d-line);border-left:4px solid ${r[2]};
+            border-radius:10px;padding:14px">
+            <div style="font-size:14px;color:var(--d-muted);margin-bottom:6px;font-weight:600">${r[0]}</div>
+            <div style="font-family:var(--font-body);font-size:26px;font-weight:700;color:${r[2]}">${r[1].toFixed(2)}</div>
+            <div style="font-size:14px;color:var(--d-muted);margin-top:3px">ล้านเที่ยวคน · ${(r[1]/total*100).toFixed(1)}%</div>
+            <div class="pbar" style="margin-top:8px">
+              <div class="pbar-fill" style="width:${(r[1]/maxV*100).toFixed(0)}%;background:${r[2]}"></div>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div style="margin-top:18px;padding-top:14px;border-top:2px solid var(--d-line);
+        display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:16px;color:var(--d-muted)">รวมทุกระบบ (ข้อมูลที่มี)</span>
+        <span style="font-family:var(--font-body);font-size:20px;font-weight:700;color:var(--ok)">${total.toFixed(2)} ล้านเที่ยวคน/ปี</span>
+      </div>
+      ${isCovid?`<div class="covid-note" style="margin-top:16px;margin-bottom:0">
+        <strong>เหตุการณ์ COVID-19</strong> — การระบาดของโรคติดเชื้อไวรัสโคโรนา 2019
+        มาตรการล็อกดาวน์ส่งผลให้ตัวเลขต่ำกว่าปกติ ไม่ควรนำมาเปรียบเทียบกับปีอื่น</div>`:''}
+    </div>`;
+}
+
+renderAnnual(YEARS.indexOf(2568));
+</script>
+<script src="assets/shell.js?v=1"></script>
+<script src="assets/i18n.js?v=1"></script>
+</body>
+</html>
